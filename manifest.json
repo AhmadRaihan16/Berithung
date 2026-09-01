@@ -1,0 +1,22 @@
+{
+  "name": "Menabung - Tabungan Harian",
+  "short_name": "Menabung",
+  "description": "Aplikasi menabung mingguan dengan tabungan darurat dan barang impian",
+  "start_url": "index.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
