@@ -121,6 +121,18 @@
       display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px;
       font-size: 11px; font-weight: 700; background: #dcfce7; color: #166534;
     }
+    .badge-amber {
+      display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px;
+      font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e;
+    }
+    .badge-red {
+      display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px;
+      font-size: 11px; font-weight: 700; background: #fee2e2; color: #991b1b;
+    }
+    .badge-gray {
+      display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px;
+      font-size: 11px; font-weight: 700; background: #f3f4f6; color: #374151;
+    }
     .action-row { display: flex; gap: 8px; margin-top: 10px; }
     .action-row button { flex: 1; }
     .tab-bar {
@@ -165,6 +177,9 @@
     body.dark .toast { background: #f3f4f6; color: #0f172a; }
     body.dark .emoji-btn { background: #0b1220; border-color: var(--border); }
     body.dark .emoji-btn.selected { background: #1e293b; border-color: var(--accent); }
+    body.dark .badge-amber { background: #78350f; color: #fcd34d; }
+    body.dark .badge-red { background: #7f1d1d; color: #fecaca; }
+    body.dark .badge-gray { background: #1f2937; color: #e5e7eb; }
   </style>
 </head>
 <body>
@@ -215,6 +230,17 @@
       <div id="goalsContainer"></div>
 
       <button class="btn-primary" id="btnAddGoalHome" style="margin-top:4px;">+ Tambah Celengan</button>
+
+      <div class="card" id="shouldIBuyCard" style="border-left: 4px solid var(--accent-3); margin-top:8px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="font-size:22px;">🧠</span>
+          <div>
+            <div style="font-weight:700; font-size:16px;">Boleh Beli?</div>
+            <div class="muted">Cek dampak pembelian sebelum mengeluarkan uang.</div>
+          </div>
+        </div>
+        <button class="btn-primary" id="btnOpenShouldIBuy" style="margin-top:8px;">Coba Sekarang</button>
+      </div>
     </div>
 
     <div id="pageEmergency" style="display:none;">
@@ -281,6 +307,42 @@
       <div class="card">
         <div class="muted">Menabung v1.0</div>
         <div class="muted">Data disimpan lokal di perangkat.</div>
+      </div>
+    </div>
+
+    <div id="pageShouldIBuy" style="display:none;">
+      <div class="row-between" style="margin-bottom:8px;">
+        <div>
+          <div style="font-weight:700; font-size:18px;">Boleh Beli?</div>
+          <div class="sub">Simulasi dampak pembelian ke celengan kamu.</div>
+        </div>
+        <button class="btn-tertiary small-btn" id="btnShouldClose">✕</button>
+      </div>
+
+      <div class="card">
+        <div class="muted" style="margin-bottom:8px;">Nama Barang</div>
+        <input type="text" id="sibName" placeholder="Contoh: Headset Sony" />
+        <div class="muted" style="margin-bottom:8px;">Harga Barang</div>
+        <input type="number" id="sibPrice" placeholder="Contoh: 6500000" inputmode="numeric" />
+        <div class="muted" style="margin-bottom:8px;">Gunakan Celengan</div>
+        <select id="sibGoal"></select>
+        <button class="btn-primary" id="btnSibAnalyze">Analisis Pembelian</button>
+      </div>
+
+      <div id="sibResult" style="display:none;">
+        <div class="card" id="sibResultCard">
+          <div class="row-between">
+            <div>
+              <div class="muted">Status</div>
+              <div style="font-weight:700; font-size:16px;" id="sibStatus">-</div>
+            </div>
+            <div id="sibStatusBadge" class="badge">-</div>
+          </div>
+          <div class="divider"></div>
+          <div id="sibDetails"></div>
+          <div class="muted" style="margin-top:10px;" id="sibAdvice"></div>
+        </div>
+        <button class="btn-tertiary" id="btnSibReset">Kembali</button>
       </div>
     </div>
   </div>
@@ -741,30 +803,6 @@
     let currentPage = 'home';
     let goalsTabFull = 'active';
 
-    function showPage(name) {
-      currentPage = name;
-      document.getElementById('pageHome').style.display = 'none';
-      document.getElementById('pageEmergency').style.display = 'none';
-      document.getElementById('pageGoals').style.display = 'none';
-      document.getElementById('pageSettings').style.display = 'none';
-
-      if (name === 'home') document.getElementById('pageHome').style.display = 'block';
-      if (name === 'emergency') document.getElementById('pageEmergency').style.display = 'block';
-      if (name === 'goals') document.getElementById('pageGoals').style.display = 'block';
-      if (name === 'settings') document.getElementById('pageSettings').style.display = 'block';
-
-      document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
-      if (name === 'home') document.getElementById('navHome').classList.add('active');
-      if (name === 'emergency') document.getElementById('navEmergency').classList.add('active');
-      if (name === 'goals') document.getElementById('navGoals').classList.add('active');
-      if (name === 'settings') document.getElementById('navSettings').classList.add('active');
-
-      if (name === 'home') { renderEmergency(); renderSettings(); }
-      if (name === 'emergency') renderEmergencyFull();
-      if (name === 'goals') renderGoalsFull();
-      if (name === 'settings') renderSettings();
-    }
-
     function renderEmergencyFull() {
       const em = emergencyEl();
       const data = getData();
@@ -893,6 +931,117 @@
 
     document.getElementById('btnAddGoalHome').addEventListener('click', () => openGoalModal(null));
     document.getElementById('btnAddGoalFull').addEventListener('click', () => openGoalModal(null));
+
+    // Should I Buy?
+    function showPage(name) {
+      currentPage = name;
+      document.getElementById('pageHome').style.display = 'none';
+      document.getElementById('pageEmergency').style.display = 'none';
+      document.getElementById('pageGoals').style.display = 'none';
+      document.getElementById('pageSettings').style.display = 'none';
+      document.getElementById('pageShouldIBuy').style.display = 'none';
+
+      if (name === 'home') document.getElementById('pageHome').style.display = 'block';
+      if (name === 'emergency') document.getElementById('pageEmergency').style.display = 'block';
+      if (name === 'goals') document.getElementById('pageGoals').style.display = 'block';
+      if (name === 'settings') document.getElementById('pageSettings').style.display = 'block';
+      if (name === 'shouldibuy') document.getElementById('pageShouldIBuy').style.display = 'block';
+
+      document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+      if (name === 'home') document.getElementById('navHome').classList.add('active');
+      if (name === 'emergency') document.getElementById('navEmergency').classList.add('active');
+      if (name === 'goals') document.getElementById('navGoals').classList.add('active');
+      if (name === 'settings') document.getElementById('navSettings').classList.add('active');
+
+      if (name === 'home') { renderEmergency(); renderSettings(); }
+      if (name === 'emergency') renderEmergencyFull();
+      if (name === 'goals') renderGoalsFull();
+      if (name === 'settings') renderSettings();
+      if (name === 'shouldibuy') renderShouldIBuyForm();
+    }
+
+    function renderShouldIBuyForm() {
+      const select = document.getElementById('sibGoal');
+      const goals = goalsList().filter(g => g.status === 'active');
+      select.innerHTML = goals.map(g => `<option value="${g.id}">${escapeHtml(g.emoji || '🎯')} ${escapeHtml(g.name)}</option>`).join('');
+      if (!goals.length) select.innerHTML = '<option value="">Tidak ada celengan aktif</option>';
+      document.getElementById('sibResult').style.display = 'none';
+      document.querySelector('#pageShouldIBuy .card').style.display = 'block';
+    }
+
+    function analyzeShouldIBuy() {
+      const name = document.getElementById('sibName').value.trim();
+      const priceRaw = String(document.getElementById('sibPrice').value).replace(/[^0-9]/g, '');
+      const price = Number(priceRaw);
+      const goalId = Number(document.getElementById('sibGoal').value);
+      if (!name) { showToast('Nama barang harus diisi'); return; }
+      if (!price || price <= 0) { showToast('Harga tidak valid'); return; }
+      if (!goalId) { showToast('Pilih celengan'); return; }
+
+      const data = getData();
+      const g = data.goals.find(x => x.id === goalId);
+      if (!g) { showToast('Celengan tidak ditemukan'); return; }
+
+      const balance = g.currentAmount || 0;
+      const target = g.targetAmount || 0;
+      const weekly = g.weeklyTarget || 0;
+      const afterBalance = Math.max(0, balance - price);
+      const usedPct = target ? Math.min(100, Math.round((price / balance) * 100)) : 0;
+      const remainingAfter = Math.max(0, target - afterBalance);
+      const additionalWeeks = weekly ? Math.ceil(price / weekly) : null;
+
+      let status = 'TIDAK CUKUP';
+      let badgeClass = 'badge-gray';
+      let advice = 'Pembelian melebihi saldo celengan saat ini.';
+
+      if (price > balance) {
+        status = 'TIDAK CUKUP';
+        badgeClass = 'badge-gray';
+        advice = 'Saldo celengan tidak cukup untuk pembelian ini.';
+      } else if (usedPct > 50) {
+        status = 'SEBAIKNYA TUNDA';
+        badgeClass = 'badge-red';
+        advice = `Pembelian menggunakan ${usedPct}% saldo dan dapat memperlambat target.`;
+      } else if (usedPct > 20) {
+        status = 'PERLU DIPERTIMBANGKAN';
+        badgeClass = 'badge-amber';
+        advice = `Pembelian menggunakan ${usedPct}% saldo dan masih berdampak ke target.`;
+      } else {
+        status = 'AMAN';
+        badgeClass = 'badge';
+        advice = `Pembelian hanya menggunakan ${usedPct}% saldo celengan.`;
+      }
+
+      let detail = `
+        <div><div class="muted">Celengan</div><div style="font-weight:600;">${escapeHtml(g.emoji || '🎯')} ${escapeHtml(g.name)}</div></div>
+        <div class="divider"></div>
+        <div class="row-between"><div><div class="muted">Saldo Sekarang</div><div style="font-weight:700;">${formatRupiah(balance)}</div></div><div class="text-right"><div class="muted">Target</div><div style="font-weight:700;">${formatRupiah(target || 0)}</div></div></div>
+        <div class="divider"></div>
+        <div class="row-between"><div><div class="muted">Harga Barang</div><div style="font-weight:700;">${formatRupiah(price)}</div></div><div class="text-right"><div class="muted">Setelah Beli</div><div style="font-weight:700;">${formatRupiah(afterBalance)}</div></div></div>
+        <div class="divider"></div>
+        <div class="row-between"><div class="muted">Saldo yang digunakan</div><div class="muted">${usedPct}%</div></div>
+      `;
+
+      if (additionalWeeks !== null) {
+        detail += `<div class="row-between" style="margin-top:6px;"><div class="muted">Dampak target</div><div class="muted">+${additionalWeeks} minggu</div></div>`;
+      } else {
+        detail += `<div class="muted" style="margin-top:6px;">Estimasi waktu belum tersedia karena target mingguan belum ditentukan.</div>`;
+      }
+
+      document.getElementById('sibStatus').textContent = status;
+      const badge = document.getElementById('sibStatusBadge');
+      badge.className = badgeClass;
+      badge.textContent = status;
+      document.getElementById('sibDetails').innerHTML = detail;
+      document.getElementById('sibAdvice').textContent = advice;
+      document.querySelector('#pageShouldIBuy .card').style.display = 'none';
+      document.getElementById('sibResult').style.display = 'block';
+    }
+
+    document.getElementById('btnOpenShouldIBuy').addEventListener('click', () => showPage('shouldibuy'));
+    document.getElementById('btnShouldClose').addEventListener('click', () => showPage('home'));
+    document.getElementById('btnSibAnalyze').addEventListener('click', analyzeShouldIBuy);
+    document.getElementById('btnSibReset').addEventListener('click', () => renderShouldIBuyForm());
 
     // Init default page
     applyTheme((getData().settings && getData().settings.darkMode) || 'system');
