@@ -8,41 +8,114 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>Menabung</title>
   <link rel="manifest" href="manifest.json" />
+  <script>
+    (function() {
+      try {
+        const raw = localStorage.getItem('savings_app_v3');
+        const theme = raw ? (JSON.parse(raw).settings?.darkMode || 'system') : 'system';
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (theme === 'dark' || (theme === 'system' && prefersDark)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    })();
+  </script>
   <style>
-    :root {
+    :root, [data-theme="light"] {
       --bg: #f5f7fb;
       --surface: #ffffff;
+      --surface-secondary: #f8fafc;
       --text: #0f172a;
+      --text-secondary: #64748b;
       --muted: #6b7280;
-      --border: #e5e7eb;
+      --border: #e2e8f0;
       --accent: #2563eb;
       --accent-2: #10b981;
       --accent-3: #f59e0b;
       --danger: #ef4444;
       --shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
       --radius: 16px;
+      --header-bg: rgba(245, 247, 251, 0.88);
+      --tab-bar-bg: rgba(255, 255, 255, 0.92);
+      --pill-bg: #eef2ff;
+      --pill-border: #e0e7ff;
+      --pill-color: var(--accent);
+      --modal-overlay: rgba(15, 23, 42, 0.55);
+      --badge-green-bg: #dcfce7;
+      --badge-green-text: #166534;
+      --badge-amber-bg: #fef3c7;
+      --badge-amber-text: #92400e;
+      --badge-red-bg: #fee2e2;
+      --badge-red-text: #991b1b;
+      --badge-gray-bg: #f3f4f6;
+      --badge-gray-text: #374151;
+      --tab-bar-height: 64px;
     }
+
+    [data-theme="dark"], body.dark {
+      --bg: #0f172a;
+      --surface: #111827;
+      --surface-secondary: #1e293b;
+      --text: #f8fafc;
+      --text-secondary: #94a3b8;
+      --muted: #94a3b8;
+      --border: #334155;
+      --shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      --header-bg: rgba(15, 23, 42, 0.88);
+      --tab-bar-bg: rgba(17, 24, 39, 0.94);
+      --pill-bg: #1e293b;
+      --pill-border: #334155;
+      --pill-color: #93c5fd;
+      --modal-overlay: rgba(0, 0, 0, 0.72);
+      --badge-green-bg: #064e3b;
+      --badge-green-text: #6ee7b7;
+      --badge-amber-bg: #78350f;
+      --badge-amber-text: #fcd34d;
+      --badge-red-bg: #7f1d1d;
+      --badge-red-text: #fecaca;
+      --badge-gray-bg: #1f2937;
+      --badge-gray-text: #e5e7eb;
+    }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    html, body { height: 100%; }
+    html {
+      min-height: 100%;
+      background: var(--bg);
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
-      padding: 0;
-      padding-bottom: max(96px, env(safe-area-inset-bottom) + 20px);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.2s ease, color 0.2s ease;
     }
-    .container { max-width: 520px; margin: 0 auto; padding: 16px; }
+    .container {
+      width: 100%;
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 16px;
+      flex: 1 0 auto;
+      padding-bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px) + 36px);
+    }
     h1 { font-size: 20px; margin: 0; letter-spacing: -0.2px; }
     .sub { color: var(--muted); font-size: 13px; margin-top: 4px; }
     .header {
       position: sticky;
       top: 0;
       z-index: 30;
-      background: rgba(245, 247, 251, 0.85);
-      backdrop-filter: blur(10px);
+      background: var(--header-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 12px 16px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     .header-inner { max-width: 520px; margin: 0 auto; }
     .card {
@@ -52,6 +125,7 @@
       padding: 14px;
       margin-bottom: 12px;
       box-shadow: var(--shadow);
+      transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     .row { display: flex; gap: 10px; align-items: center; }
     .flex-1 { flex: 1; }
@@ -62,31 +136,41 @@
     .amber { color: var(--accent-3); }
     .pill {
       display: inline-flex; align-items: center; gap: 6px;
-      border-radius: 999px; padding: 5px 10px; font-size: 12px;
-      background: #eef2ff; color: var(--accent); border: 1px solid #e0e7ff;
+      border-radius: 999px; padding: 5px 12px; font-size: 13px;
+      background: var(--pill-bg); color: var(--pill-color); border: 1px solid var(--pill-border);
+      cursor: pointer; user-select: none;
     }
     input, select, textarea {
       width: 100%; padding: 12px 12px; border: 1px solid var(--border); border-radius: 12px;
-      font-size: 16px; background: #fff; margin-bottom: 10px; color: var(--text);
+      font-size: 16px; background: var(--surface-secondary); margin-bottom: 10px; color: var(--text);
+      font-family: inherit; transition: border-color 0.2s ease, background-color 0.2s ease;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: var(--accent);
     }
     textarea { resize: vertical; }
     button {
       border: none; padding: 12px 14px; border-radius: 12px; font-size: 15px; font-weight: 600;
       cursor: pointer; width: 100%; margin-bottom: 8px; min-height: 44px;
+      font-family: inherit; transition: opacity 0.15s ease, background-color 0.15s ease;
     }
-    .btn-primary { background: var(--accent); color: white; }
-    .btn-secondary { background: var(--accent-2); color: white; }
-    .btn-tertiary { background: #fff; color: var(--text); border: 1px solid var(--border); }
-    .btn-danger { background: var(--danger); color: white; }
-    .btn:disabled { opacity: 0.6; }
+    button:active { opacity: 0.85; }
+    .btn-primary { background: var(--accent); color: #ffffff; }
+    .btn-secondary { background: var(--accent-2); color: #ffffff; }
+    .btn-tertiary { background: var(--surface-secondary); color: var(--text); border: 1px solid var(--border); }
+    .btn-tertiary.active { background: var(--accent); color: #ffffff; border-color: var(--accent); font-weight: 700; }
+    .btn-danger { background: var(--danger); color: #ffffff; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .divider { height: 1px; background: var(--border); margin: 14px 0; }
     .item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed var(--border); font-size: 14px; }
     .item:last-child { border-bottom: none; }
     .empty { text-align: center; color: var(--muted); padding: 18px 0; font-size: 13px; }
     .toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: #0f172a; color: white; padding: 10px 14px; border-radius: 12px;
-      font-size: 13px; z-index: 100; opacity: 0; transition: opacity .2s ease; pointer-events: none;
+      position: fixed; bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px) + 16px);
+      left: 50%; transform: translateX(-50%);
+      background: var(--text); color: var(--bg); padding: 10px 18px; border-radius: 12px;
+      font-size: 13px; font-weight: 500; z-index: 100; opacity: 0; transition: opacity .2s ease; pointer-events: none;
+      box-shadow: var(--shadow); white-space: nowrap; max-width: 90vw; text-align: center;
     }
     .toast.show { opacity: 1; }
     .progress-bar {
@@ -96,16 +180,20 @@
       height: 100%; background: linear-gradient(90deg, var(--accent-2), #34d399);
       border-radius: 999px; transition: width .4s cubic-bezier(0.2, 0, 0, 1);
     }
-    .goal-card { cursor: pointer; }
+    .goal-card { cursor: pointer; user-select: none; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .goal-card:active { transform: scale(0.99); }
     .modal {
-      position: fixed; inset: 0; background: rgba(15, 23, 42, 0.55);
+      position: fixed; inset: 0; background: var(--modal-overlay);
       display: none; align-items: flex-end; justify-content: center; padding: 0; z-index: 200;
+      backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
     }
     .modal.open { display: flex; }
     .modal-sheet {
       background: var(--surface); border-radius: 20px 20px 0 0; padding: 16px;
-      width: 100%; max-width: 520px; max-height: 92vh; overflow-y: auto;
-      animation: slideUp .25s ease;
+      width: 100%; max-width: 520px; max-height: 90vh; max-height: 90dvh; overflow-y: auto;
+      animation: slideUp .25s cubic-bezier(0.16, 1, 0.3, 1);
+      border: 1px solid var(--border); border-bottom: none;
+      box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.2);
     }
     @keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     .section-title {
@@ -115,30 +203,35 @@
     .row-between { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
     .text-right { text-align: right; }
     .small-btn {
-      width: auto; padding: 8px 12px; font-size: 13px; margin: 0; min-height: 40px;
+      width: auto; padding: 8px 14px; font-size: 13px; margin: 0; min-height: 38px;
     }
     .badge {
       display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px;
-      font-size: 11px; font-weight: 700; background: #dcfce7; color: #166534;
+      font-size: 11px; font-weight: 700; background: var(--badge-green-bg); color: var(--badge-green-text);
     }
     .badge-amber {
       display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px;
-      font-size: 11px; font-weight: 700; background: #fef3c7; color: #92400e;
+      font-size: 11px; font-weight: 700; background: var(--badge-amber-bg); color: var(--badge-amber-text);
     }
     .badge-red {
       display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px;
-      font-size: 11px; font-weight: 700; background: #fee2e2; color: #991b1b;
+      font-size: 11px; font-weight: 700; background: var(--badge-red-bg); color: var(--badge-red-text);
     }
     .badge-gray {
       display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px;
-      font-size: 11px; font-weight: 700; background: #f3f4f6; color: #374151;
+      font-size: 11px; font-weight: 700; background: var(--badge-gray-bg); color: var(--badge-gray-text);
     }
     .action-row { display: flex; gap: 8px; margin-top: 10px; }
     .action-row button { flex: 1; }
     .tab-bar {
-      position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border); display: flex; padding: 8px 0; padding-bottom: max(10px, env(safe-area-inset-bottom));
-      z-index: 50;
+      position: fixed; bottom: 0; left: 0; right: 0; background: var(--tab-bar-bg);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border); display: flex; justify-content: center;
+      padding: 6px 0; padding-bottom: max(8px, env(safe-area-inset-bottom, 8px));
+      z-index: 50; transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .tab-bar-inner {
+      width: 100%; max-width: 520px; display: flex;
     }
     .tab-bar button {
       flex: 1; width: auto; background: transparent; color: var(--muted); font-weight: 500;
@@ -147,55 +240,30 @@
     }
     .tab-bar button.active { color: var(--accent); border-top-color: var(--accent); font-weight: 700; }
     .tab-icon { font-size: 18px; line-height: 1; }
-    .fab {
-      position: fixed; bottom: max(20px, env(safe-area-inset-bottom) + 10px); right: 16px;
-      width: 52px; height: 52px; border-radius: 999px; background: var(--accent); color: white;
-      display: grid; place-items: center; font-size: 22px;
-      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.35); border: none;
-    }
     .emoji-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
     .emoji-btn {
       width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border);
-      background: #fff; display: grid; place-items: center; font-size: 18px; cursor: pointer;
+      background: var(--surface-secondary); display: grid; place-items: center; font-size: 18px; cursor: pointer;
     }
-    .emoji-btn.selected { border-color: var(--accent); background: #eef2ff; }
+    .emoji-btn.selected { border-color: var(--accent); background: var(--pill-bg); }
     .goal-emoji { font-size: 28px; margin-bottom: 6px; }
     .empty-illustration { font-size: 48px; margin-bottom: 8px; opacity: 0.9; }
-
-    /* Dark mode */
-    body.dark { --bg: #0b1220; --surface: #111827; --text: #f3f4f6; --muted: #9ca3af; --border: #1f2937; --shadow: 0 10px 25px rgba(0,0,0,0.35); }
-    body.dark input, body.dark select, body.dark textarea { background: #0b1220; color: var(--text); border-color: var(--border); }
-    body.dark .btn-tertiary { background: #111827; color: var(--text); border-color: var(--border); }
-    body.dark .header { background: rgba(11, 18, 32, 0.85); }
-    body.dark .tab-bar { background: rgba(17, 24, 39, 0.85); border-top-color: var(--border); }
-    body.dark .tab-bar button { color: var(--muted); }
-    body.dark .tab-bar button.active { color: var(--accent); border-top-color: var(--accent); }
-    body.dark .pill { background: #1e293b; color: #93c5fd; border-color: #334155; }
-    body.dark .badge { background: #064e3b; color: #6ee7b7; }
-    body.dark .modal { background: rgba(0,0,0,0.65); }
-    body.dark .modal-sheet { background: #111827; }
-    body.dark .toast { background: #f3f4f6; color: #0f172a; }
-    body.dark .emoji-btn { background: #0b1220; border-color: var(--border); }
-    body.dark .emoji-btn.selected { background: #1e293b; border-color: var(--accent); }
-    body.dark .badge-amber { background: #78350f; color: #fcd34d; }
-    body.dark .badge-red { background: #7f1d1d; color: #fecaca; }
-    body.dark .badge-gray { background: #1f2937; color: #e5e7eb; }
   </style>
 </head>
 <body>
-  <div class="header">
+  <header class="header">
     <div class="header-inner">
       <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
         <div>
           <div style="font-weight:700; font-size:18px;">Menabung</div>
           <div class="sub" id="headerSub">Kelola tabunganmu hari ini</div>
         </div>
-        <div class="pill" id="modeToggle" style="cursor:pointer;">🌙</div>
+        <div class="pill" id="modeToggle" title="Ganti Tema">🌙</div>
       </div>
     </div>
-  </div>
+  </header>
 
-  <div class="container">
+  <main class="container">
     <div id="pageHome">
       <div class="section-title">Tabungan Darurat</div>
       <div class="card" id="emergencyCard" style="border-left: 4px solid var(--accent-2);">
@@ -345,14 +413,16 @@
         <button class="btn-tertiary" id="btnSibReset">Kembali</button>
       </div>
     </div>
-  </div>
+  </main>
 
-  <div class="tab-bar">
-    <button class="active" id="navHome"><span class="tab-icon">🏠</span>Beranda</button>
-    <button id="navEmergency"><span class="tab-icon">🛡️</span>Darurat</button>
-    <button id="navGoals"><span class="tab-icon">🎯</span>Celengan</button>
-    <button id="navSettings"><span class="tab-icon">⚙️</span>Pengaturan</button>
-  </div>
+  <nav class="tab-bar">
+    <div class="tab-bar-inner">
+      <button class="active" id="navHome"><span class="tab-icon">🏠</span>Beranda</button>
+      <button id="navEmergency"><span class="tab-icon">🛡️</span>Darurat</button>
+      <button id="navGoals"><span class="tab-icon">🎯</span>Celengan</button>
+      <button id="navSettings"><span class="tab-icon">⚙️</span>Pengaturan</button>
+    </div>
+  </nav>
 
   <div class="toast" id="toast"></div>
 
@@ -365,16 +435,16 @@
       </div>
       <div class="muted" style="margin-bottom:8px;">Pilih icon:</div>
       <div class="emoji-row" id="emojiRow">
-        <button class="emoji-btn" data-emoji="💰">💰</button>
-        <button class="emoji-btn" data-emoji="📱">📱</button>
-        <button class="emoji-btn" data-emoji="💻">💻</button>
-        <button class="emoji-btn" data-emoji="🏍️">🏍️</button>
-        <button class="emoji-btn" data-emoji="✈️">✈️</button>
-        <button class="emoji-btn" data-emoji="💍">💍</button>
-        <button class="emoji-btn" data-emoji="🎮">🎮</button>
-        <button class="emoji-btn" data-emoji="📷">📷</button>
-        <button class="emoji-btn" data-emoji="🛒">🛒</button>
-        <button class="emoji-btn" data-emoji="🎓">🎓</button>
+        <button type="button" class="emoji-btn" data-emoji="💰">💰</button>
+        <button type="button" class="emoji-btn" data-emoji="📱">📱</button>
+        <button type="button" class="emoji-btn" data-emoji="💻">💻</button>
+        <button type="button" class="emoji-btn" data-emoji="🏍️">🏍️</button>
+        <button type="button" class="emoji-btn" data-emoji="✈️">✈️</button>
+        <button type="button" class="emoji-btn" data-emoji="💍">💍</button>
+        <button type="button" class="emoji-btn" data-emoji="🎮">🎮</button>
+        <button type="button" class="emoji-btn" data-emoji="📷">📷</button>
+        <button type="button" class="emoji-btn" data-emoji="🛒">🛒</button>
+        <button type="button" class="emoji-btn" data-emoji="🎓">🎓</button>
       </div>
       <input type="text" id="goalName" placeholder="Nama celengan / barang" />
       <input type="number" id="goalTarget" placeholder="Target nominal (Rp)" inputmode="numeric" />
@@ -383,8 +453,8 @@
       <input type="date" id="goalDate" />
       <textarea id="goalNote" placeholder="Catatan (opsional)" rows="2"></textarea>
       <div class="action-row">
-        <button class="btn-tertiary" id="btnGoalCancel2">Batal</button>
-        <button class="btn-secondary" id="btnGoalSave">Simpan</button>
+        <button type="button" class="btn-tertiary" id="btnGoalCancel2">Batal</button>
+        <button type="button" class="btn-secondary" id="btnGoalSave">Simpan</button>
       </div>
     </div>
   </div>
@@ -397,6 +467,25 @@
         <button class="btn-tertiary small-btn" id="btnDetailClose">Tutup</button>
       </div>
       <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Quick Transaction (Isi/Tarik Celengan) -->
+  <div class="modal" id="txModal">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:8px;">
+        <div style="font-weight:700; font-size:16px;" id="txModalTitle">Isi Celengan</div>
+        <button class="btn-tertiary small-btn" id="btnTxCancel">Tutup</button>
+      </div>
+      <div class="muted" id="txGoalSubtitle" style="margin-bottom:12px; font-weight:600;"></div>
+      <div class="muted" style="margin-bottom:4px;">Nominal (Rp)</div>
+      <input type="number" id="txAmount" placeholder="Contoh: 100000" inputmode="numeric" />
+      <div class="muted" style="margin-bottom:4px;">Catatan (opsional)</div>
+      <input type="text" id="txNote" placeholder="Contoh: Nabung sisa belanja" />
+      <div class="action-row">
+        <button type="button" class="btn-tertiary" id="btnTxCancel2">Batal</button>
+        <button type="button" class="btn-secondary" id="btnTxSave">Simpan</button>
+      </div>
     </div>
   </div>
 
@@ -472,8 +561,15 @@
     migrateIfNeeded();
 
     let currentTab = 'active';
+    let goalsTabFull = 'active';
     let editingGoalId = null;
     let selectedEmoji = '💰';
+    let currentPage = 'home';
+    let previousNavPage = 'home';
+
+    // Quick transaction state
+    let currentTxGoalId = null;
+    let currentTxType = 'in';
 
     function emergencyEl() {
       const data = getData();
@@ -485,17 +581,32 @@
       return data.goals || [];
     }
 
+    // Global Theme System
     function applyTheme(mode) {
       const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
       const shouldDark = mode === 'dark' || (mode === 'system' && prefersDark);
+      document.documentElement.setAttribute('data-theme', shouldDark ? 'dark' : 'light');
       document.body.classList.toggle('dark', shouldDark);
-      document.getElementById('modeToggle').textContent = shouldDark ? '☀️' : '🌙';
+      const modeToggle = document.getElementById('modeToggle');
+      if (modeToggle) modeToggle.textContent = shouldDark ? '☀️' : '🌙';
+      const selectEl = document.getElementById('darkModeSelect');
+      if (selectEl && selectEl.value !== mode) selectEl.value = mode;
+    }
+
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        const data = getData();
+        if ((data.settings?.darkMode || 'system') === 'system') {
+          applyTheme('system');
+        }
+      });
     }
 
     function renderSettings() {
       const data = getData();
       const mode = (data.settings && data.settings.darkMode) || 'system';
-      document.getElementById('darkModeSelect').value = mode;
+      const selectEl = document.getElementById('darkModeSelect');
+      if (selectEl) selectEl.value = mode;
       applyTheme(mode);
     }
 
@@ -508,6 +619,47 @@
       const pct = target ? Math.min(100, Math.round((em.balance / target) * 100)) : 0;
       document.getElementById('emergencyProgressWrap').style.display = target ? 'block' : 'none';
       document.getElementById('emergencyProgress').style.width = pct + '%';
+    }
+
+    // Reusable single card renderer
+    function renderGoalCard(g) {
+      const pct = g.targetAmount ? Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100)) : 0;
+      const remaining = Math.max(0, g.targetAmount - g.currentAmount);
+      let meta = '';
+      if (g.status === 'completed') {
+        meta = `<div class="badge">✅ Target Tercapai</div><div class="muted">${g.completedAt ? 'Tercapai: ' + g.completedAt : ''}</div>`;
+      } else {
+        if (g.targetDate) meta += `<div class="muted">Target: ${g.targetDate}</div>`;
+        if (g.weeklyTarget) meta += `<div class="muted">Target mingguan: ${formatRupiah(g.weeklyTarget)}</div>`;
+        if (g.targetAmount && g.weeklyTarget) {
+          const weeks = Math.max(0, Math.ceil(remaining / g.weeklyTarget));
+          meta += `<div class="muted">Estimasi: ${weeks} minggu lagi</div>`;
+        }
+      }
+      return `
+        <div class="card goal-card" data-id="${g.id}">
+          <div class="row-between">
+            <div class="flex-1">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div class="goal-emoji">${escapeHtml(g.emoji || '🎯')}</div>
+                <div>
+                  <div style="font-weight:700; font-size:16px;">${escapeHtml(g.name || 'Tanpa Nama')}</div>
+                  <div class="muted">${formatRupiah(g.currentAmount)} dari ${formatRupiah(g.targetAmount || 0)}</div>
+                </div>
+              </div>
+            </div>
+            ${g.status === 'completed' ? '' : `<button type="button" class="btn-secondary small-btn goal-isi" data-id="${g.id}">+ Isi</button>`}
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:${pct}%"></div>
+          </div>
+          <div class="row-between">
+            <div class="muted">${pct}%</div>
+            <div class="muted">Sisa: ${formatRupiah(remaining)}</div>
+          </div>
+          <div style="margin-top:6px;">${meta}</div>
+        </div>
+      `;
     }
 
     function renderGoals() {
@@ -525,49 +677,29 @@
         return;
       }
 
-      container.innerHTML = filtered.map(g => {
-        const pct = g.targetAmount ? Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100)) : 0;
-        const remaining = Math.max(0, g.targetAmount - g.currentAmount);
-        let meta = '';
-        if (g.status === 'completed') {
-          meta = `<div class="badge">✅ Target Tercapai</div><div class="muted">${g.completedAt ? 'Tercapai: ' + g.completedAt : ''}</div>`;
-        } else {
-          if (g.targetDate) meta += `<div class="muted">Target: ${g.targetDate}</div>`;
-          if (g.weeklyTarget) meta += `<div class="muted">Target mingguan: ${formatRupiah(g.weeklyTarget)}</div>`;
-          if (g.targetAmount && g.weeklyTarget) {
-            const weeks = Math.max(0, Math.ceil(remaining / g.weeklyTarget));
-            meta += `<div class="muted">Estimasi: ${weeks} minggu lagi</div>`;
-          }
-        }
-        return `
-          <div class="card goal-card" data-id="${g.id}">
-            <div class="row-between">
-              <div class="flex-1">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <div class="goal-emoji">${escapeHtml(g.emoji || '🎯')}</div>
-                  <div>
-                    <div style="font-weight:700; font-size:16px;">${escapeHtml(g.name || 'Tanpa Nama')}</div>
-                    <div class="muted">${formatRupiah(g.currentAmount)} dari ${formatRupiah(g.targetAmount || 0)}</div>
-                  </div>
-                </div>
-              </div>
-              ${g.status === 'completed' ? '' : `<button class="btn-secondary small-btn goal-isi" data-id="${g.id}">+ Isi</button>`}
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width:${pct}%"></div>
-            </div>
-            <div class="row-between">
-              <div class="muted">${pct}%</div>
-              <div class="muted">Sisa: ${formatRupiah(remaining)}</div>
-            </div>
-            <div style="margin-top:6px;">${meta}</div>
-          </div>
-        `;
-      }).join('');
+      container.innerHTML = filtered.map(g => renderGoalCard(g)).join('');
+    }
+
+    function renderGoalsFull() {
+      const container = document.getElementById('goalsContainerFull');
+      const goals = goalsList();
+      const filtered = goals.filter(g => goalsTabFull === 'active' ? g.status === 'active' : g.status === 'completed');
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div class="empty">
+            <div class="empty-illustration">🐷</div>
+            <div>${goalsTabFull === 'active' ? 'Belum ada celengan aktif.' : 'Belum ada celengan yang tercapai.'}</div>
+            ${goalsTabFull === 'active' ? '<div style="margin-top:6px;">Mulai buat target tabungan pertama kamu.</div>' : ''}
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(g => renderGoalCard(g)).join('');
     }
 
     function escapeHtml(str) {
-      return str.replace(/[&<>'"]/g, function(m) {
+      return String(str || '').replace(/[&<>'"]/g, function(m) {
         return ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' })[m];
       });
     }
@@ -585,6 +717,7 @@
       data.emergency.transactions.unshift({ id: Date.now() + Math.random(), amount: value, type: 'in', date: todayISO(), note });
       saveData(data);
       renderEmergency();
+      renderEmergencyFull();
       showToast('Tabungan Darurat ditambah');
     }
 
@@ -595,6 +728,7 @@
       data.emergencyTarget = input ? Number(String(input).replace(/[^0-9]/g, '')) : 0;
       saveData(data);
       renderEmergency();
+      renderEmergencyFull();
       showToast('Target darurat disimpan');
     }
 
@@ -625,48 +759,59 @@
     }
 
     function saveGoal() {
-          const name = document.getElementById('goalName').value.trim();
-          const targetAmountRaw = String(document.getElementById('goalTarget').value).replace(/[^0-9]/g, '');
-          const targetAmount = Number(targetAmountRaw);
-          const initialRaw = String(document.getElementById('goalInitial').value).replace(/[^0-9]/g, '');
-          const initial = initialRaw ? Number(initialRaw) : 0;
-          const weeklyRaw = String(document.getElementById('goalWeekly').value).replace(/[^0-9]/g, '');
-          const weeklyTarget = weeklyRaw ? Number(weeklyRaw) : null;
-          const targetDate = document.getElementById('goalDate').value || null;
-          const note = document.getElementById('goalNote').value.trim();
+      const name = document.getElementById('goalName').value.trim();
+      const targetAmountRaw = String(document.getElementById('goalTarget').value).replace(/[^0-9]/g, '');
+      const targetAmount = Number(targetAmountRaw);
+      const initialRaw = String(document.getElementById('goalInitial').value).replace(/[^0-9]/g, '');
+      const initial = initialRaw ? Number(initialRaw) : 0;
+      const weeklyRaw = String(document.getElementById('goalWeekly').value).replace(/[^0-9]/g, '');
+      const weeklyTarget = weeklyRaw ? Number(weeklyRaw) : null;
+      const targetDate = document.getElementById('goalDate').value || '';
+      const note = document.getElementById('goalNote').value.trim();
 
-          if (!name) { showToast('Nama celengan harus diisi'); return; }
-          if (!targetAmount || targetAmount <= 0) { showToast('Target nominal harus lebih dari Rp0'); return; }
+      if (!name) { showToast('Nama celengan harus diisi'); return; }
 
-          const data = getData();
-          if (editingGoalId) {
-            const g = data.goals.find(x => x.id === editingGoalId);
-            if (!g) { showToast('Celengan tidak ditemukan'); return; }
-            g.name = name; g.targetAmount = targetAmount; g.weeklyTarget = weeklyTarget; g.targetDate = targetDate; g.note = note; g.emoji = selectedEmoji;
-            if (document.getElementById('goalInitial').value !== undefined && document.getElementById('goalInitial').value !== '') {
-              g.currentAmount = initial;
-            }
-            if (g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
-              g.status = 'completed'; g.completedAt = todayISO();
-            }
-          } else {
-            const newGoal = {
-              id: data.nextGoalId++, name, targetAmount, currentAmount: initial, weeklyTarget, targetDate, note, emoji: selectedEmoji,
-              status: 'active',
-              completedAt: null, createdAt: todayISO(), transactions: []
-            };
-            data.goals.unshift(newGoal);
-          }
-          saveData(data);
-          closeGoalModal();
-          scheduleRender();
-          showToast('Celengan berhasil dibuat');
+      const data = getData();
+      if (editingGoalId) {
+        const g = data.goals.find(x => x.id === editingGoalId);
+        if (!g) { showToast('Celengan tidak ditemukan'); return; }
+        g.name = name; g.targetAmount = targetAmount; g.weeklyTarget = weeklyTarget; g.targetDate = targetDate; g.note = note; g.emoji = selectedEmoji;
+        if (document.getElementById('goalInitial').value !== undefined && document.getElementById('goalInitial').value !== '') {
+          g.currentAmount = initial;
         }
+        if (g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
+          g.status = 'completed'; g.completedAt = todayISO();
+        }
+      } else {
+        const newGoal = {
+          id: data.nextGoalId++, name, targetAmount, currentAmount: initial, weeklyTarget, targetDate, note, emoji: selectedEmoji,
+          status: targetAmount && initial >= targetAmount ? 'completed' : 'active',
+          completedAt: targetAmount && initial >= targetAmount ? todayISO() : '', createdAt: todayISO(), transactions: []
+        };
+        data.goals.unshift(newGoal);
+      }
+      saveData(data);
+      closeGoalModal();
+      renderGoals();
+      renderGoalsFull();
+      showToast('Tersimpan');
+    }
+
+    // Reusable Goal Detail Opener
+    function openGoalDetail(goalId) {
+      openDetail(goalId);
+    }
 
     function openDetail(goalId) {
       const data = getData();
       const g = data.goals.find(x => x.id === goalId);
       if (!g) return;
+
+      if (!document.getElementById('detailModal').classList.contains('open')) {
+        previousNavPage = currentPage;
+      }
+      updateTabBarActive('goals');
+
       const pct = g.targetAmount ? Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100)) : 0;
       const remaining = Math.max(0, g.targetAmount - g.currentAmount);
 
@@ -688,7 +833,7 @@
           <div class="muted">Sisa ${formatRupiah(remaining)}</div>
         </div>
         ${g.targetDate ? `<div class="muted" style="margin-top:6px;">Target tanggal: ${g.targetDate}</div>` : ''}
-        ${g.weeklyTarget ? `<div class="muted">Target per minggu: ${formatRupiah(g.weeklyTarget)}</div>` : ''}
+        ${g.weeklyTarget ? `<div class="muted" style="margin-top:6px;">Target per minggu: ${formatRupiah(g.weeklyTarget)}</div>` : ''}
         ${g.note ? `<div class="muted">Catatan: ${escapeHtml(g.note)}</div>` : ''}
         <div class="divider"></div>
         <div class="section-title">Riwayat</div>
@@ -699,16 +844,16 @@
       if (g.status !== 'completed') {
         html += `
           <div class="action-row">
-            <button class="btn-secondary" id="btnDetailAdd">+ Isi Tabungan</button>
-            <button class="btn-tertiary" id="btnDetailWithdraw">- Tarik Tabungan</button>
+            <button type="button" class="btn-secondary" id="btnDetailAdd">+ Isi Tabungan</button>
+            <button type="button" class="btn-tertiary" id="btnDetailWithdraw">- Tarik Tabungan</button>
           </div>
         `;
       }
 
       html += `
         <div class="action-row">
-          <button class="btn-tertiary" id="btnDetailEdit">Edit Celengan</button>
-          <button class="btn-danger" id="btnDetailDelete">Hapus Celengan</button>
+          <button type="button" class="btn-tertiary" id="btnDetailEdit">Edit Celengan</button>
+          <button type="button" class="btn-danger" id="btnDetailDelete">Hapus Celengan</button>
         </div>
       `;
 
@@ -720,10 +865,10 @@
       const editBtn = document.getElementById('btnDetailEdit');
       const deleteBtn = document.getElementById('btnDetailDelete');
 
-      if (addBtn) addBtn.onclick = () => { addGoalTransaction(goalId, 'in'); };
-      if (withdrawBtn) withdrawBtn.onclick = () => { addGoalTransaction(goalId, 'out'); };
+      if (addBtn) addBtn.onclick = () => { openQuickTx(goalId, 'in'); };
+      if (withdrawBtn) withdrawBtn.onclick = () => { openQuickTx(goalId, 'out'); };
       if (editBtn) editBtn.onclick = () => {
-        document.getElementById('detailModal').classList.remove('open');
+        closeDetailModal();
         openGoalModal(g);
       };
       if (deleteBtn) deleteBtn.onclick = () => {
@@ -731,12 +876,18 @@
         const d = getData();
         d.goals = d.goals.filter(x => x.id !== goalId);
         saveData(d);
-        document.getElementById('detailModal').classList.remove('open');
+        closeDetailModal();
         renderGoals();
+        renderGoalsFull();
         showToast('Celengan dihapus');
       };
 
       renderGoalHistory(goalId);
+    }
+
+    function closeDetailModal() {
+      document.getElementById('detailModal').classList.remove('open');
+      updateTabBarActive(currentPage);
     }
 
     function renderGoalHistory(goalId) {
@@ -760,52 +911,88 @@
       `).join('');
     }
 
-    function addGoalTransaction(goalId, type) {
+    // Modal quick transaction (Isi / Tarik)
+    function openQuickTx(goalId, type = 'in') {
+      currentTxGoalId = goalId;
+      currentTxType = type;
       const data = getData();
       const g = data.goals.find(x => x.id === goalId);
       if (!g) return;
-      const actionText = type === 'in' ? 'Isi Tabungan' : 'Tarik Tabungan';
-      const amount = prompt(`${actionText} - ${g.name}:\nMasukkan nominal:`);
-      if (amount === null) return;
-      const value = Number(String(amount).replace(/[^0-9]/g, ''));
-      if (!value || value <= 0) { showToast('Nominal tidak valid'); return; }
-      const note = prompt('Catatan (opsional):') || '';
+
+      document.getElementById('txModalTitle').textContent = type === 'in' ? 'Isi Celengan' : 'Tarik Celengan';
+      document.getElementById('txGoalSubtitle').textContent = `${g.emoji || '🎯'} ${g.name}`;
+      document.getElementById('txAmount').value = '';
+      document.getElementById('txNote').value = '';
+      document.getElementById('txModal').classList.add('open');
+      setTimeout(() => {
+        const inp = document.getElementById('txAmount');
+        if (inp) inp.focus();
+      }, 100);
+    }
+
+    function closeQuickTx() {
+      document.getElementById('txModal').classList.remove('open');
+      currentTxGoalId = null;
+    }
+
+    function saveQuickTx() {
+      if (!currentTxGoalId) return;
+      const amountRaw = String(document.getElementById('txAmount').value).replace(/[^0-9]/g, '');
+      const value = Number(amountRaw);
+      if (!value || value <= 0) {
+        showToast('Nominal tidak valid');
+        return;
+      }
+      const note = document.getElementById('txNote').value.trim();
+      const data = getData();
+      const g = data.goals.find(x => x.id === currentTxGoalId);
+      if (!g) return;
 
       g.transactions = g.transactions || [];
-      g.transactions.unshift({ id: Date.now() + Math.random(), amount: value, type, date: todayISO(), note });
+      g.transactions.unshift({
+        id: Date.now() + Math.random(),
+        amount: value,
+        type: currentTxType,
+        date: todayISO(),
+        note
+      });
 
-      if (type === 'in') {
+      if (currentTxType === 'in') {
         g.currentAmount = (g.currentAmount || 0) + value;
       } else {
         g.currentAmount = Math.max(0, (g.currentAmount || 0) - value);
       }
 
       if (g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
-        g.status = 'completed'; g.completedAt = todayISO();
+        g.status = 'completed';
+        g.completedAt = todayISO();
       }
 
       saveData(data);
-      openDetail(goalId);
+      closeQuickTx();
+
+      if (document.getElementById('detailModal').classList.contains('open')) {
+        openDetail(g.id);
+      }
       renderGoals();
-      showToast('Tersimpan');
+      renderGoalsFull();
+      showToast(currentTxType === 'in' ? 'Tabungan berhasil diisi' : 'Tabungan berhasil ditarik');
     }
 
     function showToast(text) {
       const t = document.getElementById('toast');
       t.textContent = text;
       t.classList.add('show');
-      setTimeout(() => t.classList.remove('show'), 1800);
+      setTimeout(() => t.classList.remove('show'), 2000);
     }
 
     function render() {
       renderEmergency();
+      renderEmergencyFull();
       renderGoals();
+      renderGoalsFull();
       renderSettings();
     }
-
-    // Navigation
-    let currentPage = 'home';
-    let goalsTabFull = 'active';
 
     function renderEmergencyFull() {
       const em = emergencyEl();
@@ -848,110 +1035,29 @@
       data.emergency.transactions = data.emergency.transactions || [];
       data.emergency.transactions.unshift({ id: Date.now() + Math.random(), amount: value, type, date: todayISO(), note });
       saveData(data);
+      renderEmergency();
       renderEmergencyFull();
       showToast('Tersimpan');
     }
 
-    function renderGoalsFull() {
-      const container = document.getElementById('goalsContainerFull');
-      const goals = goalsList();
-      const filtered = goals.filter(g => goalsTabFull === 'active' ? g.status === 'active' : g.status === 'completed');
-
-      if (!filtered.length) {
-        container.innerHTML = `
-          <div class="empty">
-            <div class="empty-illustration">🐷</div>
-            <div>${goalsTabFull === 'active' ? 'Belum ada celengan aktif.' : 'Belum ada celengan yang tercapai.'}</div>
-            ${goalsTabFull === 'active' ? '<div style="margin-top:6px;">Mulai buat target tabungan pertama kamu.</div>' : ''}
-          </div>`;
-        return;
-      }
-
-      container.innerHTML = filtered.map(g => {
-        const pct = g.targetAmount ? Math.min(100, Math.round((g.currentAmount / g.targetAmount) * 100)) : 0;
-        const remaining = Math.max(0, g.targetAmount - g.currentAmount);
-        let meta = '';
-        if (g.status === 'completed') {
-          meta = `<div class="badge">✅ Target Tercapai</div><div class="muted">${g.completedAt ? 'Tercapai: ' + g.completedAt : ''}</div>`;
-        } else {
-          if (g.targetDate) meta += `<div class="muted">Target: ${g.targetDate}</div>`;
-          if (g.weeklyTarget) meta += `<div class="muted">Target mingguan: ${formatRupiah(g.weeklyTarget)}</div>`;
-          if (g.targetAmount && g.weeklyTarget) {
-            const weeks = Math.max(0, Math.ceil(remaining / g.weeklyTarget));
-            meta += `<div class="muted">Estimasi: ${weeks} minggu lagi</div>`;
-          }
-        }
-        return `
-          <div class="card goal-card" data-id="${g.id}">
-            <div class="row-between">
-              <div class="flex-1">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <div class="goal-emoji">${escapeHtml(g.emoji || '🎯')}</div>
-                  <div>
-                    <div style="font-weight:700; font-size:16px;">${escapeHtml(g.name || 'Tanpa Nama')}</div>
-                    <div class="muted">${formatRupiah(g.currentAmount)} dari ${formatRupiah(g.targetAmount || 0)}</div>
-                  </div>
-                </div>
-              </div>
-              ${g.status === 'completed' ? '' : `<button class="btn-secondary small-btn goal-isi-full" data-id="${g.id}">+ Isi</button>`}
-            </div>
-            <div class="progress-bar">
-              <div class="progress-fill" style="width:${pct}%"></div>
-            </div>
-            <div class="row-between">
-              <div class="muted">${pct}%</div>
-              <div class="muted">Sisa: ${formatRupiah(remaining)}</div>
-            </div>
-            <div style="margin-top:6px;">${meta}</div>
-          </div>
-        `;
-      }).join('');
+    function updateTabBarActive(pageName) {
+      document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+      if (pageName === 'home') document.getElementById('navHome')?.classList.add('active');
+      if (pageName === 'emergency') document.getElementById('navEmergency')?.classList.add('active');
+      if (pageName === 'goals') document.getElementById('navGoals')?.classList.add('active');
+      if (pageName === 'settings') document.getElementById('navSettings')?.classList.add('active');
     }
 
-    document.getElementById('navHome').addEventListener('click', () => showPage('home'));
-    document.getElementById('navEmergency').addEventListener('click', () => showPage('emergency'));
-    document.getElementById('navGoals').addEventListener('click', () => showPage('goals'));
-    document.getElementById('navSettings').addEventListener('click', () => showPage('settings'));
-
-    document.getElementById('btnSettingsHome').addEventListener('click', () => showPage('settings'));
-
-    document.getElementById('btnEmergencyHome').addEventListener('click', () => addEmergency());
-    document.getElementById('btnEmergencyAddFull').addEventListener('click', () => addEmergencyTransaction('in'));
-    document.getElementById('btnEmergencyWithdrawFull').addEventListener('click', () => addEmergencyTransaction('out'));
-
-    document.getElementById('tabActiveFull').addEventListener('click', function() {
-      goalsTabFull = 'active'; this.classList.add('active'); document.getElementById('tabCompletedFull').classList.remove('active'); renderGoalsFull();
-    });
-    document.getElementById('tabCompletedFull').addEventListener('click', function() {
-      goalsTabFull = 'completed'; this.classList.add('active'); document.getElementById('tabActiveFull').classList.remove('active'); renderGoalsFull();
-    });
-
-    document.getElementById('goalsContainerFull').addEventListener('click', function(e) {
-      const card = e.target.closest('.goal-card');
-      const isi = e.target.closest('.goal-isi-full');
-      if (isi) { const id = Number(isi.getAttribute('data-id')); addGoalTransaction(id, 'in'); return; }
-      if (card) { const id = Number(card.getAttribute('data-id')); openDetail(id); }
-    });
-
-    document.getElementById('btnAddGoalHome').addEventListener('click', () => openGoalModal(null));
-        document.getElementById('btnAddGoalFull').addEventListener('click', () => openGoalModal(null));
-
-        // Goal Modal handlers
-        document.getElementById('btnGoalSave').addEventListener('click', saveGoal);
-        document.getElementById('btnGoalCancel').addEventListener('click', closeGoalModal);
-        document.getElementById('btnGoalCancel2').addEventListener('click', closeGoalModal);
-
-        // Emoji selection
-        document.querySelectorAll('#emojiRow .emoji-btn').forEach(btn => {
-          btn.addEventListener('click', function() {
-            selectedEmoji = this.getAttribute('data-emoji');
-            updateEmojiSelection();
-          });
-        });
-
-        // Should I Buy?
+    // Navigation
     function showPage(name) {
       currentPage = name;
+      previousNavPage = name;
+
+      // If detail modal is open and user navigates, close modal
+      if (document.getElementById('detailModal').classList.contains('open')) {
+        document.getElementById('detailModal').classList.remove('open');
+      }
+
       document.getElementById('pageHome').style.display = 'none';
       document.getElementById('pageEmergency').style.display = 'none';
       document.getElementById('pageGoals').style.display = 'none';
@@ -964,17 +1070,33 @@
       if (name === 'settings') document.getElementById('pageSettings').style.display = 'block';
       if (name === 'shouldibuy') document.getElementById('pageShouldIBuy').style.display = 'block';
 
-      document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
-      if (name === 'home') document.getElementById('navHome').classList.add('active');
-      if (name === 'emergency') document.getElementById('navEmergency').classList.add('active');
-      if (name === 'goals') document.getElementById('navGoals').classList.add('active');
-      if (name === 'settings') document.getElementById('navSettings').classList.add('active');
+      updateTabBarActive(name);
 
       if (name === 'home') { renderEmergency(); renderGoals(); renderSettings(); }
       if (name === 'emergency') renderEmergencyFull();
       if (name === 'goals') renderGoalsFull();
       if (name === 'settings') renderSettings();
       if (name === 'shouldibuy') renderShouldIBuyForm();
+    }
+
+    function setupGoalContainerEvents(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      container.addEventListener('click', function(e) {
+        const btnIsi = e.target.closest('.goal-isi');
+        if (btnIsi) {
+          e.stopPropagation();
+          e.preventDefault();
+          const id = Number(btnIsi.getAttribute('data-id'));
+          openQuickTx(id, 'in');
+          return;
+        }
+        const card = e.target.closest('.goal-card');
+        if (card) {
+          const id = Number(card.getAttribute('data-id'));
+          openGoalDetail(id);
+        }
+      });
     }
 
     function renderShouldIBuyForm() {
@@ -1003,7 +1125,7 @@
       const target = g.targetAmount || 0;
       const weekly = g.weeklyTarget || 0;
       const afterBalance = Math.max(0, balance - price);
-      const usedPct = target ? Math.min(100, Math.round((price / balance) * 100)) : 0;
+      const usedPct = balance ? Math.min(100, Math.round((price / balance) * 100)) : 0;
       const remainingAfter = Math.max(0, target - afterBalance);
       const additionalWeeks = weekly ? Math.ceil(price / weekly) : null;
 
@@ -1055,12 +1177,139 @@
       document.getElementById('sibResult').style.display = 'block';
     }
 
+    // Attach all event listeners
+    document.getElementById('navHome').addEventListener('click', () => showPage('home'));
+    document.getElementById('navEmergency').addEventListener('click', () => showPage('emergency'));
+    document.getElementById('navGoals').addEventListener('click', () => showPage('goals'));
+    document.getElementById('navSettings').addEventListener('click', () => showPage('settings'));
+    document.getElementById('btnSettingsHome').addEventListener('click', () => showPage('settings'));
+
+    document.getElementById('btnEmergencyHome').addEventListener('click', () => addEmergency());
+    document.getElementById('btnEmergencyAddFull').addEventListener('click', () => addEmergencyTransaction('in'));
+    document.getElementById('btnEmergencyWithdrawFull').addEventListener('click', () => addEmergencyTransaction('out'));
+
+    // Tab buttons for Celengan Full
+    document.getElementById('tabActiveFull').addEventListener('click', function() {
+      goalsTabFull = 'active'; this.classList.add('active'); document.getElementById('tabCompletedFull').classList.remove('active'); renderGoalsFull();
+    });
+    document.getElementById('tabCompletedFull').addEventListener('click', function() {
+      goalsTabFull = 'completed'; this.classList.add('active'); document.getElementById('tabActiveFull').classList.remove('active'); renderGoalsFull();
+    });
+
+    // Tab buttons for Beranda
+    document.getElementById('tabActive').addEventListener('click', function() {
+      currentTab = 'active'; this.classList.add('active'); document.getElementById('tabCompleted').classList.remove('active'); renderGoals();
+    });
+    document.getElementById('tabCompleted').addEventListener('click', function() {
+      currentTab = 'completed'; this.classList.add('active'); document.getElementById('tabActive').classList.remove('active'); renderGoals();
+    });
+
+    // Goal container clicks (Beranda & Full)
+    setupGoalContainerEvents('goalsContainer');
+    setupGoalContainerEvents('goalsContainerFull');
+
+    // Add Goal buttons
+    document.getElementById('btnAddGoalHome').addEventListener('click', () => openGoalModal(null));
+    document.getElementById('btnAddGoalFull').addEventListener('click', () => openGoalModal(null));
+
+    // Goal Modal handlers
+    document.getElementById('btnGoalSave').addEventListener('click', saveGoal);
+    document.getElementById('btnGoalCancel').addEventListener('click', closeGoalModal);
+    document.getElementById('btnGoalCancel2').addEventListener('click', closeGoalModal);
+
+    // Detail Modal close
+    document.getElementById('btnDetailClose').addEventListener('click', closeDetailModal);
+
+    // Quick Transaction Modal handlers
+    document.getElementById('btnTxSave').addEventListener('click', saveQuickTx);
+    document.getElementById('btnTxCancel').addEventListener('click', closeQuickTx);
+    document.getElementById('btnTxCancel2').addEventListener('click', closeQuickTx);
+
+    // Close modals on clicking backdrop
+    document.getElementById('goalModal').addEventListener('click', function(e) { if (e.target === this) closeGoalModal(); });
+    document.getElementById('detailModal').addEventListener('click', function(e) { if (e.target === this) closeDetailModal(); });
+    document.getElementById('txModal').addEventListener('click', function(e) { if (e.target === this) closeQuickTx(); });
+
+    // Emoji selection
+    document.querySelectorAll('#emojiRow .emoji-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        selectedEmoji = this.getAttribute('data-emoji');
+        updateEmojiSelection();
+      });
+    });
+
+    // Should I Buy
     document.getElementById('btnOpenShouldIBuy').addEventListener('click', () => showPage('shouldibuy'));
     document.getElementById('btnShouldClose').addEventListener('click', () => showPage('home'));
     document.getElementById('btnSibAnalyze').addEventListener('click', analyzeShouldIBuy);
     document.getElementById('btnSibReset').addEventListener('click', () => renderShouldIBuyForm());
 
-    // Init default page
+    // Dark Mode Theme Controls
+    document.getElementById('darkModeSelect').addEventListener('change', function(e) {
+      const mode = e.target.value;
+      const data = getData();
+      data.settings = data.settings || {};
+      data.settings.darkMode = mode;
+      saveData(data);
+      applyTheme(mode);
+      showToast('Theme diperbarui: ' + mode);
+    });
+
+    document.getElementById('modeToggle').addEventListener('click', function() {
+      const data = getData();
+      data.settings = data.settings || {};
+      const cur = data.settings.darkMode || 'system';
+      let next = 'dark';
+      if (cur === 'dark') next = 'light';
+      else if (cur === 'light') next = 'system';
+      else {
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        next = prefersDark ? 'light' : 'dark';
+      }
+      data.settings.darkMode = next;
+      saveData(data);
+      applyTheme(next);
+      showToast('Theme: ' + next);
+    });
+
+    // Data Backup and Restore
+    document.getElementById('btnExport').addEventListener('click', function() {
+      const data = getData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `menabung_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Backup berhasil diunduh');
+    });
+
+    document.getElementById('btnImport').addEventListener('click', function() {
+      document.getElementById('importFile').click();
+    });
+
+    document.getElementById('importFile').addEventListener('change', function(e) {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (!parsed || typeof parsed !== 'object') throw new Error('Format tidak valid');
+          if (!parsed.goals && !parsed.emergency) throw new Error('Data backup tidak sesuai');
+          saveData(parsed);
+          render();
+          showToast('Data berhasil direstore');
+        } catch (err) {
+          showToast('Gagal restore: ' + (err.message || 'File tidak valid'));
+        }
+        e.target.value = '';
+      };
+      reader.readAsText(file);
+    });
+
+    // Init default page & theme
     applyTheme((getData().settings && getData().settings.darkMode) || 'system');
     showPage('home');
   </script>
