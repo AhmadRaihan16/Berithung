@@ -625,39 +625,43 @@
     }
 
     function saveGoal() {
-      const name = document.getElementById('goalName').value.trim();
-      const targetAmount = Number(String(document.getElementById('goalTarget').value).replace(/[^0-9]/g, '')) || 0;
-      const initial = Number(String(document.getElementById('goalInitial').value).replace(/[^0-9]/g, '')) || 0;
-      const weeklyTarget = Number(String(document.getElementById('goalWeekly').value).replace(/[^0-9]/g, '')) || 0;
-      const targetDate = document.getElementById('goalDate').value || '';
-      const note = document.getElementById('goalNote').value.trim();
+          const name = document.getElementById('goalName').value.trim();
+          const targetAmountRaw = String(document.getElementById('goalTarget').value).replace(/[^0-9]/g, '');
+          const targetAmount = Number(targetAmountRaw);
+          const initialRaw = String(document.getElementById('goalInitial').value).replace(/[^0-9]/g, '');
+          const initial = initialRaw ? Number(initialRaw) : 0;
+          const weeklyRaw = String(document.getElementById('goalWeekly').value).replace(/[^0-9]/g, '');
+          const weeklyTarget = weeklyRaw ? Number(weeklyRaw) : null;
+          const targetDate = document.getElementById('goalDate').value || null;
+          const note = document.getElementById('goalNote').value.trim();
 
-      if (!name) { showToast('Nama celengan harus diisi'); return; }
+          if (!name) { showToast('Nama celengan harus diisi'); return; }
+          if (!targetAmount || targetAmount <= 0) { showToast('Target nominal harus lebih dari Rp0'); return; }
 
-      const data = getData();
-      if (editingGoalId) {
-        const g = data.goals.find(x => x.id === editingGoalId);
-        if (!g) { showToast('Celengan tidak ditemukan'); return; }
-        g.name = name; g.targetAmount = targetAmount; g.weeklyTarget = weeklyTarget; g.targetDate = targetDate; g.note = note; g.emoji = selectedEmoji;
-        if (document.getElementById('goalInitial').value !== undefined && document.getElementById('goalInitial').value !== '') {
-          g.currentAmount = initial;
+          const data = getData();
+          if (editingGoalId) {
+            const g = data.goals.find(x => x.id === editingGoalId);
+            if (!g) { showToast('Celengan tidak ditemukan'); return; }
+            g.name = name; g.targetAmount = targetAmount; g.weeklyTarget = weeklyTarget; g.targetDate = targetDate; g.note = note; g.emoji = selectedEmoji;
+            if (document.getElementById('goalInitial').value !== undefined && document.getElementById('goalInitial').value !== '') {
+              g.currentAmount = initial;
+            }
+            if (g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
+              g.status = 'completed'; g.completedAt = todayISO();
+            }
+          } else {
+            const newGoal = {
+              id: data.nextGoalId++, name, targetAmount, currentAmount: initial, weeklyTarget, targetDate, note, emoji: selectedEmoji,
+              status: 'active',
+              completedAt: null, createdAt: todayISO(), transactions: []
+            };
+            data.goals.unshift(newGoal);
+          }
+          saveData(data);
+          closeGoalModal();
+          scheduleRender();
+          showToast('Celengan berhasil dibuat');
         }
-        if (g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
-          g.status = 'completed'; g.completedAt = todayISO();
-        }
-      } else {
-        const newGoal = {
-          id: data.nextGoalId++, name, targetAmount, currentAmount: initial, weeklyTarget, targetDate, note, emoji: selectedEmoji,
-          status: targetAmount && initial >= targetAmount ? 'completed' : 'active',
-          completedAt: targetAmount && initial >= targetAmount ? todayISO() : '', createdAt: todayISO(), transactions: []
-        };
-        data.goals.unshift(newGoal);
-      }
-      saveData(data);
-      closeGoalModal();
-      scheduleRender();
-      showToast('Tersimpan');
-    }
 
     function openDetail(goalId) {
       const data = getData();
@@ -930,9 +934,22 @@
     });
 
     document.getElementById('btnAddGoalHome').addEventListener('click', () => openGoalModal(null));
-    document.getElementById('btnAddGoalFull').addEventListener('click', () => openGoalModal(null));
+        document.getElementById('btnAddGoalFull').addEventListener('click', () => openGoalModal(null));
 
-    // Should I Buy?
+        // Goal Modal handlers
+        document.getElementById('btnGoalSave').addEventListener('click', saveGoal);
+        document.getElementById('btnGoalCancel').addEventListener('click', closeGoalModal);
+        document.getElementById('btnGoalCancel2').addEventListener('click', closeGoalModal);
+
+        // Emoji selection
+        document.querySelectorAll('#emojiRow .emoji-btn').forEach(btn => {
+          btn.addEventListener('click', function() {
+            selectedEmoji = this.getAttribute('data-emoji');
+            updateEmojiSelection();
+          });
+        });
+
+        // Should I Buy?
     function showPage(name) {
       currentPage = name;
       document.getElementById('pageHome').style.display = 'none';
