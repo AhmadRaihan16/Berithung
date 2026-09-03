@@ -248,6 +248,23 @@
     .emoji-btn.selected { border-color: var(--accent); background: var(--pill-bg); }
     .goal-emoji { font-size: 28px; margin-bottom: 6px; }
     .empty-illustration { font-size: 48px; margin-bottom: 8px; opacity: 0.9; }
+    /* === Wishlist v1.2 === */
+    .badge-blue { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 4px 10px; font-size: 11px; font-weight: 700; background: var(--pill-bg); color: var(--pill-color); border: 1px solid var(--pill-border); }
+    .wishlist-item-card { cursor: pointer; user-select: none; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+    .wishlist-item-card:active { transform: scale(0.99); }
+    .countdown-text { font-size: 20px; font-weight: 800; color: var(--accent-3); letter-spacing: -0.5px; }
+    .cooling-options-row { display: flex; gap: 8px; margin: 10px 0; }
+    .cooling-option { flex: 1; padding: 10px 6px; border: 2px solid var(--border); border-radius: 10px; background: var(--surface-secondary); color: var(--text); font-size: 14px; font-weight: 600; cursor: pointer; text-align: center; transition: border-color 0.15s, background 0.15s, color 0.15s; font-family: inherit; min-height: 44px; width: auto; margin-bottom: 0; }
+    .cooling-option.selected { border-color: var(--accent); background: var(--pill-bg); color: var(--accent); }
+    .reanalysis-card { background: var(--surface-secondary); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 12px; padding: 12px; margin-bottom: 12px; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .stat-box { background: var(--surface-secondary); border-radius: 10px; padding: 10px; border: 1px solid var(--border); }
+    .stat-box.highlight { border-left: 3px solid var(--accent-2); }
+    .stat-num { font-weight: 800; font-size: 22px; }
+    .stat-label { color: var(--muted); font-size: 11px; }
+    .dup-warning { background: var(--badge-amber-bg); color: var(--badge-amber-text); border-radius: 12px; padding: 12px; margin-bottom: 8px; font-size: 13px; }
+    .dup-warning-row { display: flex; gap: 8px; margin-top: 8px; }
+    .dup-btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; font-family: inherit; min-height: 38px; width: auto; margin-bottom: 0; }
   </style>
 </head>
 <body>
@@ -308,6 +325,17 @@
           </div>
         </div>
         <button class="btn-primary" id="btnOpenShouldIBuy" style="margin-top:8px;">Coba Sekarang</button>
+      </div>
+
+      <div class="card" id="wishlistHomeCard" style="border-left:4px solid var(--accent); margin-top:8px; display:none;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="font-size:22px;">💝</span>
+          <div class="flex-1">
+            <div style="font-weight:700; font-size:16px;">Wishlist</div>
+            <div class="muted" id="wishlistHomeSubtitle">0 barang sedang dipertimbangkan</div>
+          </div>
+        </div>
+        <button class="btn-primary small-btn" id="btnOpenWishlist" style="margin-top:8px;">Lihat Wishlist</button>
       </div>
     </div>
 
@@ -373,7 +401,7 @@
 
       <div class="section-title">Tentang</div>
       <div class="card">
-        <div class="muted">Menabung v1.0</div>
+        <div class="muted">Menabung v1.2</div>
         <div class="muted">Data disimpan lokal di perangkat.</div>
       </div>
     </div>
@@ -410,8 +438,25 @@
           <div id="sibDetails"></div>
           <div class="muted" style="margin-top:10px;" id="sibAdvice"></div>
         </div>
-        <button class="btn-tertiary" id="btnSibReset">Kembali</button>
+        <div id="sibWishlistActions" style="display:none; margin-bottom:4px;">
+          <button class="btn-secondary" id="btnSaveToWishlist">💝 Simpan ke Wishlist</button>
+          <button class="btn-tertiary" id="btnGoToWishlist" style="display:none; margin-top:0;">Lihat Wishlist →</button>
+        </div>
+        <button class="btn-tertiary" id="btnSibReset">← Analisis Lagi</button>
       </div>
+    </div>
+
+    <div id="pageWishlist" style="display:none;">
+      <div class="row-between" style="margin-bottom:12px;">
+        <div>
+          <div style="font-weight:700; font-size:18px;">💝 Wishlist</div>
+          <div class="sub">Barang dalam masa pertimbangan.</div>
+        </div>
+        <button class="btn-tertiary small-btn" id="btnWishlistBack">✕ Kembali</button>
+      </div>
+      <div class="card" id="wishlistStatsCard"></div>
+      <div class="section-title">Daftar Barang</div>
+      <div id="wishlistContainer"></div>
     </div>
   </main>
 
@@ -470,21 +515,78 @@
     </div>
   </div>
 
-  <!-- Modal: Quick Transaction (Isi/Tarik Celengan) -->
+  <!-- Modal: Unified Transaction (Isi / Tarik untuk Emergency & Celengan) -->
   <div class="modal" id="txModal">
     <div class="modal-sheet">
       <div class="row-between" style="margin-bottom:8px;">
-        <div style="font-weight:700; font-size:16px;" id="txModalTitle">Isi Celengan</div>
-        <button class="btn-tertiary small-btn" id="btnTxCancel">Tutup</button>
+        <div style="font-weight:700; font-size:16px;" id="txModalTitle">Transaksi</div>
+        <button type="button" class="btn-tertiary small-btn" id="btnTxCancel">Tutup</button>
       </div>
-      <div class="muted" id="txGoalSubtitle" style="margin-bottom:12px; font-weight:600;"></div>
-      <div class="muted" style="margin-bottom:4px;">Nominal (Rp)</div>
+      <div class="muted" id="txGoalSubtitle" style="margin-bottom:10px; font-weight:600; font-size:14px;"></div>
+      
+      <div id="txBalanceWrap" style="display:none; background:var(--surface-secondary); padding:10px 12px; border-radius:12px; border:1px solid var(--border); margin-bottom:12px;">
+        <div class="muted">Saldo tersedia</div>
+        <div style="font-weight:700; font-size:16px; color:var(--accent-2); margin-top:2px;" id="txBalanceDisplay">Rp 0</div>
+      </div>
+
+      <div class="muted" style="margin-bottom:4px;" id="txAmountLabel">Nominal (Rp)</div>
       <input type="number" id="txAmount" placeholder="Contoh: 100000" inputmode="numeric" />
+      
       <div class="muted" style="margin-bottom:4px;">Catatan (opsional)</div>
-      <input type="text" id="txNote" placeholder="Contoh: Nabung sisa belanja" />
+      <input type="text" id="txNote" placeholder="Contoh: Sisa uang belanja" />
+      
+      <div id="txValidationError" style="display:none; color:var(--danger); font-size:13px; font-weight:600; margin-bottom:10px;"></div>
+
       <div class="action-row">
         <button type="button" class="btn-tertiary" id="btnTxCancel2">Batal</button>
         <button type="button" class="btn-secondary" id="btnTxSave">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Wishlist Cooling Period Selector -->
+  <div class="modal" id="wishlistCoolingModal">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:8px;">
+        <div style="font-weight:700; font-size:16px;">⏳ Cooling Period</div>
+        <button class="btn-tertiary small-btn" id="btnCoolingCancel">Tutup</button>
+      </div>
+      <div class="muted" style="margin-bottom:4px;">Berapa hari kamu ingin menunda keputusan?</div>
+      <div class="cooling-options-row" id="coolingOptionsRow">
+        <button type="button" class="cooling-option" data-days="3">3 hari</button>
+        <button type="button" class="cooling-option selected" data-days="7">7 hari</button>
+        <button type="button" class="cooling-option" data-days="14">14 hari</button>
+        <button type="button" class="cooling-option" data-days="30">30 hari</button>
+      </div>
+      <div class="muted" style="margin-bottom:12px; font-size:12px;">Setelah masa ini selesai, kamu bisa mengambil keputusan final.</div>
+      <button class="btn-secondary" id="btnCoolingSave">💝 Simpan ke Wishlist</button>
+      <button class="btn-tertiary" id="btnCoolingCancel2">Batal</button>
+    </div>
+  </div>
+
+  <!-- Modal: Wishlist Item Detail -->
+  <div class="modal" id="wishlistDetailModal">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:8px;">
+        <div style="font-weight:700; font-size:16px;">Detail Wishlist</div>
+        <button class="btn-tertiary small-btn" id="btnWishlistDetailClose">Tutup</button>
+      </div>
+      <div id="wishlistDetailContent"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Konfirmasi Beli -->
+  <div class="modal" id="wishlistBoughtModal">
+    <div class="modal-sheet">
+      <div style="text-align:center; padding:8px 0 16px;">
+        <div style="font-size:40px; margin-bottom:8px;">🛍️</div>
+        <div style="font-weight:700; font-size:16px; margin-bottom:8px;">Konfirmasi Pembelian</div>
+        <div class="muted">Apakah kamu benar-benar ingin menandai barang ini sebagai dibeli?</div>
+        <div class="muted" style="margin-top:6px; font-size:12px;">Saldo celengan tidak akan berubah secara otomatis.</div>
+      </div>
+      <div class="action-row">
+        <button type="button" class="btn-tertiary" id="btnBoughtCancel">Batal</button>
+        <button type="button" class="btn-secondary" id="btnBoughtConfirm">Ya, Tandai Dibeli</button>
       </div>
     </div>
   </div>
@@ -498,7 +600,8 @@
         emergency: { balance: 0, transactions: [] },
         goals: [],
         nextGoalId: 1,
-        settings: { darkMode: 'system' }
+        settings: { darkMode: 'system' },
+        wishlist: []
       };
     }
 
@@ -566,10 +669,15 @@
     let selectedEmoji = '💰';
     let currentPage = 'home';
     let previousNavPage = 'home';
+    // Wishlist v1.2 state
+    let lastSibAnalysis = null;
+    let selectedCoolingDays = 7;
+    let currentWishlistDetailId = null;
+    let wishlistCountdownTimer = null;
 
-    // Quick transaction state
-    let currentTxGoalId = null;
-    let currentTxType = 'in';
+    // Unified transaction state
+    let currentTx = null; // { source: 'emergency' | 'goal', type: 'in' | 'out', goalId?: number }
+    let isProcessingTx = false;
 
     function emergencyEl() {
       const data = getData();
@@ -705,20 +813,7 @@
     }
 
     function addEmergency() {
-      const amount = prompt('Masukkan nominal untuk Tabungan Darurat:');
-      if (amount === null) return;
-      const value = Number(String(amount).replace(/[^0-9]/g, ''));
-      if (!value || value <= 0) { showToast('Nominal tidak valid'); return; }
-      const note = prompt('Catatan (opsional):') || '';
-      const data = getData();
-      if (!data.emergency) data.emergency = { balance: 0, transactions: [] };
-      data.emergency.balance = (data.emergency.balance || 0) + value;
-      data.emergency.transactions = data.emergency.transactions || [];
-      data.emergency.transactions.unshift({ id: Date.now() + Math.random(), amount: value, type: 'in', date: todayISO(), note });
-      saveData(data);
-      renderEmergency();
-      renderEmergencyFull();
-      showToast('Tabungan Darurat ditambah');
+      openTransactionModal({ source: 'emergency', type: 'in' });
     }
 
     function updateEmergencyTarget() {
@@ -911,72 +1006,239 @@
       `).join('');
     }
 
-    // Modal quick transaction (Isi / Tarik)
-    function openQuickTx(goalId, type = 'in') {
-      currentTxGoalId = goalId;
-      currentTxType = type;
+    // Unified Transaction Modal: Tabungan Darurat & Celengan (Isi / Tarik)
+    function openTransactionModal(options) {
+      // options: { source: 'emergency' | 'goal', type: 'in' | 'out', goalId?: number }
+      currentTx = options;
+      isProcessingTx = false;
       const data = getData();
-      const g = data.goals.find(x => x.id === goalId);
-      if (!g) return;
 
-      document.getElementById('txModalTitle').textContent = type === 'in' ? 'Isi Celengan' : 'Tarik Celengan';
-      document.getElementById('txGoalSubtitle').textContent = `${g.emoji || '🎯'} ${g.name}`;
-      document.getElementById('txAmount').value = '';
-      document.getElementById('txNote').value = '';
+      const titleEl = document.getElementById('txModalTitle');
+      const subtitleEl = document.getElementById('txGoalSubtitle');
+      const balanceWrap = document.getElementById('txBalanceWrap');
+      const balanceDisplay = document.getElementById('txBalanceDisplay');
+      const amountLabel = document.getElementById('txAmountLabel');
+      const amountInput = document.getElementById('txAmount');
+      const noteInput = document.getElementById('txNote');
+      const errorEl = document.getElementById('txValidationError');
+      const saveBtn = document.getElementById('btnTxSave');
+
+      amountInput.value = '';
+      noteInput.value = '';
+      if (errorEl) {
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+      }
+      if (saveBtn) saveBtn.disabled = false;
+
+      let currentBalance = 0;
+
+      if (options.source === 'emergency') {
+        currentBalance = (data.emergency && data.emergency.balance) || 0;
+        if (options.type === 'in') {
+          titleEl.textContent = 'Isi Tabungan Darurat';
+          subtitleEl.innerHTML = '🛡️ Tabungan Darurat';
+          amountLabel.textContent = 'Nominal (Rp)';
+          amountInput.placeholder = 'Contoh: 100000';
+          noteInput.placeholder = 'Contoh: Sisa uang mingguan';
+          balanceWrap.style.display = 'none';
+          saveBtn.textContent = 'Simpan';
+          saveBtn.className = 'btn-secondary';
+        } else {
+          titleEl.textContent = 'Tarik Tabungan Darurat';
+          subtitleEl.innerHTML = '🛡️ Tabungan Darurat';
+          amountLabel.textContent = 'Nominal Penarikan (Rp)';
+          amountInput.placeholder = 'Contoh: 100000';
+          noteInput.placeholder = 'Contoh: Keperluan mendesak';
+          balanceWrap.style.display = 'block';
+          balanceDisplay.textContent = formatRupiah(currentBalance);
+          saveBtn.textContent = 'Tarik';
+          saveBtn.className = 'btn-danger';
+        }
+      } else if (options.source === 'goal') {
+        const g = data.goals.find(x => x.id === options.goalId);
+        if (!g) return;
+        currentBalance = g.currentAmount || 0;
+        if (options.type === 'in') {
+          titleEl.textContent = 'Isi Celengan';
+          subtitleEl.innerHTML = `${escapeHtml(g.emoji || '🎯')} ${escapeHtml(g.name)}`;
+          amountLabel.textContent = 'Nominal (Rp)';
+          amountInput.placeholder = 'Contoh: 50000';
+          noteInput.placeholder = 'Contoh: Nabung sisa jajan';
+          balanceWrap.style.display = 'none';
+          saveBtn.textContent = 'Simpan';
+          saveBtn.className = 'btn-secondary';
+        } else {
+          titleEl.textContent = 'Tarik Celengan';
+          subtitleEl.innerHTML = `${escapeHtml(g.emoji || '🎯')} ${escapeHtml(g.name)}`;
+          amountLabel.textContent = 'Nominal Penarikan (Rp)';
+          amountInput.placeholder = 'Contoh: 50000';
+          noteInput.placeholder = 'Contoh: Tarik untuk beli';
+          balanceWrap.style.display = 'block';
+          balanceDisplay.textContent = formatRupiah(currentBalance);
+          saveBtn.textContent = 'Tarik';
+          saveBtn.className = 'btn-danger';
+        }
+      }
+
       document.getElementById('txModal').classList.add('open');
       setTimeout(() => {
-        const inp = document.getElementById('txAmount');
-        if (inp) inp.focus();
+        if (amountInput) amountInput.focus();
       }, 100);
     }
 
-    function closeQuickTx() {
+    function closeTransactionModal() {
       document.getElementById('txModal').classList.remove('open');
-      currentTxGoalId = null;
+      currentTx = null;
+      isProcessingTx = false;
+      const errorEl = document.getElementById('txValidationError');
+      if (errorEl) {
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+      }
+      const saveBtn = document.getElementById('btnTxSave');
+      if (saveBtn) saveBtn.disabled = false;
     }
 
-    function saveQuickTx() {
-      if (!currentTxGoalId) return;
-      const amountRaw = String(document.getElementById('txAmount').value).replace(/[^0-9]/g, '');
-      const value = Number(amountRaw);
-      if (!value || value <= 0) {
-        showToast('Nominal tidak valid');
+    function saveTransaction() {
+      if (!currentTx || isProcessingTx) return;
+
+      const errorEl = document.getElementById('txValidationError');
+      const amountInput = document.getElementById('txAmount');
+      const rawVal = String(amountInput.value).trim();
+
+      // Validasi 1: Kosong
+      if (!rawVal) {
+        if (errorEl) {
+          errorEl.textContent = 'Nominal wajib diisi.';
+          errorEl.style.display = 'block';
+        }
+        amountInput.focus();
         return;
       }
-      const note = document.getElementById('txNote').value.trim();
+
+      const value = Number(rawVal.replace(/[^0-9]/g, ''));
+
+      // Validasi 2: <= 0
+      if (!value || value <= 0) {
+        if (errorEl) {
+          errorEl.textContent = 'Nominal harus lebih dari Rp0.';
+          errorEl.style.display = 'block';
+        }
+        amountInput.focus();
+        return;
+      }
+
       const data = getData();
-      const g = data.goals.find(x => x.id === currentTxGoalId);
-      if (!g) return;
+      const note = document.getElementById('txNote').value.trim();
 
-      g.transactions = g.transactions || [];
-      g.transactions.unshift({
-        id: Date.now() + Math.random(),
-        amount: value,
-        type: currentTxType,
-        date: todayISO(),
-        note
-      });
+      // Pencegahan double submission
+      isProcessingTx = true;
+      const saveBtn = document.getElementById('btnTxSave');
+      if (saveBtn) saveBtn.disabled = true;
 
-      if (currentTxType === 'in') {
-        g.currentAmount = (g.currentAmount || 0) + value;
-      } else {
-        g.currentAmount = Math.max(0, (g.currentAmount || 0) - value);
+      if (currentTx.source === 'emergency') {
+        if (!data.emergency) data.emergency = { balance: 0, transactions: [] };
+        const curBalance = data.emergency.balance || 0;
+
+        // Validasi 3: Tarik darurat melebihi saldo
+        if (currentTx.type === 'out' && value > curBalance) {
+          if (errorEl) {
+            errorEl.textContent = 'Saldo Tabungan Darurat tidak mencukupi.';
+            errorEl.style.display = 'block';
+          }
+          amountInput.focus();
+          isProcessingTx = false;
+          if (saveBtn) saveBtn.disabled = false;
+          return;
+        }
+
+        if (currentTx.type === 'in') {
+          data.emergency.balance = curBalance + value;
+        } else {
+          data.emergency.balance = Math.max(0, curBalance - value);
+        }
+
+        data.emergency.transactions = data.emergency.transactions || [];
+        data.emergency.transactions.unshift({
+          id: Date.now() + Math.random(),
+          amount: value,
+          type: currentTx.type,
+          date: todayISO(),
+          note
+        });
+
+        saveData(data);
+        closeTransactionModal();
+        renderEmergency();
+        renderEmergencyFull();
+        showToast(currentTx.type === 'in' ? 'Tabungan Darurat berhasil ditambahkan' : 'Penarikan berhasil');
+
+      } else if (currentTx.source === 'goal') {
+        const g = data.goals.find(x => x.id === currentTx.goalId);
+        if (!g) {
+          isProcessingTx = false;
+          if (saveBtn) saveBtn.disabled = false;
+          closeTransactionModal();
+          showToast('Celengan tidak ditemukan');
+          return;
+        }
+
+        const curAmount = g.currentAmount || 0;
+
+        // Validasi 4: Tarik celengan melebihi saldo
+        if (currentTx.type === 'out' && value > curAmount) {
+          if (errorEl) {
+            errorEl.textContent = 'Saldo celengan tidak mencukupi.';
+            errorEl.style.display = 'block';
+          }
+          amountInput.focus();
+          isProcessingTx = false;
+          if (saveBtn) saveBtn.disabled = false;
+          return;
+        }
+
+        if (currentTx.type === 'in') {
+          g.currentAmount = curAmount + value;
+        } else {
+          g.currentAmount = Math.max(0, curAmount - value);
+        }
+
+        g.transactions = g.transactions || [];
+        g.transactions.unshift({
+          id: Date.now() + Math.random(),
+          amount: value,
+          type: currentTx.type,
+          date: todayISO(),
+          note
+        });
+
+        if (currentTx.type === 'in' && g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
+          g.status = 'completed';
+          g.completedAt = todayISO();
+        }
+
+        saveData(data);
+        closeTransactionModal();
+
+        if (document.getElementById('detailModal').classList.contains('open')) {
+          openDetail(g.id);
+        }
+        renderGoals();
+        renderGoalsFull();
+        showToast(currentTx.type === 'in' ? 'Tabungan berhasil diisi' : 'Penarikan berhasil');
       }
+    }
 
-      if (g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
-        g.status = 'completed';
-        g.completedAt = todayISO();
-      }
-
-      saveData(data);
-      closeQuickTx();
-
-      if (document.getElementById('detailModal').classList.contains('open')) {
-        openDetail(g.id);
-      }
-      renderGoals();
-      renderGoalsFull();
-      showToast(currentTxType === 'in' ? 'Tabungan berhasil diisi' : 'Tabungan berhasil ditarik');
+    // Aliases for compatibility
+    function openQuickTx(goalId, type = 'in') {
+      openTransactionModal({ source: 'goal', type, goalId });
+    }
+    function closeQuickTx() {
+      closeTransactionModal();
+    }
+    function saveQuickTx() {
+      saveTransaction();
     }
 
     function showToast(text) {
@@ -992,6 +1254,7 @@
       renderGoals();
       renderGoalsFull();
       renderSettings();
+      renderWishlistHomeCard();
     }
 
     function renderEmergencyFull() {
@@ -1023,21 +1286,7 @@
     }
 
     function addEmergencyTransaction(type) {
-      const amount = prompt(`${type === 'in' ? 'Isi' : 'Tarik'} Tabungan Darurat:\nMasukkan nominal:`);
-      if (amount === null) return;
-      const value = Number(String(amount).replace(/[^0-9]/g, ''));
-      if (!value || value <= 0) { showToast('Nominal tidak valid'); return; }
-      const note = prompt('Catatan (opsional):') || '';
-      const data = getData();
-      if (!data.emergency) data.emergency = { balance: 0, transactions: [] };
-      if (type === 'in') data.emergency.balance = (data.emergency.balance || 0) + value;
-      else data.emergency.balance = Math.max(0, (data.emergency.balance || 0) - value);
-      data.emergency.transactions = data.emergency.transactions || [];
-      data.emergency.transactions.unshift({ id: Date.now() + Math.random(), amount: value, type, date: todayISO(), note });
-      saveData(data);
-      renderEmergency();
-      renderEmergencyFull();
-      showToast('Tersimpan');
+      openTransactionModal({ source: 'emergency', type });
     }
 
     function updateTabBarActive(pageName) {
@@ -1058,25 +1307,34 @@
         document.getElementById('detailModal').classList.remove('open');
       }
 
+      // Clear wishlist countdown timer when leaving wishlist
+      if (name !== 'wishlist' && wishlistCountdownTimer) {
+        clearInterval(wishlistCountdownTimer);
+        wishlistCountdownTimer = null;
+      }
+
       document.getElementById('pageHome').style.display = 'none';
       document.getElementById('pageEmergency').style.display = 'none';
       document.getElementById('pageGoals').style.display = 'none';
       document.getElementById('pageSettings').style.display = 'none';
       document.getElementById('pageShouldIBuy').style.display = 'none';
+      document.getElementById('pageWishlist').style.display = 'none';
 
       if (name === 'home') document.getElementById('pageHome').style.display = 'block';
       if (name === 'emergency') document.getElementById('pageEmergency').style.display = 'block';
       if (name === 'goals') document.getElementById('pageGoals').style.display = 'block';
       if (name === 'settings') document.getElementById('pageSettings').style.display = 'block';
       if (name === 'shouldibuy') document.getElementById('pageShouldIBuy').style.display = 'block';
+      if (name === 'wishlist') document.getElementById('pageWishlist').style.display = 'block';
 
       updateTabBarActive(name);
 
-      if (name === 'home') { renderEmergency(); renderGoals(); renderSettings(); }
+      if (name === 'home') { renderEmergency(); renderGoals(); renderSettings(); renderWishlistHomeCard(); }
       if (name === 'emergency') renderEmergencyFull();
       if (name === 'goals') renderGoalsFull();
       if (name === 'settings') renderSettings();
       if (name === 'shouldibuy') renderShouldIBuyForm();
+      if (name === 'wishlist') renderWishlist();
     }
 
     function setupGoalContainerEvents(containerId) {
@@ -1106,6 +1364,415 @@
       if (!goals.length) select.innerHTML = '<option value="">Tidak ada celengan aktif</option>';
       document.getElementById('sibResult').style.display = 'none';
       document.querySelector('#pageShouldIBuy .card').style.display = 'block';
+      lastSibAnalysis = null;
+      var wa = document.getElementById('sibWishlistActions');
+      if (wa) wa.style.display = 'none';
+      var dw = document.getElementById('sibDupWarning');
+      if (dw) dw.remove();
+    }
+
+    // =============================================
+    // Wishlist v1.2 — Pure analysis helper
+    // =============================================
+    function computeAnalysisResult(price, balance, target, weekly) {
+      var afterBalance = Math.max(0, balance - price);
+      var usedPct = balance ? Math.min(100, Math.round((price / balance) * 100)) : 0;
+      var additionalWeeks = weekly ? Math.ceil(price / weekly) : null;
+      var status, badgeClass, advice;
+      if (price > balance) {
+        status = 'TIDAK CUKUP'; badgeClass = 'badge-gray';
+        advice = 'Saldo celengan tidak cukup untuk pembelian ini.';
+      } else if (usedPct > 50) {
+        status = 'SEBAIKNYA TUNDA'; badgeClass = 'badge-red';
+        advice = 'Pembelian menggunakan ' + usedPct + '% saldo dan dapat memperlambat target.';
+      } else if (usedPct > 20) {
+        status = 'PERLU DIPERTIMBANGKAN'; badgeClass = 'badge-amber';
+        advice = 'Pembelian menggunakan ' + usedPct + '% saldo dan masih berdampak ke target.';
+      } else {
+        status = 'AMAN'; badgeClass = 'badge';
+        advice = 'Pembelian hanya menggunakan ' + usedPct + '% saldo celengan.';
+      }
+      return { afterBalance: afterBalance, usedPct: usedPct, additionalWeeks: additionalWeeks, status: status, badgeClass: badgeClass, advice: advice };
+    }
+
+    function getLiveWishlistAnalysis(item, goals) {
+      if (!goals) goals = goalsList();
+      var goal = goals.find(function(g) { return g.id === item.goalId; });
+      if (!goal) return { available: false };
+      var r = computeAnalysisResult(item.price, goal.currentAmount || 0, goal.targetAmount || 0, goal.weeklyTarget || 0);
+      return {
+        available: true,
+        goal: goal,
+        balanceNow: goal.currentAmount || 0,
+        afterBalance: r.afterBalance,
+        usedPct: r.usedPct,
+        additionalWeeks: r.additionalWeeks,
+        status: r.status,
+        badgeClass: r.badgeClass,
+        advice: r.advice,
+        isReached: goal.status === 'reached'
+      };
+    }
+
+    function getWishlistList() {
+      var data = getData();
+      return data.wishlist || [];
+    }
+
+    function updateWishlistStatuses() {
+      var data = getData();
+      if (!data.wishlist) { data.wishlist = []; saveData(data); return; }
+      var now = Date.now();
+      var changed = false;
+      data.wishlist.forEach(function(item) {
+        if (item.status === 'waiting' && now >= item.coolingUntil) {
+          item.status = 'ready';
+          changed = true;
+        }
+      });
+      if (changed) saveData(data);
+    }
+
+    function formatRemainingTime(ms) {
+      if (ms <= 0) return 'Selesai';
+      var totalSec = Math.floor(ms / 1000);
+      var days = Math.floor(totalSec / 86400);
+      var hours = Math.floor((totalSec % 86400) / 3600);
+      var minutes = Math.floor((totalSec % 3600) / 60);
+      if (days > 0) return days + ' hari ' + hours + ' jam';
+      if (hours > 0) return hours + ' jam ' + minutes + ' menit';
+      return minutes + ' menit';
+    }
+
+    function getWishlistStats() {
+      var items = getWishlistList();
+      var now = new Date();
+      var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+      var thisMonth = items.filter(function(i) { return i.createdAt >= monthStart; });
+      var cancelled = thisMonth.filter(function(i) { return i.status === 'cancelled'; });
+      var bought = thisMonth.filter(function(i) { return i.status === 'bought'; });
+      var ditunda = thisMonth.filter(function(i) { return i.status === 'waiting' || i.status === 'ready' || i.status === 'cancelled'; });
+      var avoided = cancelled.reduce(function(sum, i) { return sum + i.price; }, 0);
+      return { cancelled: cancelled.length, bought: bought.length, ditunda: ditunda.length, avoided: avoided };
+    }
+
+    function saveWishlistItem(coolingDays) {
+      if (!lastSibAnalysis) return;
+      var data = getData();
+      if (!data.wishlist) data.wishlist = [];
+      var now = Date.now();
+      var coolingUntil = now + coolingDays * 24 * 60 * 60 * 1000;
+      var item = {
+        id: now + Math.random(),
+        name: lastSibAnalysis.name,
+        price: lastSibAnalysis.price,
+        goalId: lastSibAnalysis.goalId,
+        goalName: lastSibAnalysis.goalName,
+        goalEmoji: lastSibAnalysis.goalEmoji,
+        analysisStatus: lastSibAnalysis.status,
+        balanceAtAnalysis: lastSibAnalysis.balance,
+        balancePercentage: lastSibAnalysis.usedPct,
+        impactWeeks: lastSibAnalysis.additionalWeeks,
+        advice: lastSibAnalysis.advice,
+        createdAt: now,
+        coolingDays: coolingDays,
+        coolingUntil: coolingUntil,
+        status: 'waiting',
+        decision: null,
+        decidedAt: null
+      };
+      data.wishlist.unshift(item);
+      saveData(data);
+      renderWishlistHomeCard();
+      showToast('Tersimpan ke Wishlist 💝');
+    }
+
+    function makeWishlistDecision(id, decision) {
+      var data = getData();
+      if (!data.wishlist) return;
+      var item = data.wishlist.find(function(i) { return i.id === id; });
+      if (!item) return;
+      item.status = decision;
+      item.decision = decision;
+      item.decidedAt = Date.now();
+      saveData(data);
+    }
+
+    function deleteWishlistItem(id) {
+      var data = getData();
+      if (!data.wishlist) return;
+      data.wishlist = data.wishlist.filter(function(i) { return i.id !== id; });
+      saveData(data);
+    }
+
+    function getStatusBadgeHtml(status) {
+      if (status === 'waiting') return '<span class="badge-blue">⏳ Cooling Period</span>';
+      if (status === 'ready') return '<span class="badge">✅ Siap Diputuskan</span>';
+      if (status === 'bought') return '<span class="badge">🛍️ Dibeli</span>';
+      if (status === 'cancelled') return '<span class="badge-gray">❌ Dibatalkan</span>';
+      return '';
+    }
+
+    function getAnalysisBadgeHtml(status) {
+      if (status === 'AMAN') return '<span class="badge">✅ AMAN</span>';
+      if (status === 'PERLU DIPERTIMBANGKAN') return '<span class="badge-amber">⚠️ PERTIMBANGKAN</span>';
+      if (status === 'SEBAIKNYA TUNDA') return '<span class="badge-red">🚫 TUNDA</span>';
+      if (status === 'TIDAK CUKUP') return '<span class="badge-gray">⛔ TDK CUKUP</span>';
+      return '<span class="badge-gray">' + escapeHtml(status || '-') + '</span>';
+    }
+
+    function renderWishlistCard(item) {
+      var remaining = Math.max(0, item.coolingUntil - Date.now());
+      var isWaiting = item.status === 'waiting';
+      var isReady = item.status === 'ready';
+      var statusHtml = '';
+      if (isWaiting) {
+        statusHtml = '<div style="margin-top:8px;">' +
+          getStatusBadgeHtml('waiting') +
+          '<div class="countdown-text" style="margin-top:6px;" id="cd-' + item.id + '">' + formatRemainingTime(remaining) + '</div>' +
+          '<div class="muted" style="font-size:12px;">lagi</div></div>';
+      } else if (isReady) {
+        statusHtml = '<div style="margin-top:8px;">' + getStatusBadgeHtml('ready') + '<div class="muted" style="margin-top:4px; font-size:12px;">Cooling Period selesai</div></div>';
+      } else {
+        statusHtml = '<div style="margin-top:8px;">' + getStatusBadgeHtml(item.status) + '</div>';
+      }
+      var actionBtn = isReady
+        ? '<button type="button" class="btn-primary small-btn wishlist-decide-btn" data-id="' + item.id + '" style="margin-top:8px;">Ambil Keputusan</button>'
+        : '';
+
+      var live = getLiveWishlistAnalysis(item);
+      var liveBadge = live.available
+        ? getAnalysisBadgeHtml(live.status)
+        : '<span class="badge-gray">Celengan tidak ada</span>';
+
+      return '<div class="card wishlist-item-card" data-wishlist-id="' + item.id + '" style="margin-bottom:10px;">' +
+        '<div class="row-between" style="align-items:flex-start;">' +
+          '<div class="flex-1">' +
+            '<div style="font-weight:700; font-size:15px;">' + escapeHtml(item.name) + '</div>' +
+            '<div style="font-weight:700; font-size:17px; color:var(--accent); margin-top:2px;">' + formatRupiah(item.price) + '</div>' +
+            '<div class="muted" style="font-size:12px; margin-top:2px;">Dari: ' + escapeHtml(item.goalEmoji || '🎯') + ' ' + escapeHtml(item.goalName) + '</div>' +
+          '</div>' +
+          '<div style="text-align:right; flex-shrink:0; margin-left:8px;">' + liveBadge + '</div>' +
+        '</div>' + statusHtml + actionBtn + '</div>';
+    }
+
+    function renderWishlistStats() {
+      var stats = getWishlistStats();
+      return '<div style="font-weight:700; margin-bottom:10px; font-size:14px;">📊 Statistik Bulan Ini</div>' +
+        '<div class="stats-grid">' +
+          '<div class="stat-box"><div class="stat-label">Ditunda</div><div class="stat-num">' + stats.ditunda + '</div><div class="stat-label">barang</div></div>' +
+          '<div class="stat-box"><div class="stat-label">Dibatalkan</div><div class="stat-num">' + stats.cancelled + '</div><div class="stat-label">barang</div></div>' +
+          '<div class="stat-box"><div class="stat-label">Tetap Dibeli</div><div class="stat-num">' + stats.bought + '</div><div class="stat-label">barang</div></div>' +
+          '<div class="stat-box highlight"><div class="stat-label">Pengeluaran Dihindari</div><div style="font-weight:700; font-size:14px; color:var(--accent-2); margin:2px 0;">' + formatRupiah(stats.avoided) + '</div><div class="stat-label">dari item dibatalkan</div></div>' +
+        '</div>';
+    }
+
+    function renderWishlistHomeCard() {
+      updateWishlistStatuses();
+      var items = getWishlistList();
+      var card = document.getElementById('wishlistHomeCard');
+      if (!card) return;
+      var active = items.filter(function(i) { return i.status === 'waiting' || i.status === 'ready'; });
+      var ready = items.filter(function(i) { return i.status === 'ready'; });
+      if (!items.length) { card.style.display = 'none'; return; }
+      card.style.display = 'block';
+      var subtitle = document.getElementById('wishlistHomeSubtitle');
+      if (subtitle) {
+        var text = active.length + ' barang sedang dipertimbangkan';
+        if (ready.length > 0) text += ' &bull; <strong style="color:var(--accent-2);">' + ready.length + ' siap diputuskan</strong>';
+        subtitle.innerHTML = text;
+      }
+    }
+
+    function renderWishlist() {
+      updateWishlistStatuses();
+      var items = getWishlistList();
+      var statsEl = document.getElementById('wishlistStatsCard');
+      if (statsEl) statsEl.innerHTML = renderWishlistStats();
+      var container = document.getElementById('wishlistContainer');
+      if (!container) return;
+      if (wishlistCountdownTimer) { clearInterval(wishlistCountdownTimer); wishlistCountdownTimer = null; }
+      if (!items.length) {
+        container.innerHTML = '<div class="empty"><div class="empty-illustration">💝</div><div>Belum ada barang di Wishlist.</div><div style="margin-top:6px;">Analisis dulu di <strong>Boleh Beli?</strong> lalu simpan ke sini.</div></div>';
+        return;
+      }
+      var ready = items.filter(function(i) { return i.status === 'ready'; });
+      var waiting = items.filter(function(i) { return i.status === 'waiting'; });
+      var done = items.filter(function(i) { return i.status === 'bought' || i.status === 'cancelled'; });
+      var html = '';
+      if (ready.length) {
+        html += '<div class="section-title" style="color:var(--accent-2); margin-top:0;">✅ Siap Diputuskan (' + ready.length + ')</div>';
+        html += ready.map(renderWishlistCard).join('');
+      }
+      if (waiting.length) {
+        html += '<div class="section-title">⏳ Cooling Period (' + waiting.length + ')</div>';
+        html += waiting.map(renderWishlistCard).join('');
+      }
+      if (done.length) {
+        html += '<div class="section-title">📋 Selesai (' + done.length + ')</div>';
+        html += done.map(renderWishlistCard).join('');
+      }
+      container.innerHTML = html;
+      container.querySelectorAll('.wishlist-item-card').forEach(function(card) {
+        card.addEventListener('click', function(e) {
+          if (e.target.closest('.wishlist-decide-btn')) return;
+          openWishlistDetail(Number(this.getAttribute('data-wishlist-id')));
+        });
+      });
+      container.querySelectorAll('.wishlist-decide-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          openWishlistDetail(Number(this.getAttribute('data-id')));
+        });
+      });
+      var waitingNow = waiting;
+      if (waitingNow.length > 0) {
+        var readyLen = ready.length;
+        wishlistCountdownTimer = setInterval(function() {
+          updateWishlistStatuses();
+          var fresh = getWishlistList();
+          var newReady = fresh.filter(function(i) { return i.status === 'ready'; });
+          if (newReady.length !== readyLen) { renderWishlist(); return; }
+          fresh.filter(function(i) { return i.status === 'waiting'; }).forEach(function(item) {
+            var el = document.getElementById('cd-' + item.id);
+            if (el) { var rem = Math.max(0, item.coolingUntil - Date.now()); el.textContent = formatRemainingTime(rem); }
+          });
+        }, 1000);
+      }
+    }
+
+    function openWishlistDetail(id) {
+      updateWishlistStatuses();
+      var data = getData();
+      if (!data.wishlist) return;
+      var item = data.wishlist.find(function(i) { return i.id === id; });
+      if (!item) return;
+      currentWishlistDetailId = id;
+      var isReady = item.status === 'ready';
+      var isWaiting = item.status === 'waiting';
+      var remaining = Math.max(0, item.coolingUntil - Date.now());
+
+      var live = getLiveWishlistAnalysis(item);
+      var currentConditionHtml = '';
+      if (live.available) {
+        var reachedBadge = live.isReached ? ' <span class="badge" style="font-size:10px; padding:2px 6px;">🎯 Target tercapai</span>' : '';
+        currentConditionHtml = '<div style="font-weight:700; font-size:12px; color:var(--muted); letter-spacing:0.5px; margin-bottom:8px;">KONDISI SAAT INI</div>' +
+          '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Saldo Celengan</div><div style="font-weight:600;">' + formatRupiah(live.balanceNow) + reachedBadge + '</div></div>' +
+          '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Harga Barang</div><div style="font-weight:600;">' + formatRupiah(item.price) + '</div></div>' +
+          '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Setelah Beli</div><div style="font-weight:600;">' + formatRupiah(live.afterBalance) + '</div></div>' +
+          '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Saldo Digunakan</div><div style="font-weight:600;">' + live.usedPct + '%</div></div>' +
+          '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Status Sekarang</div><div>' + getAnalysisBadgeHtml(live.status) + '</div></div>' +
+          (live.additionalWeeks !== null && live.additionalWeeks !== undefined ? '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Dampak Target</div><div style="font-weight:600;">+' + live.additionalWeeks + ' minggu</div></div>' : '') +
+          '<div class="muted" style="font-size:12px; margin-top:6px;">' + escapeHtml(live.advice) + '</div>';
+      } else {
+        currentConditionHtml = '<div style="font-weight:700; font-size:12px; color:var(--muted); letter-spacing:0.5px; margin-bottom:8px;">KONDISI SAAT INI</div>' +
+          '<div class="muted" style="font-size:13px; padding:6px 0;">⚠️ Celengan tidak tersedia (sudah dihapus).</div>';
+      }
+
+      var decisionHtml = '';
+      if (isReady) {
+        decisionHtml = '<div class="action-row" style="margin-top:10px;">' +
+          '<button type="button" class="btn-secondary" id="btnWishlistBuy">🛍️ Masih Ingin Beli</button>' +
+          '<button type="button" class="btn-danger" id="btnWishlistCancel">❌ Batal Beli</button>' +
+          '</div>';
+      }
+      var dateStr = new Date(item.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+      var decidedStr = item.decidedAt ? new Date(item.decidedAt).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }) : null;
+
+      var html = '<div style="margin-bottom:2px; font-weight:700; font-size:17px;">' + escapeHtml(item.name) + '</div>' +
+        '<div style="font-weight:800; font-size:24px; color:var(--accent); margin-bottom:10px;">' + formatRupiah(item.price) + '</div>' +
+        '<div class="row-between" style="margin-bottom:6px;"><div class="muted">Status</div><div>' + getStatusBadgeHtml(item.status) + '</div></div>' +
+        (isWaiting ? '<div style="text-align:center; padding:10px 0;"><div class="muted">Cooling Period</div><div class="countdown-text" style="margin-top:4px;">' + formatRemainingTime(remaining) + '</div><div class="muted" style="font-size:12px;">lagi</div></div>' : '') +
+        '<div class="divider"></div>' +
+        '<div style="font-weight:700; font-size:12px; color:var(--muted); letter-spacing:0.5px; margin-bottom:8px;">ANALISIS AWAL</div>' +
+        '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Celengan</div><div style="font-weight:600;">' + escapeHtml(item.goalEmoji || '🎯') + ' ' + escapeHtml(item.goalName) + '</div></div>' +
+        '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Saldo saat dianalisis</div><div style="font-weight:600;">' + formatRupiah(item.balanceAtAnalysis) + '</div></div>' +
+        '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Saldo digunakan</div><div style="font-weight:600;">' + item.balancePercentage + '%</div></div>' +
+        (item.impactWeeks !== null && item.impactWeeks !== undefined ? '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Dampak target</div><div style="font-weight:600;">+' + item.impactWeeks + ' minggu</div></div>' : '') +
+        '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Status</div><div>' + getAnalysisBadgeHtml(item.analysisStatus) + '</div></div>' +
+        '<div class="divider"></div>' +
+        currentConditionHtml +
+        '<div class="divider"></div>' +
+        '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Cooling Period</div><div class="muted">' + item.coolingDays + ' hari</div></div>' +
+        '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Ditambahkan</div><div class="muted">' + dateStr + '</div></div>' +
+        (decidedStr ? '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Diputuskan</div><div class="muted">' + decidedStr + '</div></div>' : '') +
+        decisionHtml +
+        '<div style="margin-top:' + (isReady ? '8' : '12') + 'px;"><button type="button" class="btn-danger" id="btnWishlistDelete">🗑️ Hapus dari Wishlist</button></div>';
+
+      document.getElementById('wishlistDetailContent').innerHTML = html;
+      document.getElementById('wishlistDetailModal').classList.add('open');
+      var buyBtn = document.getElementById('btnWishlistBuy');
+      var cancelBtn = document.getElementById('btnWishlistCancel');
+      var deleteBtn = document.getElementById('btnWishlistDelete');
+      if (buyBtn) buyBtn.onclick = function() { openBoughtConfirmModal(id); };
+      if (cancelBtn) cancelBtn.onclick = function() { confirmCancelWishlist(id); };
+      if (deleteBtn) deleteBtn.onclick = function() { confirmDeleteWishlist(id); };
+    }
+
+    function openBoughtConfirmModal(id) {
+      currentWishlistDetailId = id;
+      document.getElementById('wishlistBoughtModal').classList.add('open');
+    }
+
+    function confirmCancelWishlist(id) {
+      var data = getData();
+      var item = data.wishlist && data.wishlist.find(function(i) { return i.id === id; });
+      var price = item ? item.price : 0;
+      makeWishlistDecision(id, 'cancelled');
+      document.getElementById('wishlistDetailModal').classList.remove('open');
+      renderWishlist();
+      renderWishlistHomeCard();
+      showToast('Dibatalkan. ' + formatRupiah(price) + ' tidak jadi dikeluarkan.');
+    }
+
+    function confirmDeleteWishlist(id) {
+      if (!confirm('Hapus barang ini dari Wishlist?')) return;
+      deleteWishlistItem(id);
+      document.getElementById('wishlistDetailModal').classList.remove('open');
+      renderWishlist();
+      renderWishlistHomeCard();
+      showToast('Dihapus dari Wishlist');
+    }
+
+    function checkAndOpenCoolingModal() {
+      if (!lastSibAnalysis) return;
+      var items = getWishlistList();
+      var dup = items.find(function(i) {
+        return i.name.toLowerCase() === lastSibAnalysis.name.toLowerCase() &&
+          i.goalId === lastSibAnalysis.goalId &&
+          (i.status === 'waiting' || i.status === 'ready');
+      });
+      if (dup) {
+        var statusLabel = dup.status === 'waiting' ? 'Cooling Period' : 'Siap Diputuskan';
+        var existing = document.getElementById('sibDupWarning');
+        if (existing) existing.remove();
+        var div = document.createElement('div');
+        div.id = 'sibDupWarning';
+        div.className = 'dup-warning';
+        div.innerHTML = '⚠️ <strong>Barang ini sudah ada di Wishlist</strong> (Status: ' + statusLabel + ')' +
+          '<div class="dup-warning-row">' +
+          '<button type="button" class="dup-btn" id="btnDupView" style="background:var(--accent); color:#fff;">Lihat Wishlist</button>' +
+          '<button type="button" class="dup-btn" id="btnDupSave" style="background:transparent; border:1px solid currentColor;">Simpan Lagi</button>' +
+          '</div>';
+        var actionsEl = document.getElementById('sibWishlistActions');
+        if (actionsEl && actionsEl.parentNode) actionsEl.parentNode.insertBefore(div, actionsEl);
+        document.getElementById('btnDupView').onclick = function() { div.remove(); showPage('wishlist'); };
+        document.getElementById('btnDupSave').onclick = function() { div.remove(); openWishlistCoolingModal(); };
+      } else {
+        openWishlistCoolingModal();
+      }
+    }
+
+    function openWishlistCoolingModal() {
+      selectedCoolingDays = 7;
+      updateCoolingOptions();
+      document.getElementById('wishlistCoolingModal').classList.add('open');
+    }
+
+    function updateCoolingOptions() {
+      document.querySelectorAll('.cooling-option').forEach(function(btn) {
+        btn.classList.toggle('selected', Number(btn.getAttribute('data-days')) === selectedCoolingDays);
+      });
     }
 
     function analyzeShouldIBuy() {
@@ -1175,6 +1842,18 @@
       document.getElementById('sibAdvice').textContent = advice;
       document.querySelector('#pageShouldIBuy .card').style.display = 'none';
       document.getElementById('sibResult').style.display = 'block';
+
+      // Store analysis for Wishlist feature
+      lastSibAnalysis = { name: name, price: price, goalId: goalId, goalName: g.name, goalEmoji: g.emoji || '🎯', status: status, usedPct: usedPct, additionalWeeks: additionalWeeks, advice: advice, balance: balance };
+      var wishlistActions = document.getElementById('sibWishlistActions');
+      if (wishlistActions) {
+        wishlistActions.style.display = 'block';
+        var goToBtn = document.getElementById('btnGoToWishlist');
+        if (goToBtn) {
+          var alreadyIn = getWishlistList().some(function(i) { return i.name.toLowerCase() === name.toLowerCase() && i.goalId === goalId && (i.status === 'waiting' || i.status === 'ready'); });
+          goToBtn.style.display = alreadyIn ? 'block' : 'none';
+        }
+      }
     }
 
     // Attach all event listeners
@@ -1220,15 +1899,38 @@
     // Detail Modal close
     document.getElementById('btnDetailClose').addEventListener('click', closeDetailModal);
 
-    // Quick Transaction Modal handlers
-    document.getElementById('btnTxSave').addEventListener('click', saveQuickTx);
-    document.getElementById('btnTxCancel').addEventListener('click', closeQuickTx);
-    document.getElementById('btnTxCancel2').addEventListener('click', closeQuickTx);
+    // Transaction Modal handlers
+    document.getElementById('btnTxSave').addEventListener('click', saveTransaction);
+    document.getElementById('btnTxCancel').addEventListener('click', closeTransactionModal);
+    document.getElementById('btnTxCancel2').addEventListener('click', closeTransactionModal);
+
+    // Clear error dynamically when typing
+    document.getElementById('txAmount').addEventListener('input', function() {
+      const errorEl = document.getElementById('txValidationError');
+      if (errorEl) {
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+      }
+    });
+
+    // Enter key submits transaction
+    document.getElementById('txAmount').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveTransaction();
+      }
+    });
+    document.getElementById('txNote').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveTransaction();
+      }
+    });
 
     // Close modals on clicking backdrop
     document.getElementById('goalModal').addEventListener('click', function(e) { if (e.target === this) closeGoalModal(); });
     document.getElementById('detailModal').addEventListener('click', function(e) { if (e.target === this) closeDetailModal(); });
-    document.getElementById('txModal').addEventListener('click', function(e) { if (e.target === this) closeQuickTx(); });
+    document.getElementById('txModal').addEventListener('click', function(e) { if (e.target === this) closeTransactionModal(); });
 
     // Emoji selection
     document.querySelectorAll('#emojiRow .emoji-btn').forEach(btn => {
@@ -1243,6 +1945,56 @@
     document.getElementById('btnShouldClose').addEventListener('click', () => showPage('home'));
     document.getElementById('btnSibAnalyze').addEventListener('click', analyzeShouldIBuy);
     document.getElementById('btnSibReset').addEventListener('click', () => renderShouldIBuyForm());
+
+    // Wishlist v1.2
+    document.getElementById('btnOpenWishlist').addEventListener('click', function() { showPage('wishlist'); });
+    document.getElementById('btnWishlistBack').addEventListener('click', function() { showPage('home'); });
+    document.getElementById('btnSaveToWishlist').addEventListener('click', checkAndOpenCoolingModal);
+    document.getElementById('btnGoToWishlist').addEventListener('click', function() { showPage('wishlist'); });
+
+    document.getElementById('coolingOptionsRow').addEventListener('click', function(e) {
+      var btn = e.target.closest('.cooling-option');
+      if (!btn) return;
+      selectedCoolingDays = Number(btn.getAttribute('data-days'));
+      updateCoolingOptions();
+    });
+    document.getElementById('btnCoolingSave').addEventListener('click', function() {
+      saveWishlistItem(selectedCoolingDays);
+      document.getElementById('wishlistCoolingModal').classList.remove('open');
+      var goToBtn = document.getElementById('btnGoToWishlist');
+      if (goToBtn) goToBtn.style.display = 'block';
+    });
+    document.getElementById('btnCoolingCancel').addEventListener('click', function() {
+      document.getElementById('wishlistCoolingModal').classList.remove('open');
+    });
+    document.getElementById('btnCoolingCancel2').addEventListener('click', function() {
+      document.getElementById('wishlistCoolingModal').classList.remove('open');
+    });
+    document.getElementById('wishlistCoolingModal').addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+    document.getElementById('wishlistDetailModal').addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+    document.getElementById('wishlistBoughtModal').addEventListener('click', function(e) {
+      if (e.target === this) this.classList.remove('open');
+    });
+    document.getElementById('btnWishlistDetailClose').addEventListener('click', function() {
+      document.getElementById('wishlistDetailModal').classList.remove('open');
+    });
+    document.getElementById('btnBoughtCancel').addEventListener('click', function() {
+      document.getElementById('wishlistBoughtModal').classList.remove('open');
+    });
+    document.getElementById('btnBoughtConfirm').addEventListener('click', function() {
+      var id = currentWishlistDetailId;
+      if (!id) return;
+      makeWishlistDecision(id, 'bought');
+      document.getElementById('wishlistBoughtModal').classList.remove('open');
+      document.getElementById('wishlistDetailModal').classList.remove('open');
+      renderWishlist();
+      renderWishlistHomeCard();
+      showToast('Ditandai sebagai dibeli 🛍️');
+    });
 
     // Dark Mode Theme Controls
     document.getElementById('darkModeSelect').addEventListener('change', function(e) {
