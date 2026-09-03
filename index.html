@@ -265,6 +265,29 @@
     .dup-warning { background: var(--badge-amber-bg); color: var(--badge-amber-text); border-radius: 12px; padding: 12px; margin-bottom: 8px; font-size: 13px; }
     .dup-warning-row { display: flex; gap: 8px; margin-top: 8px; }
     .dup-btn { flex: 1; padding: 8px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; font-family: inherit; min-height: 38px; width: auto; margin-bottom: 0; }
+    /* === Budget & Expense v1.3 === */
+    .category-filter-row {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px; margin-bottom: 12px;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .category-filter-row::-webkit-scrollbar { display: none; }
+    .cat-filter-btn {
+      white-space: nowrap; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 500;
+      border: 1px solid var(--border); background: var(--surface-secondary); color: var(--text);
+      cursor: pointer; transition: all 0.15s ease; min-height: 34px; width: auto; margin: 0;
+    }
+    .cat-filter-btn.active {
+      background: var(--accent); color: #ffffff; border-color: var(--accent); font-weight: 700;
+    }
+    .over-budget-card {
+      border: 1px solid var(--danger); background: var(--badge-red-bg); color: var(--badge-red-text);
+      border-radius: 12px; padding: 12px; margin-top: 10px;
+    }
+    .category-bar-row {
+      display: flex; align-items: center; justify-content: space-between; padding: 7px 0;
+      border-bottom: 1px dashed var(--border); font-size: 13px;
+    }
+    .category-bar-row:last-child { border-bottom: none; }
   </style>
 </head>
 <body>
@@ -298,6 +321,24 @@
           <div class="progress-fill" id="emergencyProgress" style="width:0%"></div>
         </div>
         <div class="muted" style="margin-top:8px;">Dana yang tidak digunakan untuk kebutuhan biasa.</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-title" style="margin:0 0 8px;">Budget Bulanan</div>
+      <div class="card" id="budgetHomeCard" style="border-left: 4px solid var(--accent-3); margin-bottom:12px;">
+        <div class="row-between">
+          <div class="flex-1">
+            <div style="font-weight:700; font-size:16px;" id="budgetHomeTitle">Budget Bulan Ini</div>
+            <div id="budgetHomeMainText" class="big" style="margin-top:2px;">Rp 0 tersisa</div>
+            <div class="muted" id="budgetHomeSubText">dari Rp 0 &bull; 0% digunakan</div>
+          </div>
+        </div>
+        <div class="progress-bar" id="budgetHomeProgressWrap" style="margin-top:8px;">
+          <div class="progress-fill" id="budgetHomeProgress" style="width:0%;"></div>
+        </div>
+        <div id="budgetHomeOverWarning" class="over-budget-card" style="display:none; padding:8px 10px; font-size:12px; font-weight:600; margin-top:8px;"></div>
+        <button class="btn-primary small-btn" id="btnOpenBudgetHome" style="margin-top:10px;">Kelola Budget</button>
       </div>
 
       <div class="divider"></div>
@@ -401,7 +442,7 @@
 
       <div class="section-title">Tentang</div>
       <div class="card">
-        <div class="muted">Menabung v1.2</div>
+        <div class="muted">Menabung v1.3.0</div>
         <div class="muted">Data disimpan lokal di perangkat.</div>
       </div>
     </div>
@@ -420,8 +461,28 @@
         <input type="text" id="sibName" placeholder="Contoh: Headset Sony" />
         <div class="muted" style="margin-bottom:8px;">Harga Barang</div>
         <input type="number" id="sibPrice" placeholder="Contoh: 6500000" inputmode="numeric" />
-        <div class="muted" style="margin-bottom:8px;">Gunakan Celengan</div>
-        <select id="sibGoal"></select>
+        
+        <div class="muted" style="margin-bottom:6px;">Sumber Dana</div>
+        <div style="display:flex; gap:16px; margin-bottom:12px;">
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:14px; font-weight:600;">
+            <input type="radio" name="sibSource" id="sibSourceGoal" value="goal" checked style="width:auto; margin:0;" /> Celengan
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; cursor:pointer; font-size:14px; font-weight:600;">
+            <input type="radio" name="sibSource" id="sibSourceBudget" value="budget" style="width:auto; margin:0;" /> Budget Bulanan
+          </label>
+        </div>
+
+        <div id="sibGoalWrap">
+          <div class="muted" style="margin-bottom:8px;">Gunakan Celengan</div>
+          <select id="sibGoal"></select>
+        </div>
+
+        <div id="sibBudgetWrap" style="display:none; background:var(--surface-secondary); padding:10px 12px; border-radius:12px; border:1px solid var(--border); margin-bottom:12px;">
+          <div class="muted">Sisa Budget Bulan Ini</div>
+          <div id="sibBudgetRemainingDisplay" style="font-weight:700; font-size:16px; color:var(--accent); margin-top:2px;">Rp 0</div>
+          <div class="muted" id="sibBudgetNotice" style="font-size:11px; margin-top:2px;">Tabungan Darurat tidak dihitung.</div>
+        </div>
+
         <button class="btn-primary" id="btnSibAnalyze">Analisis Pembelian</button>
       </div>
 
@@ -457,6 +518,44 @@
       <div class="card" id="wishlistStatsCard"></div>
       <div class="section-title">Daftar Barang</div>
       <div id="wishlistContainer"></div>
+    </div>
+
+    <!-- Page: Budget Bulanan v1.3.0 -->
+    <div id="pageBudget" style="display:none;">
+      <div class="row-between" style="margin-bottom:12px;">
+        <div>
+          <div style="font-weight:700; font-size:18px;">📊 Budget Bulanan</div>
+          <div class="sub">Kelola batas pengeluaran operasional.</div>
+        </div>
+        <button class="btn-tertiary small-btn" id="btnBudgetBack">✕ Kembali</button>
+      </div>
+
+      <!-- Month Navigation -->
+      <div class="card" style="padding:10px 14px; margin-bottom:10px;">
+        <div class="row-between">
+          <button type="button" class="btn-tertiary small-btn" id="btnPrevMonth" style="padding:6px 12px; min-height:36px;">◀</button>
+          <div style="font-weight:700; font-size:16px; text-align:center;" id="budgetMonthTitle">September 2026</div>
+          <button type="button" class="btn-tertiary small-btn" id="btnNextMonth" style="padding:6px 12px; min-height:36px;">▶</button>
+        </div>
+      </div>
+
+      <!-- Budget Summary Card -->
+      <div class="card" id="budgetSummaryCard" style="margin-bottom:12px;"></div>
+
+      <!-- Action: Catat Pengeluaran -->
+      <button type="button" class="btn-primary" id="btnOpenAddExpense" style="margin-bottom:12px;">+ Catat Pengeluaran</button>
+
+      <!-- Category Filter Pills -->
+      <div class="section-title">Filter Kategori</div>
+      <div class="category-filter-row" id="categoryFilterRow"></div>
+
+      <!-- Category Summary -->
+      <div class="section-title">Ringkasan Pengeluaran</div>
+      <div class="card" id="categorySummaryCard" style="margin-bottom:12px;"></div>
+
+      <!-- Expense History List -->
+      <div class="section-title">Riwayat Pengeluaran</div>
+      <div id="expenseListContainer"></div>
     </div>
   </main>
 
@@ -591,6 +690,59 @@
     </div>
   </div>
 
+  <!-- Modal: Set / Edit Budget -->
+  <div class="modal" id="budgetModal">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:8px;">
+        <div style="font-weight:700; font-size:16px;" id="budgetModalTitle">Atur Budget Bulanan</div>
+        <button type="button" class="btn-tertiary small-btn" id="btnBudgetModalClose">Tutup</button>
+      </div>
+      <div class="muted" style="margin-bottom:12px;" id="budgetModalSubtitle">September 2026</div>
+      
+      <div class="muted" style="margin-bottom:4px;">Nominal Budget (Rp)</div>
+      <input type="number" id="inputBudgetAmount" placeholder="Contoh: 3000000" inputmode="numeric" />
+      
+      <div id="budgetValidationError" style="display:none; color:var(--danger); font-size:13px; font-weight:600; margin-bottom:10px;"></div>
+
+      <div class="action-row">
+        <button type="button" class="btn-tertiary" id="btnBudgetModalCancel">Batal</button>
+        <button type="button" class="btn-secondary" id="btnBudgetModalSave">Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Catat / Edit Pengeluaran -->
+  <div class="modal" id="expenseModal">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:8px;">
+        <div style="font-weight:700; font-size:16px;" id="expenseModalTitle">Catat Pengeluaran</div>
+        <button type="button" class="btn-tertiary small-btn" id="btnExpenseModalClose">Tutup</button>
+      </div>
+
+      <div class="muted" style="margin-bottom:4px;">Nominal (Rp)</div>
+      <input type="number" id="inputExpenseAmount" placeholder="Contoh: 45000" inputmode="numeric" />
+
+      <div class="muted" style="margin-bottom:4px;">Kategori</div>
+      <select id="selectExpenseCategory" style="margin-bottom:10px;"></select>
+
+      <div class="muted" style="margin-bottom:4px;">Tanggal</div>
+      <input type="date" id="inputExpenseDate" style="margin-bottom:10px;" />
+
+      <div class="muted" style="margin-bottom:4px;">Catatan (opsional)</div>
+      <input type="text" id="inputExpenseNote" placeholder="Contoh: Makan siang rendang" />
+
+      <div id="expenseValidationError" style="display:none; color:var(--danger); font-size:13px; font-weight:600; margin-bottom:10px;"></div>
+
+      <div class="action-row">
+        <button type="button" class="btn-tertiary" id="btnExpenseModalCancel">Batal</button>
+        <button type="button" class="btn-secondary" id="btnExpenseModalSave">Simpan</button>
+      </div>
+      <div id="expenseDeleteWrap" style="display:none; margin-top:8px;">
+        <button type="button" class="btn-danger" id="btnExpenseModalDelete">🗑️ Hapus Pengeluaran</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const STORE_KEY = 'savings_app_v3';
     const EMERGENCY = 'emergency';
@@ -601,14 +753,24 @@
         goals: [],
         nextGoalId: 1,
         settings: { darkMode: 'system' },
-        wishlist: []
+        wishlist: [],
+        budgets: {},
+        expenses: []
       };
     }
 
     function getData() {
       try {
         const raw = localStorage.getItem(STORE_KEY);
-        if (raw) return JSON.parse(raw);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            parsed.budgets = (parsed.budgets && typeof parsed.budgets === 'object' && !Array.isArray(parsed.budgets)) ? parsed.budgets : {};
+            parsed.expenses = Array.isArray(parsed.expenses) ? parsed.expenses : [];
+            parsed.wishlist = Array.isArray(parsed.wishlist) ? parsed.wishlist : [];
+            return parsed;
+          }
+        }
       } catch (e) { console.error(e); }
       return emptyData();
     }
@@ -674,6 +836,11 @@
     let selectedCoolingDays = 7;
     let currentWishlistDetailId = null;
     let wishlistCountdownTimer = null;
+
+    // Budget & Expense v1.3 state
+    let selectedBudgetMonth = '';
+    let selectedCategoryFilter = 'ALL';
+    let editingExpenseId = null;
 
     // Unified transaction state
     let currentTx = null; // { source: 'emergency' | 'goal', type: 'in' | 'out', goalId?: number }
@@ -1255,6 +1422,7 @@
       renderGoalsFull();
       renderSettings();
       renderWishlistHomeCard();
+      renderBudgetHomeCard();
     }
 
     function renderEmergencyFull() {
@@ -1319,6 +1487,7 @@
       document.getElementById('pageSettings').style.display = 'none';
       document.getElementById('pageShouldIBuy').style.display = 'none';
       document.getElementById('pageWishlist').style.display = 'none';
+      document.getElementById('pageBudget').style.display = 'none';
 
       if (name === 'home') document.getElementById('pageHome').style.display = 'block';
       if (name === 'emergency') document.getElementById('pageEmergency').style.display = 'block';
@@ -1326,15 +1495,17 @@
       if (name === 'settings') document.getElementById('pageSettings').style.display = 'block';
       if (name === 'shouldibuy') document.getElementById('pageShouldIBuy').style.display = 'block';
       if (name === 'wishlist') document.getElementById('pageWishlist').style.display = 'block';
+      if (name === 'budget') document.getElementById('pageBudget').style.display = 'block';
 
       updateTabBarActive(name);
 
-      if (name === 'home') { renderEmergency(); renderGoals(); renderSettings(); renderWishlistHomeCard(); }
+      if (name === 'home') { renderEmergency(); renderGoals(); renderSettings(); renderWishlistHomeCard(); renderBudgetHomeCard(); }
       if (name === 'emergency') renderEmergencyFull();
       if (name === 'goals') renderGoalsFull();
       if (name === 'settings') renderSettings();
       if (name === 'shouldibuy') renderShouldIBuyForm();
       if (name === 'wishlist') renderWishlist();
+      if (name === 'budget') renderBudgetPage();
     }
 
     function setupGoalContainerEvents(containerId) {
@@ -1369,6 +1540,391 @@
       if (wa) wa.style.display = 'none';
       var dw = document.getElementById('sibDupWarning');
       if (dw) dw.remove();
+
+      // Reset source to Goal
+      var radGoal = document.getElementById('sibSourceGoal');
+      if (radGoal) radGoal.checked = true;
+      var gw = document.getElementById('sibGoalWrap');
+      if (gw) gw.style.display = 'block';
+      var bw = document.getElementById('sibBudgetWrap');
+      if (bw) bw.style.display = 'none';
+      updateSibBudgetDisplay();
+    }
+
+    function updateSibBudgetDisplay() {
+      var curYM = getLocalYearMonth();
+      var summary = getBudgetSummary(curYM);
+      var el = document.getElementById('sibBudgetRemainingDisplay');
+      if (el) {
+        if (!summary.hasBudget) {
+          el.textContent = 'Belum diatur (Rp 0)';
+          el.style.color = 'var(--muted)';
+        } else if (summary.isOverBudget) {
+          el.textContent = 'Rp 0 (OVER BUDGET: +' + formatRupiah(summary.overAmount) + ')';
+          el.style.color = 'var(--danger)';
+        } else {
+          el.textContent = formatRupiah(summary.remainingBudget);
+          el.style.color = 'var(--accent-2)';
+        }
+      }
+    }
+
+    // =============================================
+    // Budget & Expense v1.3.0
+    // =============================================
+    const EXPENSE_CATEGORIES = [
+      { id: 'Makanan', label: 'Makanan', emoji: '🍔' },
+      { id: 'Transportasi', label: 'Transportasi', emoji: '🚗' },
+      { id: 'Belanja', label: 'Belanja', emoji: '🛍️' },
+      { id: 'Hiburan', label: 'Hiburan', emoji: '🎮' },
+      { id: 'Tagihan', label: 'Tagihan', emoji: '📱' },
+      { id: 'Pendidikan', label: 'Pendidikan', emoji: '📚' },
+      { id: 'Kesehatan', label: 'Kesehatan', emoji: '❤️' },
+      { id: 'Lainnya', label: 'Lainnya', emoji: '📦' }
+    ];
+
+    function getLocalDateISO(d) {
+      d = d ? new Date(d) : new Date();
+      var year = d.getFullYear();
+      var month = String(d.getMonth() + 1).padStart(2, '0');
+      var day = String(d.getDate()).padStart(2, '0');
+      return year + '-' + month + '-' + day;
+    }
+
+    function getLocalYearMonth(d) {
+      d = d ? new Date(d) : new Date();
+      var year = d.getFullYear();
+      var month = String(d.getMonth() + 1).padStart(2, '0');
+      return year + '-' + month;
+    }
+
+    function formatMonthYear(ym) {
+      if (!ym) return '';
+      var parts = ym.split('-');
+      var y = Number(parts[0]);
+      var m = Number(parts[1]);
+      return new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    }
+
+    function shiftMonth(ym, delta) {
+      var parts = (ym || getLocalYearMonth()).split('-').map(Number);
+      var d = new Date(parts[0], parts[1] - 1 + delta, 1);
+      var ny = d.getFullYear();
+      var nm = String(d.getMonth() + 1).padStart(2, '0');
+      return ny + '-' + nm;
+    }
+
+    function getBudgetForMonth(ym) {
+      var data = getData();
+      return (data.budgets && Number(data.budgets[ym])) || 0;
+    }
+
+    function getExpensesForMonth(ym) {
+      var data = getData();
+      return (data.expenses || []).filter(function(e) {
+        return e.date && typeof e.date === 'string' && e.date.startsWith(ym);
+      });
+    }
+
+    function getBudgetSummary(ym) {
+      var monthlyBudget = getBudgetForMonth(ym);
+      var expenses = getExpensesForMonth(ym);
+      var usedBudget = expenses.reduce(function(sum, e) { return sum + Number(e.amount || 0); }, 0);
+      var remainingBudget = monthlyBudget - usedBudget;
+      var isOverBudget = monthlyBudget > 0 && usedBudget > monthlyBudget;
+      var overAmount = isOverBudget ? (usedBudget - monthlyBudget) : 0;
+      var pct = monthlyBudget > 0 ? Math.min(100, Math.round((usedBudget / monthlyBudget) * 100)) : 0;
+      return {
+        ym: ym,
+        hasBudget: monthlyBudget > 0,
+        monthlyBudget: monthlyBudget,
+        usedBudget: usedBudget,
+        remainingBudget: remainingBudget,
+        isOverBudget: isOverBudget,
+        overAmount: overAmount,
+        pct: pct
+      };
+    }
+
+    function saveBudgetForMonth(ym, amount) {
+      var data = getData();
+      data.budgets = data.budgets || {};
+      data.budgets[ym] = Number(amount || 0);
+      saveData(data);
+    }
+
+    function saveExpenseItem(expense) {
+      var data = getData();
+      data.expenses = data.expenses || [];
+      if (expense.id) {
+        var idx = data.expenses.findIndex(function(e) { return e.id === expense.id; });
+        if (idx !== -1) {
+          data.expenses[idx] = Object.assign({}, data.expenses[idx], expense);
+        }
+      } else {
+        expense.id = Date.now() + Math.random();
+        expense.createdAt = Date.now();
+        data.expenses.unshift(expense);
+      }
+      saveData(data);
+    }
+
+    function deleteExpenseItem(id) {
+      var data = getData();
+      data.expenses = (data.expenses || []).filter(function(e) { return e.id !== id; });
+      saveData(data);
+    }
+
+    function renderBudgetHomeCard() {
+      var card = document.getElementById('budgetHomeCard');
+      if (!card) return;
+      var curYM = getLocalYearMonth();
+      var summary = getBudgetSummary(curYM);
+      var mainText = document.getElementById('budgetHomeMainText');
+      var subText = document.getElementById('budgetHomeSubText');
+      var progress = document.getElementById('budgetHomeProgress');
+      var overWarn = document.getElementById('budgetHomeOverWarning');
+
+      if (!summary.hasBudget) {
+        mainText.textContent = 'Belum diatur';
+        mainText.style.color = 'var(--text)';
+        subText.textContent = 'Atur budget ' + formatMonthYear(curYM);
+        progress.style.width = '0%';
+        if (overWarn) overWarn.style.display = 'none';
+        return;
+      }
+
+      if (summary.isOverBudget) {
+        mainText.textContent = 'OVER BUDGET';
+        mainText.style.color = 'var(--danger)';
+        subText.textContent = 'Terpakai ' + formatRupiah(summary.usedBudget) + ' dari ' + formatRupiah(summary.monthlyBudget);
+        progress.style.width = '100%';
+        progress.style.background = 'var(--danger)';
+        if (overWarn) {
+          overWarn.style.display = 'block';
+          overWarn.textContent = '⚠️ Melebihi budget ' + formatRupiah(summary.overAmount);
+        }
+      } else {
+        mainText.textContent = formatRupiah(summary.remainingBudget) + ' tersisa';
+        mainText.style.color = 'var(--accent-2)';
+        subText.textContent = 'dari ' + formatRupiah(summary.monthlyBudget) + ' \u2022 ' + summary.pct + '% digunakan';
+        progress.style.width = summary.pct + '%';
+        progress.style.background = 'linear-gradient(90deg, var(--accent-2), #34d399)';
+        if (overWarn) overWarn.style.display = 'none';
+      }
+    }
+
+    function renderBudgetPage() {
+      if (!selectedBudgetMonth) selectedBudgetMonth = getLocalYearMonth();
+      var ym = selectedBudgetMonth;
+      document.getElementById('budgetMonthTitle').textContent = formatMonthYear(ym);
+      var summary = getBudgetSummary(ym);
+      var prevYM = shiftMonth(ym, -1);
+      var prevBudget = getBudgetForMonth(prevYM);
+
+      var summaryEl = document.getElementById('budgetSummaryCard');
+      if (!summary.hasBudget) {
+        var copyBtnHtml = prevBudget > 0
+          ? '<button type="button" class="btn-tertiary" id="btnCopyPrevBudget" style="margin-top:8px;">📋 Gunakan budget ' + formatMonthYear(prevYM) + ' (' + formatRupiah(prevBudget) + ')</button>'
+          : '';
+        summaryEl.innerHTML = '<div style="text-align:center; padding:10px 0;">' +
+          '<div style="font-size:36px; margin-bottom:6px;">📅</div>' +
+          '<div style="font-weight:700; font-size:16px;">Belum ada budget untuk ' + formatMonthYear(ym) + '</div>' +
+          '<div class="muted" style="margin-top:4px; margin-bottom:12px;">Tentukan batas pengeluaran untuk bulan ini.</div>' +
+          '<button type="button" class="btn-primary" id="btnCreateBudget">+ Buat Budget</button>' +
+          copyBtnHtml +
+          '</div>';
+        var createBtn = document.getElementById('btnCreateBudget');
+        if (createBtn) createBtn.onclick = function() { openBudgetModal(ym); };
+        var copyBtn = document.getElementById('btnCopyPrevBudget');
+        if (copyBtn) copyBtn.onclick = function() {
+          saveBudgetForMonth(ym, prevBudget);
+          renderBudgetPage();
+          renderBudgetHomeCard();
+          showToast('Budget disalin dari ' + formatMonthYear(prevYM));
+        };
+      } else {
+        var overHtml = summary.isOverBudget
+          ? '<div class="over-budget-card">⚠️ <strong>OVER BUDGET!</strong> Melebihi budget ' + formatRupiah(summary.overAmount) + '</div>'
+          : '';
+        var remainingColor = summary.isOverBudget ? 'var(--danger)' : 'var(--accent-2)';
+        var remainingLabel = summary.isOverBudget ? 'Melebihi' : 'Sisa Budget';
+        var remainingVal = summary.isOverBudget ? formatRupiah(summary.overAmount) : formatRupiah(summary.remainingBudget);
+
+        summaryEl.innerHTML = '<div class="row-between">' +
+          '<div><div class="muted">Budget ' + formatMonthYear(ym) + '</div><div class="big" style="margin-top:2px;">' + formatRupiah(summary.monthlyBudget) + '</div></div>' +
+          '<button type="button" class="btn-tertiary small-btn" id="btnEditBudget">Edit</button>' +
+          '</div>' +
+          '<div class="divider"></div>' +
+          '<div class="row-between">' +
+          '<div><div class="muted">Terpakai</div><div style="font-weight:700; font-size:16px;">' + formatRupiah(summary.usedBudget) + '</div></div>' +
+          '<div class="text-right"><div class="muted">' + remainingLabel + '</div><div style="font-weight:700; font-size:16px; color:' + remainingColor + ';">' + remainingVal + '</div></div>' +
+          '</div>' +
+          '<div class="progress-bar" style="margin-top:8px;">' +
+          '<div class="progress-fill" style="width:' + summary.pct + '%; background:' + (summary.isOverBudget ? 'var(--danger)' : 'linear-gradient(90deg, var(--accent-2), #34d399)') + ';"></div>' +
+          '</div>' +
+          '<div class="row-between" style="margin-top:4px;"><div class="muted">' + summary.pct + '% digunakan</div>' + (summary.isOverBudget ? '<div class="badge-red" style="font-size:11px; padding:2px 8px;">OVER BUDGET</div>' : '') + '</div>' +
+          overHtml;
+        var editBtn = document.getElementById('btnEditBudget');
+        if (editBtn) editBtn.onclick = function() { openBudgetModal(ym); };
+      }
+
+      renderCategoryFilters();
+      renderCategorySummary();
+      renderExpenseList();
+    }
+
+    function renderCategoryFilters() {
+      var container = document.getElementById('categoryFilterRow');
+      if (!container) return;
+      var html = '<button type="button" class="cat-filter-btn ' + (selectedCategoryFilter === 'ALL' ? 'active' : '') + '" data-cat="ALL">Semua</button>';
+      EXPENSE_CATEGORIES.forEach(function(c) {
+        var active = selectedCategoryFilter === c.id ? 'active' : '';
+        html += '<button type="button" class="cat-filter-btn ' + active + '" data-cat="' + escapeHtml(c.id) + '">' + c.emoji + ' ' + escapeHtml(c.label) + '</button>';
+      });
+      container.innerHTML = html;
+      container.querySelectorAll('.cat-filter-btn').forEach(function(btn) {
+        btn.onclick = function() {
+          selectedCategoryFilter = this.getAttribute('data-cat');
+          renderCategoryFilters();
+          renderExpenseList();
+        };
+      });
+    }
+
+    function renderCategorySummary() {
+      var container = document.getElementById('categorySummaryCard');
+      if (!container) return;
+      var expenses = getExpensesForMonth(selectedBudgetMonth);
+      if (!expenses.length) {
+        container.innerHTML = '<div class="empty">Belum ada pengeluaran pada bulan ini.</div>';
+        return;
+      }
+      var map = {};
+      var total = 0;
+      expenses.forEach(function(e) {
+        var amt = Number(e.amount || 0);
+        map[e.category] = (map[e.category] || 0) + amt;
+        total += amt;
+      });
+      var sorted = Object.keys(map).map(function(k) {
+        return { category: k, amount: map[k] };
+      }).sort(function(a, b) { return b.amount - a.amount; });
+
+      var html = sorted.map(function(item) {
+        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === item.category; }) || { emoji: '📦', label: item.category };
+        var pct = total > 0 ? Math.round((item.amount / total) * 100) : 0;
+        return '<div class="category-bar-row">' +
+          '<div style="display:flex; align-items:center; gap:8px;">' +
+          '<span style="font-size:18px;">' + catObj.emoji + '</span>' +
+          '<div><div style="font-weight:600;">' + escapeHtml(catObj.label) + '</div><div class="muted" style="font-size:11px;">' + pct + '% dari total</div></div>' +
+          '</div>' +
+          '<div style="font-weight:700;">' + formatRupiah(item.amount) + '</div>' +
+          '</div>';
+      }).join('');
+      container.innerHTML = html;
+    }
+
+    function renderExpenseList() {
+      var container = document.getElementById('expenseListContainer');
+      if (!container) return;
+      var expenses = getExpensesForMonth(selectedBudgetMonth);
+      if (selectedCategoryFilter !== 'ALL') {
+        expenses = expenses.filter(function(e) { return e.category === selectedCategoryFilter; });
+      }
+      // Sort newest date / created first
+      expenses.sort(function(a, b) {
+        var da = a.date || '';
+        var db = b.date || '';
+        if (da !== db) return db.localeCompare(da);
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
+      if (!expenses.length) {
+        container.innerHTML = '<div class="empty">Belum ada catatan pengeluaran' + (selectedCategoryFilter !== 'ALL' ? ' untuk kategori ini' : '') + '.</div>';
+        return;
+      }
+
+      var html = expenses.map(function(e) {
+        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === e.category; }) || { emoji: '📦', label: e.category };
+        var dateFormatted = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '';
+        return '<div class="card expense-item-card" data-expense-id="' + e.id + '" style="margin-bottom:8px; cursor:pointer; padding:12px 14px;">' +
+          '<div class="row-between">' +
+          '<div style="display:flex; align-items:center; gap:10px;" class="flex-1">' +
+          '<span style="font-size:24px;">' + catObj.emoji + '</span>' +
+          '<div>' +
+          '<div style="font-weight:600; font-size:15px;">' + escapeHtml(e.note || catObj.label) + '</div>' +
+          '<div class="muted" style="font-size:12px;">' + escapeHtml(catObj.label) + ' &bull; ' + dateFormatted + '</div>' +
+          '</div>' +
+          '</div>' +
+          '<div style="font-weight:700; font-size:15px; color:var(--danger);">' +
+          '-' + formatRupiah(e.amount) +
+          '</div>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+      container.innerHTML = html;
+      container.querySelectorAll('.expense-item-card').forEach(function(card) {
+        card.onclick = function() {
+          var id = Number(this.getAttribute('data-expense-id'));
+          openExpenseModal(id);
+        };
+      });
+    }
+
+    function openBudgetModal(ym) {
+      var curVal = getBudgetForMonth(ym);
+      document.getElementById('budgetModalTitle').textContent = curVal > 0 ? 'Edit Budget Bulanan' : 'Atur Budget Bulanan';
+      document.getElementById('budgetModalSubtitle').textContent = formatMonthYear(ym);
+      document.getElementById('inputBudgetAmount').value = curVal > 0 ? curVal : '';
+      var err = document.getElementById('budgetValidationError');
+      if (err) { err.style.display = 'none'; err.textContent = ''; }
+      document.getElementById('budgetModal').classList.add('open');
+    }
+
+    function closeBudgetModal() {
+      document.getElementById('budgetModal').classList.remove('open');
+    }
+
+    function openExpenseModal(expenseId) {
+      editingExpenseId = expenseId || null;
+      var err = document.getElementById('expenseValidationError');
+      if (err) { err.style.display = 'none'; err.textContent = ''; }
+
+      var catSelect = document.getElementById('selectExpenseCategory');
+      catSelect.innerHTML = EXPENSE_CATEGORIES.map(function(c) {
+        return '<option value="' + escapeHtml(c.id) + '">' + c.emoji + ' ' + escapeHtml(c.label) + '</option>';
+      }).join('');
+
+      var delWrap = document.getElementById('expenseDeleteWrap');
+      var titleEl = document.getElementById('expenseModalTitle');
+
+      if (editingExpenseId) {
+        titleEl.textContent = 'Edit Pengeluaran';
+        delWrap.style.display = 'block';
+        var data = getData();
+        var exp = (data.expenses || []).find(function(e) { return e.id === editingExpenseId; });
+        if (exp) {
+          document.getElementById('inputExpenseAmount').value = exp.amount || '';
+          catSelect.value = exp.category || 'Makanan';
+          document.getElementById('inputExpenseDate').value = exp.date || getLocalDateISO();
+          document.getElementById('inputExpenseNote').value = exp.note || '';
+        }
+      } else {
+        titleEl.textContent = 'Catat Pengeluaran';
+        delWrap.style.display = 'none';
+        document.getElementById('inputExpenseAmount').value = '';
+        catSelect.value = 'Makanan';
+        document.getElementById('inputExpenseDate').value = getLocalDateISO();
+        document.getElementById('inputExpenseNote').value = '';
+      }
+
+      document.getElementById('expenseModal').classList.add('open');
+    }
+
+    function closeExpenseModal() {
+      document.getElementById('expenseModal').classList.remove('open');
+      editingExpenseId = null;
     }
 
     // =============================================
@@ -1779,9 +2335,80 @@
       const name = document.getElementById('sibName').value.trim();
       const priceRaw = String(document.getElementById('sibPrice').value).replace(/[^0-9]/g, '');
       const price = Number(priceRaw);
-      const goalId = Number(document.getElementById('sibGoal').value);
+      const isBudgetSource = document.getElementById('sibSourceBudget') && document.getElementById('sibSourceBudget').checked;
+
       if (!name) { showToast('Nama barang harus diisi'); return; }
       if (!price || price <= 0) { showToast('Harga tidak valid'); return; }
+
+      if (isBudgetSource) {
+        // === Mode: Budget Bulanan ===
+        var curYM = getLocalYearMonth();
+        var summary = getBudgetSummary(curYM);
+        var remainingBudget = summary.remainingBudget;
+        var monthlyBudget = summary.monthlyBudget;
+        var budgetUsedPct = 0;
+        var budgetStatus = 'TIDAK CUKUP';
+        var budgetBadgeClass = 'badge-gray';
+        var budgetAdvice = '';
+
+        if (!summary.hasBudget) {
+          budgetStatus = 'TIDAK CUKUP';
+          budgetBadgeClass = 'badge-gray';
+          budgetAdvice = 'Budget untuk bulan ini belum diatur. Silakan atur budget terlebih dahulu.';
+          budgetUsedPct = 100;
+        } else if (remainingBudget <= 0 || price > remainingBudget) {
+          budgetStatus = 'TIDAK CUKUP';
+          budgetBadgeClass = 'badge-gray';
+          budgetAdvice = remainingBudget <= 0 ? 'Sisa budget bulan ini sudah habis atau terlampaui.' : 'Sisa budget bulan ini tidak cukup untuk pembelian ini.';
+          budgetUsedPct = remainingBudget > 0 ? Math.min(100, Math.round((price / remainingBudget) * 100)) : 100;
+        } else {
+          budgetUsedPct = Math.round((price / remainingBudget) * 100);
+          if (budgetUsedPct > 50) {
+            budgetStatus = 'SEBAIKNYA TUNDA';
+            budgetBadgeClass = 'badge-red';
+            budgetAdvice = 'Pembelian menggunakan ' + budgetUsedPct + '% sisa budget bulan ini dan berisiko over budget.';
+          } else if (budgetUsedPct > 20) {
+            budgetStatus = 'PERLU DIPERTIMBANGKAN';
+            budgetBadgeClass = 'badge-amber';
+            budgetAdvice = 'Pembelian menggunakan ' + budgetUsedPct + '% sisa budget bulan ini.';
+          } else {
+            budgetStatus = 'AMAN';
+            budgetBadgeClass = 'badge';
+            budgetAdvice = 'Pembelian aman, hanya menggunakan ' + budgetUsedPct + '% sisa budget bulan ini.';
+          }
+        }
+
+        var afterRemaining = Math.max(0, remainingBudget - price);
+
+        let detail = `
+          <div><div class="muted">Sumber Dana</div><div style="font-weight:600;">📊 Budget Bulanan (${formatMonthYear(curYM)})</div></div>
+          <div class="divider"></div>
+          <div class="row-between"><div><div class="muted">Sisa Budget Sekarang</div><div style="font-weight:700;">${formatRupiah(remainingBudget)}</div></div><div class="text-right"><div class="muted">Limit Budget</div><div style="font-weight:700;">${formatRupiah(monthlyBudget)}</div></div></div>
+          <div class="divider"></div>
+          <div class="row-between"><div><div class="muted">Harga Barang</div><div style="font-weight:700;">${formatRupiah(price)}</div></div><div class="text-right"><div class="muted">Sisa Setelah Beli</div><div style="font-weight:700;">${formatRupiah(afterRemaining)}</div></div></div>
+          <div class="divider"></div>
+          <div class="row-between"><div class="muted">Porsi sisa budget terpakai</div><div class="muted">${budgetUsedPct}%</div></div>
+          <div class="muted" style="font-size:11px; margin-top:6px;">Tabungan Darurat dan Celengan tidak terpengaruh.</div>
+        `;
+
+        document.getElementById('sibStatus').textContent = budgetStatus;
+        const badge = document.getElementById('sibStatusBadge');
+        badge.className = budgetBadgeClass;
+        badge.textContent = budgetStatus;
+        document.getElementById('sibDetails').innerHTML = detail;
+        document.getElementById('sibAdvice').textContent = budgetAdvice;
+        document.querySelector('#pageShouldIBuy .card').style.display = 'none';
+        document.getElementById('sibResult').style.display = 'block';
+
+        // Sembunyikan aksi wishlist karena wishlist diperuntukkan untuk celengan
+        var wishlistActions = document.getElementById('sibWishlistActions');
+        if (wishlistActions) wishlistActions.style.display = 'none';
+        lastSibAnalysis = null;
+        return;
+      }
+
+      // === Mode: Celengan (Existing) ===
+      const goalId = Number(document.getElementById('sibGoal').value);
       if (!goalId) { showToast('Pilih celengan'); return; }
 
       const data = getData();
@@ -2031,7 +2658,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `menabung_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.download = `menabung_backup_${getLocalDateISO()}.json`;
       a.click();
       URL.revokeObjectURL(url);
       showToast('Backup berhasil diunduh');
@@ -2050,6 +2677,9 @@
           const parsed = JSON.parse(evt.target.result);
           if (!parsed || typeof parsed !== 'object') throw new Error('Format tidak valid');
           if (!parsed.goals && !parsed.emergency) throw new Error('Data backup tidak sesuai');
+          parsed.budgets = (parsed.budgets && typeof parsed.budgets === 'object' && !Array.isArray(parsed.budgets)) ? parsed.budgets : {};
+          parsed.expenses = Array.isArray(parsed.expenses) ? parsed.expenses : [];
+          parsed.wishlist = Array.isArray(parsed.wishlist) ? parsed.wishlist : [];
           saveData(parsed);
           render();
           showToast('Data berhasil direstore');
@@ -2061,7 +2691,94 @@
       reader.readAsText(file);
     });
 
+    // Budget Bulanan v1.3.0 Listeners
+    document.getElementById('btnOpenBudgetHome').addEventListener('click', function() { showPage('budget'); });
+    document.getElementById('btnBudgetBack').addEventListener('click', function() { showPage('home'); });
+    document.getElementById('btnPrevMonth').addEventListener('click', function() {
+      selectedBudgetMonth = shiftMonth(selectedBudgetMonth, -1);
+      renderBudgetPage();
+    });
+    document.getElementById('btnNextMonth').addEventListener('click', function() {
+      selectedBudgetMonth = shiftMonth(selectedBudgetMonth, 1);
+      renderBudgetPage();
+    });
+
+    // Budget Modal Listeners
+    document.getElementById('btnBudgetModalClose').addEventListener('click', closeBudgetModal);
+    document.getElementById('btnBudgetModalCancel').addEventListener('click', closeBudgetModal);
+    document.getElementById('budgetModal').addEventListener('click', function(e) { if (e.target === this) closeBudgetModal(); });
+    document.getElementById('btnBudgetModalSave').addEventListener('click', function() {
+      var raw = String(document.getElementById('inputBudgetAmount').value).replace(/[^0-9]/g, '');
+      var amt = Number(raw);
+      var err = document.getElementById('budgetValidationError');
+      if (!amt || amt <= 0) {
+        if (err) { err.style.display = 'block'; err.textContent = 'Nominal budget harus lebih dari 0'; }
+        return;
+      }
+      saveBudgetForMonth(selectedBudgetMonth, amt);
+      closeBudgetModal();
+      renderBudgetPage();
+      renderBudgetHomeCard();
+      showToast('Budget ' + formatMonthYear(selectedBudgetMonth) + ' disimpan');
+    });
+
+    // Expense Modal Listeners
+    document.getElementById('btnOpenAddExpense').addEventListener('click', function() { openExpenseModal(null); });
+    document.getElementById('btnExpenseModalClose').addEventListener('click', closeExpenseModal);
+    document.getElementById('btnExpenseModalCancel').addEventListener('click', closeExpenseModal);
+    document.getElementById('expenseModal').addEventListener('click', function(e) { if (e.target === this) closeExpenseModal(); });
+    document.getElementById('btnExpenseModalSave').addEventListener('click', function() {
+      var rawAmt = String(document.getElementById('inputExpenseAmount').value).replace(/[^0-9]/g, '');
+      var amt = Number(rawAmt);
+      var cat = document.getElementById('selectExpenseCategory').value;
+      var dt = document.getElementById('inputExpenseDate').value || getLocalDateISO();
+      var note = document.getElementById('inputExpenseNote').value.trim();
+      var err = document.getElementById('expenseValidationError');
+
+      if (!amt || amt <= 0) {
+        if (err) { err.style.display = 'block'; err.textContent = 'Nominal pengeluaran harus lebih dari 0'; }
+        return;
+      }
+
+      saveExpenseItem({
+        id: editingExpenseId,
+        amount: amt,
+        category: cat,
+        date: dt,
+        note: note
+      });
+
+      closeExpenseModal();
+      // Synchronize view to the expense's month so user immediately sees it
+      selectedBudgetMonth = dt.slice(0, 7);
+      renderBudgetPage();
+      renderBudgetHomeCard();
+      showToast('Pengeluaran disimpan');
+    });
+
+    document.getElementById('btnExpenseModalDelete').addEventListener('click', function() {
+      if (!editingExpenseId) return;
+      if (!confirm('Hapus catatan pengeluaran ini?')) return;
+      deleteExpenseItem(editingExpenseId);
+      closeExpenseModal();
+      renderBudgetPage();
+      renderBudgetHomeCard();
+      showToast('Pengeluaran dihapus');
+    });
+
+    // Should I Buy Radio toggle listeners
+    document.getElementById('sibSourceGoal').addEventListener('change', function() {
+      document.getElementById('sibGoalWrap').style.display = 'block';
+      document.getElementById('sibBudgetWrap').style.display = 'none';
+    });
+    document.getElementById('sibSourceBudget').addEventListener('change', function() {
+      document.getElementById('sibGoalWrap').style.display = 'none';
+      document.getElementById('sibBudgetWrap').style.display = 'block';
+      updateSibBudgetDisplay();
+    });
+
     // Init default page & theme
+    selectedBudgetMonth = getLocalYearMonth();
     applyTheme((getData().settings && getData().settings.darkMode) || 'system');
     showPage('home');
   </script>
