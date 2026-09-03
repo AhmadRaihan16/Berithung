@@ -115,6 +115,7 @@
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       padding: 12px 16px;
+      padding-top: max(12px, env(safe-area-inset-top, 12px));
       transition: background-color 0.2s ease, border-color 0.2s ease;
     }
     .header-inner { max-width: 520px; margin: 0 auto; }
@@ -866,6 +867,15 @@
       if (modeToggle) modeToggle.textContent = shouldDark ? '☀️' : '🌙';
       const selectEl = document.getElementById('darkModeSelect');
       if (selectEl && selectEl.value !== mode) selectEl.value = mode;
+
+      // Native Capacitor Status Bar sync
+      if (window.Capacitor?.Plugins?.StatusBar) {
+        try {
+          const StatusBar = window.Capacitor.Plugins.StatusBar;
+          StatusBar.setStyle({ style: shouldDark ? 'DARK' : 'LIGHT' }).catch(() => {});
+          StatusBar.setBackgroundColor({ color: shouldDark ? '#0f172a' : '#f5f7fb' }).catch(() => {});
+        } catch (e) {}
+      }
     }
 
     if (window.matchMedia) {
@@ -2652,16 +2662,55 @@
     });
 
     // Data Backup and Restore
-    document.getElementById('btnExport').addEventListener('click', function() {
+    document.getElementById('btnExport').addEventListener('click', async function() {
       const data = getData();
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `menabung_backup_${getLocalDateISO()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      showToast('Backup berhasil diunduh');
+      const jsonStr = JSON.stringify(data, null, 2);
+      const filename = `menabung_backup_${getLocalDateISO()}.json`;
+
+      // Check for native Capacitor environment
+      const isNative = window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform();
+      const hasFilesystem = window.Capacitor?.Plugins?.Filesystem;
+      const hasShare = window.Capacitor?.Plugins?.Share;
+
+      if (isNative && hasFilesystem && hasShare) {
+        try {
+          // Write to Cache directory (no permissions required)
+          const writeRes = await window.Capacitor.Plugins.Filesystem.writeFile({
+            path: filename,
+            data: jsonStr,
+            directory: 'CACHE',
+            encoding: 'utf8'
+          });
+
+          const fileUri = writeRes.uri;
+
+          await window.Capacitor.Plugins.Share.share({
+            title: 'Backup Data Berithung',
+            text: 'Backup data tabungan dan budget Berithung v1.3.0',
+            url: fileUri,
+            dialogTitle: 'Simpan / Bagikan Backup Berithung'
+          });
+          showToast('Siap disimpan atau dibagikan 📦');
+          return;
+        } catch (err) {
+          console.error('Capacitor Share Error:', err);
+          // Fall through to blob download if share was dismissed or failed
+        }
+      }
+
+      // Standard Web Fallback
+      try {
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('Backup berhasil diunduh');
+      } catch (e) {
+        showToast('Gagal mengunduh backup');
+      }
     });
 
     document.getElementById('btnImport').addEventListener('click', function() {
@@ -2781,6 +2830,36 @@
     selectedBudgetMonth = getLocalYearMonth();
     applyTheme((getData().settings && getData().settings.darkMode) || 'system');
     showPage('home');
+
+    // Android Hardware / Gesture Back Button Handling
+    (function setupAndroidBackButton() {
+      if (window.Capacitor?.Plugins?.App) {
+        let lastBackTime = 0;
+        window.Capacitor.Plugins.App.addListener('backButton', function() {
+          // 1. Check if any modal is open
+          const openModals = Array.from(document.querySelectorAll('.modal.open'));
+          if (openModals.length > 0) {
+            openModals.forEach(m => m.classList.remove('open'));
+            return;
+          }
+
+          // 2. Check if user is in a sub-page
+          if (currentPage && currentPage !== 'home') {
+            showPage('home');
+            return;
+          }
+
+          // 3. User is on home page
+          const now = Date.now();
+          if (now - lastBackTime < 2000) {
+            window.Capacitor.Plugins.App.exitApp();
+          } else {
+            lastBackTime = now;
+            showToast('Tekan sekali lagi untuk keluar');
+          }
+        });
+      }
+    })();
   </script>
 </body>
 </html>

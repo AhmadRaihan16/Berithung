@@ -1,0 +1,9 @@
+{
+  "appId": "com.berithung.app",
+  "appName": "Berithung",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "hostname": "localhost"
+  }
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Berithung</string>
+    <string name="title_activity_main">Berithung</string>
+    <string name="package_name">com.berithung.app</string>
+    <string name="custom_url_scheme">com.berithung.app</string>
+</resources>
