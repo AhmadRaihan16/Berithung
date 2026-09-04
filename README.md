@@ -19,6 +19,7 @@
   - [1. Menjalankan di Browser (Web/PWA)](#1-menjalankan-di-browser-webpwa)
   - [2. Menjalankan & Build APK Android](#2-menjalankan--build-apk-android)
 - [Privasi & Keamanan Data](#privasi--keamanan-data)
+- [Credits](#credits)
 - [Lisensi](#lisensi)
 
 ---
@@ -151,6 +152,27 @@ Berkas APK akan tersedia di:
 1. **Tanpa Pelacak (*No Trackers*)**: Berithung tidak menyematkan pustaka analitik pihak ketiga (seperti Google Analytics, Firebase SDK, atau Facebook Pixel).
 2. **Kedaulatan Data Penuh**: Anda memiliki kendali 100% atas data Anda. Ekspor cadangan (*Backup*) menghasilkan berkas JSON transparan yang dapat diinspeksi kapan saja.
 3. **Pencadangan & Pemulihan Aman**: Berkas JSON dapat dipindahkan antar-perangkat tanpa perlu akun cloud berbayar.
+
+---
+
+## Credits
+
+Berithung dikembangkan oleh **Ahmad Raihan Arifianza**.
+
+### Development Assistance
+
+- **ChatGPT by OpenAI**
+  - Product planning
+  - Feature ideation
+  - Architecture discussion
+  - Debugging assistance
+  - Development roadmap
+
+- **Google Antigravity**
+  - Code implementation
+  - Codebase analysis
+  - Android / Capacitor integration
+  - Testing and debugging assistance
 
 ---
 
