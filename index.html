@@ -288,7 +288,40 @@
       display: flex; align-items: center; justify-content: space-between; padding: 7px 0;
       border-bottom: 1px dashed var(--border); font-size: 13px;
     }
-    .category-bar-row:last-child { border-bottom: none; }
+    /* === Analytics & Insights v1.4.0 === */
+    .analytics-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .analytics-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .analytics-metric-card {
+      background: var(--surface-secondary); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 12px;
+    }
+    .analytics-metric-card.alert-danger {
+      border-color: var(--danger); background: var(--badge-red-bg); color: var(--badge-red-text);
+    }
+    .analytics-metric-card.alert-success {
+      border-left: 3px solid var(--accent-2);
+    }
+    .analytics-metric-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .analytics-metric-value { font-size: 18px; font-weight: 800; margin: 3px 0 1px; letter-spacing: -0.3px; }
+    .analytics-metric-sub { font-size: 11px; color: var(--muted); }
+    .analytics-bar-container { margin: 8px 0 12px; }
+    .analytics-bar-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 4px; }
+    .analytics-bar-track {
+      width: 100%; height: 8px; background: var(--surface-secondary); border: 1px solid var(--border);
+      border-radius: 999px; overflow: hidden;
+    }
+    .analytics-bar-fill {
+      height: 100%; border-radius: 999px; transition: width 0.3s ease;
+    }
+    .insight-card {
+      background: var(--surface-secondary); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px; margin-bottom: 8px;
+    }
+    .insight-card.insight-danger { border-left: 4px solid var(--danger); }
+    .insight-card.insight-warning { border-left: 4px solid var(--accent-3); }
+    .insight-card.insight-success { border-left: 4px solid var(--accent-2); }
+    .insight-card.insight-info { border-left: 4px solid var(--accent); }
+    .insight-card.insight-neutral { border-left: 4px solid var(--muted); }
   </style>
 </head>
 <body>
@@ -379,6 +412,17 @@
         </div>
         <button class="btn-primary small-btn" id="btnOpenWishlist" style="margin-top:8px;">Lihat Wishlist</button>
       </div>
+
+      <div class="card" id="analyticsHomeCard" style="border-left:4px solid #8b5cf6; margin-top:8px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="font-size:22px;">📊</span>
+          <div class="flex-1">
+            <div style="font-weight:700; font-size:16px;">Analytics</div>
+            <div class="muted">Lihat pola pengeluaran dan progres keuanganmu.</div>
+          </div>
+        </div>
+        <button type="button" class="btn-primary" id="btnOpenAnalytics" style="margin-top:8px;">Lihat Analytics</button>
+      </div>
     </div>
 
     <div id="pageEmergency" style="display:none;">
@@ -443,7 +487,7 @@
 
       <div class="section-title">Tentang</div>
       <div class="card">
-        <div class="muted">Menabung v1.3.0</div>
+        <div class="muted">Menabung v1.4.0</div>
         <div class="muted">Data disimpan lokal di perangkat.</div>
       </div>
     </div>
@@ -557,6 +601,29 @@
       <!-- Expense History List -->
       <div class="section-title">Riwayat Pengeluaran</div>
       <div id="expenseListContainer"></div>
+    </div>
+
+    <!-- Page: Analytics & Financial Insights v1.4.0 -->
+    <div id="pageAnalytics" style="display:none;">
+      <div class="row-between" style="margin-bottom:12px;">
+        <div>
+          <div style="font-weight:700; font-size:18px;">📊 Analytics & Insights</div>
+          <div class="sub">Pola pengeluaran dan progres finansialmu.</div>
+        </div>
+        <button type="button" class="btn-tertiary small-btn" id="btnAnalyticsBack">✕ Kembali</button>
+      </div>
+
+      <!-- Month Selector -->
+      <div class="card" style="padding:10px 14px; margin-bottom:12px;">
+        <div class="row-between">
+          <button type="button" class="btn-tertiary small-btn" id="btnAnalyticsPrevMonth" style="padding:6px 14px; min-height:36px; font-weight:700;">←</button>
+          <div style="font-weight:700; font-size:16px; text-align:center;" id="analyticsMonthTitle">September 2026</div>
+          <button type="button" class="btn-tertiary small-btn" id="btnAnalyticsNextMonth" style="padding:6px 14px; min-height:36px; font-weight:700;">→</button>
+        </div>
+      </div>
+
+      <!-- Dynamic Analytics Body -->
+      <div id="analyticsContent"></div>
     </div>
   </main>
 
@@ -687,6 +754,27 @@
       <div class="action-row">
         <button type="button" class="btn-tertiary" id="btnBoughtCancel">Batal</button>
         <button type="button" class="btn-secondary" id="btnBoughtConfirm">Ya, Tandai Dibeli</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Reusable Confirmation Dialog -->
+  <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
+    <div class="modal-sheet" style="text-align:center; padding:20px 16px;">
+      <div id="confirmModalIcon" style="width:48px; height:48px; border-radius:50%; background:var(--badge-red-bg); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px;">⚠️</div>
+      <div id="confirmModalTitle" style="font-weight:700; font-size:17px; margin-bottom:12px; color:var(--text);">Hapus Celengan?</div>
+      
+      <div id="confirmModalTargetWrap" style="background:var(--surface-secondary); border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:12px; text-align:left; display:none;">
+        <div class="muted" id="confirmModalTargetLabel" style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:2px;">Nama Celengan</div>
+        <div id="confirmModalTargetName" style="font-weight:700; font-size:15px; color:var(--text); word-break:break-word;"></div>
+      </div>
+
+      <div id="confirmModalMessage" class="muted" style="font-size:13px; line-height:1.5; margin-bottom:6px;">Semua saldo dan riwayat transaksi pada celengan ini akan dihapus permanen.</div>
+      <div id="confirmModalWarning" style="font-size:12px; font-weight:600; color:var(--danger); margin-bottom:16px;">Tindakan ini tidak dapat dibatalkan.</div>
+
+      <div class="action-row">
+        <button type="button" class="btn-tertiary" id="btnConfirmCancel">Batal</button>
+        <button type="button" class="btn-danger" id="btnConfirmSubmit">Hapus Celengan</button>
       </div>
     </div>
   </div>
@@ -1144,14 +1232,7 @@
         openGoalModal(g);
       };
       if (deleteBtn) deleteBtn.onclick = () => {
-        if (!confirm('Hapus celengan ini? Semua riwayat transaksi akan ikut terhapus.')) return;
-        const d = getData();
-        d.goals = d.goals.filter(x => x.id !== goalId);
-        saveData(d);
-        closeDetailModal();
-        renderGoals();
-        renderGoalsFull();
-        showToast('Celengan dihapus');
+        openDeleteGoalConfirm(goalId, deleteBtn);
       };
 
       renderGoalHistory(goalId);
@@ -1160,6 +1241,139 @@
     function closeDetailModal() {
       document.getElementById('detailModal').classList.remove('open');
       updateTabBarActive(currentPage);
+    }
+
+    // Reusable Confirmation Modal State & Controller
+    // ponytail: reusable foundation for delete & future confirmations
+    let pendingDeleteGoalId = null;
+    let confirmModalCallback = null;
+    let cancelModalCallback = null;
+    let confirmModalTriggerElement = null;
+
+    function closeConfirmModal(triggeredByConfirm) {
+      const modal = document.getElementById('confirmModal');
+      const submitBtn = document.getElementById('btnConfirmSubmit');
+      if (modal) modal.classList.remove('open');
+      if (submitBtn) submitBtn.disabled = false;
+
+      if (!triggeredByConfirm && typeof cancelModalCallback === 'function') {
+        try { cancelModalCallback(); } catch (e) {}
+      }
+
+      pendingDeleteGoalId = null;
+      confirmModalCallback = null;
+      cancelModalCallback = null;
+
+      if (confirmModalTriggerElement && typeof confirmModalTriggerElement.focus === 'function') {
+        try { confirmModalTriggerElement.focus(); } catch (e) {}
+      }
+      confirmModalTriggerElement = null;
+    }
+
+    function openConfirmModal(opts) {
+      const modal = document.getElementById('confirmModal');
+      if (!modal) return;
+
+      confirmModalTriggerElement = opts.triggerElement || document.activeElement || null;
+      confirmModalCallback = opts.onConfirm || null;
+      cancelModalCallback = opts.onCancel || null;
+
+      const titleEl = document.getElementById('confirmModalTitle');
+      if (titleEl) titleEl.textContent = opts.title || 'Konfirmasi';
+
+      const iconEl = document.getElementById('confirmModalIcon');
+      if (iconEl) {
+        if (opts.icon) {
+          iconEl.textContent = opts.icon;
+          iconEl.style.display = 'flex';
+          iconEl.style.background = opts.danger !== false ? 'var(--badge-red-bg)' : 'var(--pill-bg)';
+          iconEl.style.color = opts.danger !== false ? 'var(--danger)' : 'var(--accent)';
+        } else {
+          iconEl.style.display = 'none';
+        }
+      }
+
+      const targetWrap = document.getElementById('confirmModalTargetWrap');
+      const targetLabel = document.getElementById('confirmModalTargetLabel');
+      const targetName = document.getElementById('confirmModalTargetName');
+      if (opts.targetName) {
+        if (targetWrap) targetWrap.style.display = 'block';
+        if (targetLabel) targetLabel.textContent = opts.targetLabel || 'Target';
+        if (targetName) targetName.textContent = opts.targetName;
+      } else {
+        if (targetWrap) targetWrap.style.display = 'none';
+      }
+
+      const msgEl = document.getElementById('confirmModalMessage');
+      if (msgEl) {
+        if (opts.message) {
+          msgEl.textContent = opts.message;
+          msgEl.style.display = 'block';
+        } else {
+          msgEl.style.display = 'none';
+        }
+      }
+
+      const warnEl = document.getElementById('confirmModalWarning');
+      if (warnEl) {
+        if (opts.warning) {
+          warnEl.textContent = opts.warning;
+          warnEl.style.display = 'block';
+        } else {
+          warnEl.style.display = 'none';
+        }
+      }
+
+      const submitBtn = document.getElementById('btnConfirmSubmit');
+      if (submitBtn) {
+        submitBtn.textContent = opts.confirmText || 'Konfirmasi';
+        submitBtn.className = opts.danger !== false ? 'btn-danger' : 'btn-primary';
+        submitBtn.disabled = false;
+      }
+
+      const cancelBtn = document.getElementById('btnConfirmCancel');
+      if (cancelBtn) {
+        cancelBtn.textContent = opts.cancelText || 'Batal';
+      }
+
+      modal.classList.add('open');
+      if (cancelBtn) cancelBtn.focus();
+    }
+
+    function openDeleteGoalConfirm(goalId, triggerBtn) {
+      const data = getData();
+      const g = (data.goals || []).find(x => x.id === goalId);
+      if (!g) return;
+
+      pendingDeleteGoalId = goalId;
+      openConfirmModal({
+        title: 'Hapus Celengan?',
+        icon: '⚠️',
+        targetLabel: 'Nama Celengan',
+        targetName: g.name,
+        message: 'Semua saldo dan riwayat transaksi pada celengan ini akan dihapus permanen.',
+        warning: 'Tindakan ini tidak dapat dibatalkan.',
+        confirmText: 'Hapus Celengan',
+        cancelText: 'Batal',
+        danger: true,
+        triggerElement: triggerBtn,
+        onConfirm: function() {
+          const targetId = pendingDeleteGoalId;
+          if (!targetId) return;
+          const d = getData();
+          d.goals = (d.goals || []).filter(x => x.id !== targetId);
+          saveData(d);
+          closeConfirmModal(true);
+          closeDetailModal();
+          renderGoals();
+          renderGoalsFull();
+          showToast('Celengan berhasil dihapus.');
+        },
+        onCancel: function() {
+          // ponytail: pendingDeleteGoalId is also reset by closeConfirmModal
+          pendingDeleteGoalId = null;
+        }
+      });
     }
 
     function renderGoalHistory(goalId) {
@@ -1498,6 +1712,7 @@
       document.getElementById('pageShouldIBuy').style.display = 'none';
       document.getElementById('pageWishlist').style.display = 'none';
       document.getElementById('pageBudget').style.display = 'none';
+      document.getElementById('pageAnalytics').style.display = 'none';
 
       if (name === 'home') document.getElementById('pageHome').style.display = 'block';
       if (name === 'emergency') document.getElementById('pageEmergency').style.display = 'block';
@@ -1506,6 +1721,7 @@
       if (name === 'shouldibuy') document.getElementById('pageShouldIBuy').style.display = 'block';
       if (name === 'wishlist') document.getElementById('pageWishlist').style.display = 'block';
       if (name === 'budget') document.getElementById('pageBudget').style.display = 'block';
+      if (name === 'analytics') document.getElementById('pageAnalytics').style.display = 'block';
 
       updateTabBarActive(name);
 
@@ -1516,6 +1732,7 @@
       if (name === 'shouldibuy') renderShouldIBuyForm();
       if (name === 'wishlist') renderWishlist();
       if (name === 'budget') renderBudgetPage();
+      if (name === 'analytics') renderAnalyticsPage();
     }
 
     function setupGoalContainerEvents(containerId) {
@@ -2633,6 +2850,46 @@
       showToast('Ditandai sebagai dibeli 🛍️');
     });
 
+    // Reusable Confirmation Modal Listeners
+    // ponytail: handle backdrop click, cancel, confirm with double-click guard
+    document.getElementById('confirmModal').addEventListener('click', function(e) {
+      if (e.target === this) closeConfirmModal(false);
+    });
+    document.getElementById('btnConfirmCancel').addEventListener('click', function() {
+      closeConfirmModal(false);
+    });
+    document.getElementById('btnConfirmSubmit').addEventListener('click', function() {
+      this.disabled = true;
+      if (typeof confirmModalCallback === 'function') {
+        const cb = confirmModalCallback;
+        confirmModalCallback = null;
+        cb();
+      } else {
+        closeConfirmModal(true);
+      }
+    });
+
+    // Web / Desktop Escape key handling for modals
+    window.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const confirmModal = document.getElementById('confirmModal');
+        if (confirmModal && confirmModal.classList.contains('open')) {
+          e.preventDefault();
+          closeConfirmModal(false);
+          return;
+        }
+        const openModals = Array.from(document.querySelectorAll('.modal.open'));
+        if (openModals.length > 0) {
+          e.preventDefault();
+          const top = openModals[openModals.length - 1];
+          if (top.id === 'detailModal') closeDetailModal();
+          else if (top.id === 'goalModal') closeGoalModal();
+          else if (top.id === 'txModal') closeTransactionModal();
+          else top.classList.remove('open');
+        }
+      }
+    });
+
     // Dark Mode Theme Controls
     document.getElementById('darkModeSelect').addEventListener('change', function(e) {
       const mode = e.target.value;
@@ -2686,7 +2943,7 @@
 
           await window.Capacitor.Plugins.Share.share({
             title: 'Backup Data Berithung',
-            text: 'Backup data tabungan dan budget Berithung v1.3.0',
+            text: 'Backup data tabungan dan budget Berithung v1.4.0',
             url: fileUri,
             dialogTitle: 'Simpan / Bagikan Backup Berithung'
           });
@@ -2820,10 +3077,671 @@
       document.getElementById('sibGoalWrap').style.display = 'block';
       document.getElementById('sibBudgetWrap').style.display = 'none';
     });
-    document.getElementById('sibSourceBudget').addEventListener('change', function() {
-      document.getElementById('sibGoalWrap').style.display = 'none';
-      document.getElementById('sibBudgetWrap').style.display = 'block';
-      updateSibBudgetDisplay();
+    // =============================================
+    // Analytics & Financial Insights v1.4.0
+    // =============================================
+    let selectedAnalyticsMonth = getLocalYearMonth();
+
+    function parseYearMonthFromDate(val) {
+      if (val === null || val === undefined || val === '') return null;
+
+      // 1. Numeric timestamp (e.g. Date.now()) or numeric string timestamp
+      if (typeof val === 'number' || (typeof val === 'string' && /^\d{11,}$/.test(val.trim()))) {
+        var num = Number(val);
+        var dt = new Date(num);
+        if (!isNaN(dt.getTime())) return getLocalYearMonth(dt);
+        return null;
+      }
+
+      if (typeof val === 'string') {
+        var str = val.trim();
+        if (!str) return null;
+
+        // 2. Local date string YYYY-MM or YYYY-MM-DD (safe against UTC shift)
+        var ymMatch = str.match(/^(\d{4})-(\d{2})(?:-\d{2})?$/);
+        if (ymMatch) {
+          var y = Number(ymMatch[1]);
+          var m = Number(ymMatch[2]);
+          if (m >= 1 && m <= 12) return ymMatch[1] + '-' + ymMatch[2];
+          return null;
+        }
+
+        // 3. Full ISO timestamp with T (e.g. 2026-09-04T12:00:00Z)
+        if (/^\d{4}-\d{2}-\d{2}T/.test(str)) {
+          var isoDate = new Date(str);
+          if (!isNaN(isoDate.getTime())) return getLocalYearMonth(isoDate);
+          return null;
+        }
+
+        // 4. Indonesian or English date text (e.g. "4 Sep 2026, 16.00", "04 September 2026")
+        var monthNames = {
+          'jan': '01', 'feb': '02', 'mar': '03', 'apr': '04', 'mei': '05', 'may': '05',
+          'jun': '06', 'jul': '07', 'agu': '08', 'aug': '08', 'sep': '09', 'okt': '10',
+          'oct': '10', 'nov': '11', 'des': '12', 'dec': '12'
+        };
+        var textMatch = str.match(/(\d{1,2})\s+([a-zA-Z]+)\s+(\d{4})/);
+        if (textMatch) {
+          var mKey = textMatch[2].toLowerCase().substring(0, 3);
+          var yearPart = textMatch[3];
+          if (monthNames[mKey]) return yearPart + '-' + monthNames[mKey];
+        }
+      }
+
+      return null;
+    }
+
+    function getMonthlyExpenseTotal(ym) {
+      var expenses = getExpensesForMonth(ym);
+      return expenses.reduce(function(sum, e) { return sum + Number(e.amount || 0); }, 0);
+    }
+
+    function getBudgetAnalyticsSummary(ym) {
+      var data = getData();
+      var hasBudget = Boolean(data.budgets && data.budgets[ym] !== undefined && data.budgets[ym] !== null && Number(data.budgets[ym]) > 0);
+      var monthlyBudget = hasBudget ? Number(data.budgets[ym]) : 0;
+      var usedBudget = getMonthlyExpenseTotal(ym);
+      var isOverBudget = hasBudget && usedBudget > monthlyBudget;
+      var remainingBudget = hasBudget ? (monthlyBudget - usedBudget) : 0;
+      var overAmount = isOverBudget ? (usedBudget - monthlyBudget) : 0;
+      var pct = (hasBudget && monthlyBudget > 0) ? Math.round((usedBudget / monthlyBudget) * 100) : 0;
+
+      var statusText = 'BELUM DIATUR';
+      var statusBadgeHtml = '<span class="badge-gray">Belum diatur</span>';
+
+      if (hasBudget) {
+        if (isOverBudget) {
+          statusText = 'OVER BUDGET';
+          statusBadgeHtml = '<span class="badge-red">🚨 OVER BUDGET</span>';
+        } else if (pct <= 50) {
+          statusText = 'AMAN';
+          statusBadgeHtml = '<span class="badge">✅ AMAN</span>';
+        } else if (pct <= 75) {
+          statusText = 'TERKENDALI';
+          statusBadgeHtml = '<span class="badge-blue">ℹ️ TERKENDALI</span>';
+        } else {
+          statusText = 'WASPADA';
+          statusBadgeHtml = '<span class="badge-amber">⚠️ WASPADA</span>';
+        }
+      }
+
+      return {
+        ym: ym,
+        hasBudget: hasBudget,
+        monthlyBudget: monthlyBudget,
+        usedBudget: usedBudget,
+        remainingBudget: remainingBudget,
+        isOverBudget: isOverBudget,
+        overAmount: overAmount,
+        pct: pct,
+        statusText: statusText,
+        statusBadgeHtml: statusBadgeHtml
+      };
+    }
+
+    function getMonthlyComparison(ym) {
+      var curTotal = getMonthlyExpenseTotal(ym);
+      var prevYM = shiftMonth(ym, -1);
+      var prevTotal = getMonthlyExpenseTotal(prevYM);
+      var curYM = getLocalYearMonth();
+
+      if (curTotal === 0) {
+        var msg = 'Belum ada catatan pengeluaran pada bulan ini.';
+        if (ym > curYM) msg = 'Bulan di masa depan belum memiliki catatan pengeluaran.';
+        return {
+          hasComparison: false,
+          curTotal: 0,
+          prevTotal: prevTotal,
+          prevYM: prevYM,
+          message: msg
+        };
+      }
+
+      if (prevTotal === 0) {
+        return {
+          hasComparison: false,
+          curTotal: curTotal,
+          prevTotal: 0,
+          prevYM: prevYM,
+          message: 'Belum ada data bulan sebelumnya untuk dibandingkan.'
+        };
+      }
+
+      var diff = curTotal - prevTotal;
+      var pct = Math.round(((curTotal - prevTotal) / prevTotal) * 100);
+      var direction = pct > 0 ? 'up' : (pct < 0 ? 'down' : 'same');
+      var absPct = Math.abs(pct);
+
+      var message = '';
+      if (direction === 'up') {
+        message = 'Pengeluaran naik ' + absPct + '% dibanding bulan lalu.';
+      } else if (direction === 'down') {
+        message = 'Pengeluaran turun ' + absPct + '% dibanding bulan lalu.';
+      } else {
+        message = 'Pengeluaran sama dengan bulan lalu.';
+      }
+
+      return {
+        hasComparison: true,
+        curTotal: curTotal,
+        prevTotal: prevTotal,
+        prevYM: prevYM,
+        diff: diff,
+        pct: pct,
+        direction: direction,
+        message: message
+      };
+    }
+
+    function getDailyAverage(ym) {
+      var total = getMonthlyExpenseTotal(ym);
+      if (!total || total <= 0) return 0;
+
+      var curYM = getLocalYearMonth();
+      var parts = ym.split('-').map(Number);
+      var year = parts[0];
+      var month = parts[1];
+      var daysInMonth = new Date(year, month, 0).getDate();
+
+      if (ym === curYM) {
+        var today = new Date().getDate();
+        var daysCount = Math.max(1, today);
+        return Math.round(total / daysCount);
+      }
+
+      if (ym < curYM) {
+        return Math.round(total / daysInMonth);
+      }
+
+      return 0;
+    }
+
+    function getHighestSpendingDay(ym) {
+      var expenses = getExpensesForMonth(ym);
+      if (!expenses.length) return null;
+
+      var dayMap = {};
+      var txCountMap = {};
+
+      expenses.forEach(function(e) {
+        var d = e.date;
+        if (!d) return;
+        var amt = Number(e.amount || 0);
+        dayMap[d] = (dayMap[d] || 0) + amt;
+        txCountMap[d] = (txCountMap[d] || 0) + 1;
+      });
+
+      var topDate = null;
+      var maxAmt = -1;
+
+      Object.keys(dayMap).forEach(function(d) {
+        if (dayMap[d] > maxAmt) {
+          maxAmt = dayMap[d];
+          topDate = d;
+        }
+      });
+
+      if (!topDate || maxAmt <= 0) return null;
+
+      var parts = topDate.split('-').map(Number);
+      var formatted = new Date(parts[0], parts[1] - 1, parts[2]).toLocaleDateString('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      return {
+        date: topDate,
+        dateFormatted: formatted,
+        total: maxAmt,
+        txCount: txCountMap[topDate] || 1
+      };
+    }
+
+    function getCategoryBreakdown(ym) {
+      var expenses = getExpensesForMonth(ym);
+      var total = getMonthlyExpenseTotal(ym);
+      if (!expenses.length || total === 0) return { total: 0, categories: [], topCategory: null };
+
+      var map = {};
+      expenses.forEach(function(e) {
+        var cat = e.category || 'Lainnya';
+        map[cat] = (map[cat] || 0) + Number(e.amount || 0);
+      });
+
+      var categories = Object.keys(map).map(function(catId) {
+        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === catId; }) || { id: catId, label: catId, emoji: '📦' };
+        var amount = map[catId];
+        var pct = total > 0 ? Math.round((amount / total) * 100) : 0;
+        return {
+          id: catId,
+          label: catObj.label,
+          emoji: catObj.emoji,
+          amount: amount,
+          pct: pct
+        };
+      }).sort(function(a, b) {
+        return b.amount - a.amount;
+      });
+
+      return {
+        total: total,
+        categories: categories,
+        topCategory: categories.length > 0 ? categories[0] : null
+      };
+    }
+
+    function getGoalAnalytics(ym) {
+      var data = getData();
+      var goals = data.goals || [];
+
+      var active = goals.filter(function(g) {
+        return g.status !== 'completed' && (!g.status || g.status === 'active');
+      }).map(function(g) {
+        var target = Number(g.targetAmount || 0);
+        var current = Number(g.currentAmount || 0);
+        var pct = target > 0 ? Math.min(100, Math.round((current / target) * 100)) : (current > 0 ? 100 : 0);
+        return {
+          id: g.id,
+          name: g.name,
+          emoji: g.emoji || '🎯',
+          target: target,
+          current: current,
+          pct: pct
+        };
+      }).sort(function(a, b) {
+        return b.pct - a.pct;
+      });
+
+      var allCompleted = goals.filter(function(g) { return g.status === 'completed'; });
+      var completedThisMonth = allCompleted.filter(function(g) {
+        if (!g.completedAt) return false;
+        var goalYM = parseYearMonthFromDate(g.completedAt);
+        return goalYM === ym;
+      });
+
+      return {
+        activeGoals: active,
+        completedAllTime: allCompleted.length,
+        completedThisMonth: completedThisMonth.length
+      };
+    }
+
+    function getWishlistAnalytics(ym) {
+      var data = getData();
+      var items = data.wishlist || [];
+
+      var waiting = items.filter(function(i) { return i.status === 'waiting' || i.status === 'ready'; });
+
+      var decidedThisMonth = items.filter(function(i) {
+        if (!i.decidedAt) return false;
+        var itemYM = parseYearMonthFromDate(i.decidedAt);
+        return itemYM === ym;
+      });
+
+      var cancelled = decidedThisMonth.filter(function(i) { return i.status === 'cancelled'; });
+      var bought = decidedThisMonth.filter(function(i) { return i.status === 'bought'; });
+      var avoided = cancelled.reduce(function(sum, i) { return sum + Number(i.price || 0); }, 0);
+
+      return {
+        waitingCount: waiting.length,
+        decidedCount: decidedThisMonth.length,
+        cancelledCount: cancelled.length,
+        boughtCount: bought.length,
+        avoidedAmount: avoided
+      };
+    }
+
+    function getPrioritizedInsights(ym) {
+      var insights = [];
+      var curYM = getLocalYearMonth();
+      var totalExp = getMonthlyExpenseTotal(ym);
+
+      if (ym > curYM && totalExp === 0) return [];
+      if (totalExp === 0) return [];
+
+      var budgetSummary = getBudgetAnalyticsSummary(ym);
+      var comp = getMonthlyComparison(ym);
+      var catBreakdown = getCategoryBreakdown(ym);
+      var topCat = catBreakdown.topCategory;
+      var dailyAvg = getDailyAverage(ym);
+      var goalsData = getGoalAnalytics(ym);
+      var wishlistData = getWishlistAnalytics(ym);
+
+      if (budgetSummary.isOverBudget) {
+        insights.push({
+          priority: 1,
+          icon: '🚨',
+          type: 'danger',
+          title: 'Melebihi Budget',
+          text: 'Pengeluaran bulan ini melebihi budget sebesar ' + formatRupiah(budgetSummary.overAmount) + ' (' + budgetSummary.pct + '% terpakai).'
+        });
+      }
+
+      if (comp.hasComparison && comp.direction === 'up' && comp.pct >= 15) {
+        insights.push({
+          priority: 2,
+          icon: '📈',
+          type: 'warning',
+          title: 'Peningkatan Pengeluaran',
+          text: 'Pengeluaran naik ' + comp.pct + '% dibanding ' + formatMonthYear(comp.prevYM) + ' (' + formatRupiah(comp.curTotal) + ' vs ' + formatRupiah(comp.prevTotal) + ').'
+        });
+      } else if (comp.hasComparison && comp.direction === 'down' && comp.pct <= -10) {
+        insights.push({
+          priority: 2,
+          icon: '📉',
+          type: 'success',
+          title: 'Penghematan Efektif',
+          text: 'Bagus! Pengeluaran turun ' + Math.abs(comp.pct) + '% dibanding bulan lalu.'
+        });
+      }
+
+      if (budgetSummary.hasBudget && !budgetSummary.isOverBudget && budgetSummary.pct >= 75) {
+        insights.push({
+          priority: 3,
+          icon: '⚠️',
+          type: 'warning',
+          title: 'Budget Menipis',
+          text: budgetSummary.pct + '% budget bulan ini sudah digunakan. Tersisa ' + formatRupiah(budgetSummary.remainingBudget) + '.'
+        });
+      }
+
+      if (topCat && topCat.pct >= 25) {
+        insights.push({
+          priority: 4,
+          icon: topCat.emoji,
+          type: 'info',
+          title: 'Kategori Terbesar',
+          text: topCat.label + ' mendominasi ' + topCat.pct + '% dari pengeluaran (' + formatRupiah(topCat.amount) + ').'
+        });
+      }
+
+      if (dailyAvg > 0) {
+        insights.push({
+          priority: 5,
+          icon: '📅',
+          type: 'neutral',
+          title: 'Rata-rata Harian',
+          text: 'Rata-rata pengeluaranmu bulan ini adalah ' + formatRupiah(dailyAvg) + ' / hari.'
+        });
+      }
+
+      if (goalsData.activeGoals.length > 0) {
+        var almostThere = goalsData.activeGoals.find(function(g) { return g.pct >= 70 && g.pct < 100; });
+        if (almostThere) {
+          insights.push({
+            priority: 6,
+            icon: almostThere.emoji,
+            type: 'success',
+            title: 'Celengan Hampir Tercapai',
+            text: 'Celengan ' + escapeHtml(almostThere.name) + ' sudah mencapai ' + almostThere.pct + '% (' + formatRupiah(almostThere.current) + ').'
+          });
+        }
+      }
+
+      if (wishlistData.cancelledCount > 0 && wishlistData.avoidedAmount > 0) {
+        insights.push({
+          priority: 7,
+          icon: '🛡️',
+          type: 'success',
+          title: 'Impulse Protection',
+          text: wishlistData.cancelledCount + ' pembelian dibatalkan via Wishlist (hemat ' + formatRupiah(wishlistData.avoidedAmount) + ').'
+        });
+      }
+
+      insights.sort(function(a, b) { return a.priority - b.priority; });
+      return insights.slice(0, 5);
+    }
+
+    function renderAnalyticsPage() {
+      if (!selectedAnalyticsMonth) selectedAnalyticsMonth = getLocalYearMonth();
+      var ym = selectedAnalyticsMonth;
+      var curYM = getLocalYearMonth();
+
+      var titleEl = document.getElementById('analyticsMonthTitle');
+      if (titleEl) titleEl.textContent = formatMonthYear(ym);
+
+      var contentEl = document.getElementById('analyticsContent');
+      if (!contentEl) return;
+
+      var bSummary = getBudgetAnalyticsSummary(ym);
+      var comp = getMonthlyComparison(ym);
+      var dailyAvg = getDailyAverage(ym);
+      var topDay = getHighestSpendingDay(ym);
+      var catBreakdown = getCategoryBreakdown(ym);
+      var goalsData = getGoalAnalytics(ym);
+      var wishlistData = getWishlistAnalytics(ym);
+      var insights = getPrioritizedInsights(ym);
+
+      var html = '';
+
+      // 1. SUMMARY BULANAN & BUDGET HEALTH
+      var sisaValueHtml = '';
+      if (!bSummary.hasBudget) {
+        sisaValueHtml = '<div class="analytics-metric-value" style="color:var(--muted);">-</div>';
+      } else if (bSummary.isOverBudget) {
+        sisaValueHtml = '<div class="analytics-metric-value" style="color:var(--danger); font-size:16px;">Over ' + formatRupiah(bSummary.overAmount) + '</div>';
+      } else {
+        sisaValueHtml = '<div class="analytics-metric-value" style="color:var(--accent-2);">' + formatRupiah(bSummary.remainingBudget) + '</div>';
+      }
+
+      var budgetUsedHtml = bSummary.hasBudget
+        ? '<div class="analytics-metric-value">' + bSummary.pct + '%</div>'
+        : '<div class="analytics-metric-value" style="color:var(--muted);">-</div>';
+
+      var overWarningHtml = bSummary.isOverBudget
+        ? '<div class="over-budget-card" style="margin-top:10px;">⚠️ Pengeluaran melebihi budget sebesar ' + formatRupiah(bSummary.overAmount) + '!</div>'
+        : '';
+
+      html += '<div class="card" style="margin-bottom:12px;">' +
+        '<div class="row-between" style="margin-bottom:10px;">' +
+          '<div style="font-weight:700; font-size:14px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted);">Ringkasan Keuangan</div>' +
+          '<div>' + bSummary.statusBadgeHtml + '</div>' +
+        '</div>' +
+        '<div class="analytics-grid-2">' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Pengeluaran</div>' +
+            '<div class="analytics-metric-value" style="color:var(--danger);">' + formatRupiah(bSummary.usedBudget) + '</div>' +
+            '<div class="analytics-metric-sub">Bulan ' + formatMonthYear(ym) + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Budget</div>' +
+            '<div class="analytics-metric-value">' + (bSummary.hasBudget ? formatRupiah(bSummary.monthlyBudget) : '<span style="font-size:14px; color:var(--muted);">Belum diatur</span>') + '</div>' +
+            '<div class="analytics-metric-sub">Batas bulanan</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">' + (bSummary.isOverBudget ? 'Kelebihan' : 'Sisa Budget') + '</div>' +
+            sisaValueHtml +
+            '<div class="analytics-metric-sub">' + (bSummary.hasBudget ? (bSummary.isOverBudget ? 'Melebihi target' : 'Sisa dana') : 'Atur di menu Budget') + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Budget Digunakan</div>' +
+            budgetUsedHtml +
+            '<div class="analytics-metric-sub">' + (bSummary.hasBudget ? ('Status: ' + bSummary.statusText) : 'Belum ada batas') + '</div>' +
+          '</div>' +
+        '</div>' +
+        overWarningHtml +
+      '</div>';
+
+      // EMPTY STATE CHECK: Jika tidak ada transaksi sama sekali
+      if (bSummary.usedBudget === 0) {
+        html += '<div class="card" style="text-align:center; padding:18px 14px; margin-bottom:12px;">' +
+          '<div style="font-size:36px; margin-bottom:8px;">📝</div>' +
+          '<div style="font-weight:700; font-size:16px;">Belum Ada Data Pengeluaran</div>' +
+          '<div class="muted" style="margin-top:4px; margin-bottom:14px; font-size:13px;">Mulai catat pengeluaran agar Analytics dapat membaca pola keuanganmu.</div>' +
+          '<button type="button" class="btn-primary" id="btnAnalyticsAddExpense">+ Catat Pengeluaran</button>' +
+        '</div>';
+      }
+
+      // 2. PERBANDINGAN BULAN
+      var compIcon = comp.direction === 'up' ? '📈' : (comp.direction === 'down' ? '📉' : '⚖️');
+      var compSub = comp.hasComparison
+        ? '<div class="muted" style="font-size:12px; margin-top:4px;">' + formatMonthYear(ym) + ' (' + formatRupiah(comp.curTotal) + ') vs ' + formatMonthYear(comp.prevYM) + ' (' + formatRupiah(comp.prevTotal) + ')</div>'
+        : '';
+      html += '<div class="card" style="margin-bottom:12px;">' +
+        '<div style="display:flex; align-items:flex-start; gap:10px;">' +
+          '<span style="font-size:22px;">' + compIcon + '</span>' +
+          '<div class="flex-1">' +
+            '<div style="font-weight:700; font-size:14px; margin-bottom:2px;">Perbandingan Bulan Lalu</div>' +
+            '<div style="font-size:14px; font-weight:600; color:var(--text);">' + escapeHtml(comp.message) + '</div>' +
+            compSub +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+      // 3. POLA PENGELUARAN (Jika ada pengeluaran)
+      if (bSummary.usedBudget > 0) {
+        var daysLabel = ym === curYM
+          ? ('Berdasarkan ' + Math.max(1, new Date().getDate()) + ' hari berjalan')
+          : ('Berdasarkan ' + new Date(Number(ym.split('-')[0]), Number(ym.split('-')[1]), 0).getDate() + ' hari penuh');
+
+        var topCat = catBreakdown.topCategory;
+        var topCatText = topCat ? (topCat.emoji + ' ' + escapeHtml(topCat.label)) : '-';
+        var topCatSub = topCat ? (formatRupiah(topCat.amount) + ' (' + topCat.pct + '%)') : '-';
+
+        var topDayText = topDay ? topDay.dateFormatted : 'Belum ada data';
+        var topDaySub = topDay ? (formatRupiah(topDay.total) + ' \u2022 ' + topDay.txCount + ' transaksi') : '-';
+
+        html += '<div class="section-title">Pola Pengeluaran</div>' +
+        '<div class="analytics-grid-3">' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Rata-Rata Harian</div>' +
+            '<div class="analytics-metric-value" style="font-size:16px;">' + formatRupiah(dailyAvg) + '</div>' +
+            '<div class="analytics-metric-sub">' + daysLabel + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Hari Terboros</div>' +
+            '<div class="analytics-metric-value" style="font-size:14px;">' + escapeHtml(topDayText) + '</div>' +
+            '<div class="analytics-metric-sub">' + escapeHtml(topDaySub) + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Kategori Terbesar</div>' +
+            '<div class="analytics-metric-value" style="font-size:14px;">' + topCatText + '</div>' +
+            '<div class="analytics-metric-sub">' + topCatSub + '</div>' +
+          '</div>' +
+        '</div>';
+
+        // 4. BREAKDOWN KATEGORI (HORIZONTAL BAR CHART)
+        html += '<div class="section-title">Breakdown Kategori</div>' +
+        '<div class="card" style="margin-bottom:12px;">';
+        catBreakdown.categories.forEach(function(cat) {
+          html += '<div class="analytics-bar-container">' +
+            '<div class="analytics-bar-header">' +
+              '<div><span style="font-size:16px; margin-right:6px;">' + cat.emoji + '</span><strong>' + escapeHtml(cat.label) + '</strong></div>' +
+              '<div><span style="font-weight:700;">' + formatRupiah(cat.amount) + '</span> <span class="muted">(' + cat.pct + '%)</span></div>' +
+            '</div>' +
+            '<div class="analytics-bar-track">' +
+              '<div class="analytics-bar-fill" style="width:' + cat.pct + '%; background:var(--accent);"></div>' +
+            '</div>' +
+          '</div>';
+        });
+        html += '</div>';
+      }
+
+      // 5. PROGRESS CELENGAN (ACTIVE GOALS)
+      html += '<div class="section-title">Progress Celengan</div>' +
+      '<div class="card" style="margin-bottom:12px;">';
+      if (!goalsData.activeGoals.length) {
+        html += '<div class="empty">Tidak ada celengan yang sedang berlangsung.</div>';
+      } else {
+        goalsData.activeGoals.forEach(function(g) {
+          html += '<div class="analytics-bar-container">' +
+            '<div class="analytics-bar-header">' +
+              '<div><span style="font-size:16px; margin-right:6px;">' + escapeHtml(g.emoji) + '</span><strong>' + escapeHtml(g.name) + '</strong></div>' +
+              '<div><strong>' + g.pct + '%</strong></div>' +
+            '</div>' +
+            '<div class="muted" style="font-size:11px; margin-bottom:4px;">' + formatRupiah(g.current) + ' dari target ' + formatRupiah(g.target) + '</div>' +
+            '<div class="analytics-bar-track">' +
+              '<div class="analytics-bar-fill" style="width:' + g.pct + '%; background:linear-gradient(90deg, var(--accent-2), #34d399);"></div>' +
+            '</div>' +
+          '</div>';
+        });
+      }
+      html += '</div>';
+
+      // 6. TARGET TERCAPAI
+      html += '<div class="section-title">Pencapaian Target</div>' +
+      '<div class="analytics-grid-2">' +
+        '<div class="analytics-metric-card">' +
+          '<div class="analytics-metric-title">Tercapai Bulan Ini</div>' +
+          '<div class="analytics-metric-value green">' + goalsData.completedThisMonth + '</div>' +
+          '<div class="analytics-metric-sub">Bulan ' + formatMonthYear(ym) + '</div>' +
+        '</div>' +
+        '<div class="analytics-metric-card">' +
+          '<div class="analytics-metric-title">Sepanjang Waktu</div>' +
+          '<div class="analytics-metric-value accent">' + goalsData.completedAllTime + '</div>' +
+          '<div class="analytics-metric-sub">Total seluruh celengan</div>' +
+        '</div>' +
+      '</div>';
+
+      // 7. WISHLIST & IMPULSE PROTECTION
+      html += '<div class="section-title">Impulse Purchase Protection</div>' +
+      '<div class="card" style="margin-bottom:12px;">' +
+        '<div class="analytics-grid-2">' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Dibatalkan</div>' +
+            '<div class="analytics-metric-value" style="color:var(--accent-2);">' + wishlistData.cancelledCount + '</div>' +
+            '<div class="analytics-metric-sub">Bulan ' + formatMonthYear(ym) + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Tetap Dibeli</div>' +
+            '<div class="analytics-metric-value">' + wishlistData.boughtCount + '</div>' +
+            '<div class="analytics-metric-sub">Bulan ' + formatMonthYear(ym) + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Total Keputusan</div>' +
+            '<div class="analytics-metric-value">' + wishlistData.decidedCount + '</div>' +
+            '<div class="analytics-metric-sub">Bulan ' + formatMonthYear(ym) + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Masih Cooling</div>' +
+            '<div class="analytics-metric-value" style="color:var(--accent);">' + wishlistData.waitingCount + '</div>' +
+            '<div class="analytics-metric-sub">Kondisi saat ini</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="analytics-metric-card alert-success" style="margin-top:6px;">' +
+          '<div class="analytics-metric-title">Potensi Pengeluaran Dihindari</div>' +
+          '<div class="analytics-metric-value" style="color:var(--accent-2); font-size:20px;">' + formatRupiah(wishlistData.avoidedAmount) + '</div>' +
+          '<div class="analytics-metric-sub">Dari ' + wishlistData.cancelledCount + ' pembelian yang dibatalkan pada bulan ' + formatMonthYear(ym) + '.</div>' +
+        '</div>' +
+      '</div>';
+
+      // 8. RULE-BASED INSIGHTS (3 - 5 ITEMS)
+      html += '<div class="section-title">Insight Bulan Ini</div>';
+      if (!insights.length) {
+        html += '<div class="card"><div class="empty">Belum ada insight untuk bulan ini. Catat pengeluaran agar sistem dapat menganalisis kebiasaan finansialmu.</div></div>';
+      } else {
+        insights.forEach(function(item) {
+          html += '<div class="insight-card insight-' + item.type + '">' +
+            '<div style="display:flex; align-items:flex-start; gap:10px;">' +
+              '<span style="font-size:22px; flex-shrink:0;">' + item.icon + '</span>' +
+              '<div class="flex-1">' +
+                '<div style="font-weight:700; font-size:14px;">' + escapeHtml(item.title) + '</div>' +
+                '<div style="font-size:13px; color:var(--text); margin-top:2px; line-height:1.4;">' + escapeHtml(item.text) + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        });
+      }
+
+      contentEl.innerHTML = html;
+
+      // Bind empty state action button
+      var btnAdd = document.getElementById('btnAnalyticsAddExpense');
+      if (btnAdd) {
+        btnAdd.onclick = function() { openExpenseModal(null); };
+      }
+    }
+
+    // Analytics Navigation Listeners
+    document.getElementById('btnOpenAnalytics').addEventListener('click', function() { showPage('analytics'); });
+    document.getElementById('btnAnalyticsBack').addEventListener('click', function() { showPage('home'); });
+    document.getElementById('btnAnalyticsPrevMonth').addEventListener('click', function() {
+      selectedAnalyticsMonth = shiftMonth(selectedAnalyticsMonth, -1);
+      renderAnalyticsPage();
+    });
+    document.getElementById('btnAnalyticsNextMonth').addEventListener('click', function() {
+      selectedAnalyticsMonth = shiftMonth(selectedAnalyticsMonth, 1);
+      renderAnalyticsPage();
     });
 
     // Init default page & theme
@@ -2832,24 +3750,42 @@
     showPage('home');
 
     // Android Hardware / Gesture Back Button Handling
+    // ponytail: enforce confirmModal -> detailModal -> other modals -> sub-page -> home -> exit
     (function setupAndroidBackButton() {
       if (window.Capacitor?.Plugins?.App) {
         let lastBackTime = 0;
         window.Capacitor.Plugins.App.addListener('backButton', function() {
-          // 1. Check if any modal is open
-          const openModals = Array.from(document.querySelectorAll('.modal.open'));
-          if (openModals.length > 0) {
-            openModals.forEach(m => m.classList.remove('open'));
+          // 1. Confirm modal (highest priority: acts as Cancel)
+          const confirmModal = document.getElementById('confirmModal');
+          if (confirmModal && confirmModal.classList.contains('open')) {
+            closeConfirmModal(false);
             return;
           }
 
-          // 2. Check if user is in a sub-page
+          // 2. Detail modal
+          const detailModal = document.getElementById('detailModal');
+          if (detailModal && detailModal.classList.contains('open')) {
+            closeDetailModal();
+            return;
+          }
+
+          // 3. Other open modals (close topmost only)
+          const openModals = Array.from(document.querySelectorAll('.modal.open'));
+          if (openModals.length > 0) {
+            const top = openModals[openModals.length - 1];
+            if (top.id === 'goalModal') closeGoalModal();
+            else if (top.id === 'txModal') closeTransactionModal();
+            else top.classList.remove('open');
+            return;
+          }
+
+          // 4. Check if user is in a sub-page
           if (currentPage && currentPage !== 'home') {
             showPage('home');
             return;
           }
 
-          // 3. User is on home page
+          // 5. User is on home page
           const now = Date.now();
           if (now - lastBackTime < 2000) {
             window.Capacitor.Plugins.App.exitApp();
