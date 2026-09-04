@@ -1,6 +1,6 @@
 {
   "name": "berithung",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Berithung - Aplikasi menabung harian, tabungan darurat, barang impian, dan budget bulanan",
   "private": true,
   "scripts": {
