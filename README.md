@@ -55,7 +55,7 @@ Berithung beroperasi **sepenuhnya di sisi klien (client-side offline-first)**. S
 - **Live Readiness Analysis**: Evaluasi otomatis kesiapan dana saat masa tunggu (*cooling*) berakhir.
 
 ### 5. 📊 Analitik & Financial Insights (v1.4.0)
-- **100% Deterministic & Offline**: Analisis pola pengeluaran tanpa ketergantungan API eksternal atau AI pihak ketiga.
+- **100% Deterministic & Offline**: Analisis pola pengeluaran tanpa ketergantungan API eksternal atau AI https://127.0.0.1:14175/static/artifacts/e39e91dd-e744-477f-b1df-853f759677a0/beranda_page_1788975785998.png?csrf=3a5eee62-9bd2-4b59-9432-caca8af95bd8pihak ketiga.
 - Distribusi pengeluaran berbasis kategori dan rata-rata pengeluaran harian.
 - Pelacakan celengan aktif dan rekap target tercapai (bulanan maupun sepanjang waktu).
 - Metrik **Potensi Pengeluaran Dihindari**: Total nominal rupiah yang berhasil diselamatkan dari pembatalan barang belanja impulsif.
