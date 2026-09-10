@@ -556,7 +556,34 @@
           <div class="progress-fill" id="budgetHomeProgress" style="width:0%;"></div>
         </div>
         <div id="budgetHomeOverWarning" class="over-budget-card" style="display:none; padding:8px 10px; font-size:12px; font-weight:600; margin-top:8px;"></div>
+        <div id="budgetHomeProjectedRow" style="display:none; margin-top:8px; font-size:12px; padding:6px 10px; background:var(--surface-secondary); border-radius:8px; border:1px solid var(--border);"></div>
         <button class="btn-primary small-btn" id="btnOpenBudgetHome" style="margin-top:10px;">Kelola Budget</button>
+      </div>
+
+      <!-- Card: Pemasukan Bulan Ini -->
+      <div class="card" id="incomeHomeCard" style="border-left: 4px solid var(--accent-2); margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span class="ui-icon-mask" style="width:24px;height:24px;color:var(--accent-2);-webkit-mask-image:url('assets/icons/ui/income.svg');mask-image:url('assets/icons/ui/income.svg');" aria-hidden="true"></span>
+          <div class="flex-1">
+            <div style="font-weight:700; font-size:16px;">Pemasukan Bulan Ini</div>
+            <div class="big green" id="incomeHomeTotal" style="margin-top:2px; font-size:18px;">Rp 0</div>
+            <div class="muted" id="incomeHomeSub" style="font-size:12px;">0 pemasukan</div>
+          </div>
+        </div>
+        <button type="button" class="btn-primary small-btn" id="btnOpenIncomeHome" style="margin-top:8px;">Lihat Pemasukan</button>
+      </div>
+
+      <!-- Card: Pengeluaran Rutin -->
+      <div class="card" id="recurringHomeCard" style="border-left: 4px solid var(--accent-3); margin-bottom:12px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span class="ui-icon-mask" style="width:24px;height:24px;color:var(--accent-3);-webkit-mask-image:url('assets/icons/ui/recurring.svg');mask-image:url('assets/icons/ui/recurring.svg');" aria-hidden="true"></span>
+          <div class="flex-1">
+            <div style="font-weight:700; font-size:16px;">Pengeluaran Rutin</div>
+            <div style="font-weight:700; font-size:18px; margin-top:2px;" id="recurringHomeTotal">Rp 0</div>
+            <div class="muted" id="recurringHomeSub" style="font-size:12px;">0 sudah dibayar &bull; 0 belum dibayar</div>
+          </div>
+        </div>
+        <button type="button" class="btn-primary small-btn" id="btnOpenRecurringHome" style="margin-top:8px;">Kelola Tagihan</button>
       </div>
 
       <div class="divider"></div>
@@ -676,7 +703,7 @@
 
       <div class="section-title">Tentang</div>
       <div class="card">
-        <div class="muted">Menabung v1.4.0</div>
+        <div class="muted">Menabung v1.5.0</div>
         <div class="muted">Data disimpan lokal di perangkat.</div>
       </div>
     </div>
@@ -813,6 +840,80 @@
 
       <!-- Dynamic Analytics Body -->
       <div id="analyticsContent"></div>
+    </div>
+
+    <!-- ================= PAGE: PEMASUKAN ================= -->
+    <div id="pageIncome" style="display:none;">
+      <div class="header" style="margin-bottom:12px;">
+        <div class="row-between">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-icon" id="btnIncomeBack" aria-label="Kembali ke Beranda" style="border:none; background:transparent; font-size:18px; cursor:pointer; padding:4px 8px; color:var(--text); font-weight:700;">←</button>
+            <div style="font-weight:700; font-size:18px; display:flex; align-items:center; gap:6px;"><span class="ui-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url('assets/icons/ui/income.svg');mask-image:url('assets/icons/ui/income.svg');" aria-hidden="true"></span>Pemasukan</div>
+          </div>
+          <button type="button" class="btn-primary small-btn" id="btnIncomeAdd" style="padding:6px 12px;">+ Catat</button>
+        </div>
+      </div>
+
+      <!-- Month Navigation -->
+      <div class="card" style="margin-bottom:12px; padding:10px 14px;">
+        <div class="row-between" style="align-items:center;">
+          <button type="button" class="btn-tertiary small-btn" id="btnIncomePrevMonth" style="padding:6px 14px; min-height:36px; font-weight:700;">←</button>
+          <div style="font-weight:700; font-size:15px; text-align:center;" id="incomeMonthTitle"></div>
+          <button type="button" class="btn-tertiary small-btn" id="btnIncomeNextMonth" style="padding:6px 14px; min-height:36px; font-weight:700;">→</button>
+        </div>
+      </div>
+
+      <!-- Income Summary Card -->
+      <div class="card" style="border-left: 4px solid var(--accent-2); margin-bottom:12px;">
+        <div class="muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Total Pemasukan Bulan Ini</div>
+        <div class="big green" id="incomeTotalDisplay" style="margin-top:2px;">Rp 0</div>
+        <div class="muted" id="incomeCountDisplay" style="margin-top:2px; font-size:12px;">0 transaksi</div>
+      </div>
+
+      <!-- Income Transactions List -->
+      <div class="section-title">Riwayat Pemasukan</div>
+      <div id="incomeListContainer"></div>
+    </div>
+
+    <!-- ================= PAGE: PENGELUARAN RUTIN ================= -->
+    <div id="pageRecurring" style="display:none;">
+      <div class="header" style="margin-bottom:12px;">
+        <div class="row-between">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-icon" id="btnRecurringBack" aria-label="Kembali ke Beranda" style="border:none; background:transparent; font-size:18px; cursor:pointer; padding:4px 8px; color:var(--text); font-weight:700;">←</button>
+            <div style="font-weight:700; font-size:18px; display:flex; align-items:center; gap:6px;"><span class="ui-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url('assets/icons/ui/recurring.svg');mask-image:url('assets/icons/ui/recurring.svg');" aria-hidden="true"></span>Pengeluaran Rutin</div>
+          </div>
+          <button type="button" class="btn-primary small-btn" id="btnRecurringAdd" style="padding:6px 12px;">+ Tagihan</button>
+        </div>
+      </div>
+
+      <!-- Month Navigation -->
+      <div class="card" style="margin-bottom:12px; padding:10px 14px;">
+        <div class="row-between" style="align-items:center;">
+          <button type="button" class="btn-tertiary small-btn" id="btnRecurringPrevMonth" style="padding:6px 14px; min-height:36px; font-weight:700;">←</button>
+          <div style="font-weight:700; font-size:15px; text-align:center;" id="recurringMonthTitle"></div>
+          <button type="button" class="btn-tertiary small-btn" id="btnRecurringNextMonth" style="padding:6px 14px; min-height:36px; font-weight:700;">→</button>
+        </div>
+      </div>
+
+      <!-- Recurring Summary Card -->
+      <div class="card" style="border-left: 4px solid var(--accent-3); margin-bottom:12px;">
+        <div class="row-between">
+          <div>
+            <div class="muted" style="font-size:12px; text-transform:uppercase; letter-spacing:0.5px; font-weight:700;">Tagihan Rutin Bulan Ini</div>
+            <div class="big" id="recurringTotalDisplay" style="margin-top:2px; font-size:20px;">Rp 0</div>
+          </div>
+          <div style="text-align:right;">
+            <div class="muted" style="font-size:11px;">Belum Dibayar</div>
+            <div style="font-weight:700; font-size:15px; color:var(--danger);" id="recurringUnpaidDisplay">Rp 0</div>
+          </div>
+        </div>
+        <div class="muted" id="recurringCountDisplay" style="margin-top:6px; font-size:12px;">0 sudah dibayar &bull; 0 belum dibayar</div>
+      </div>
+
+      <!-- Recurring Items List -->
+      <div class="section-title">Daftar Tagihan Bulanan</div>
+      <div id="recurringListContainer"></div>
     </div>
   </main>
 
@@ -1024,6 +1125,79 @@
     </div>
   </div>
 
+  <!-- Modal: Catat / Edit Pemasukan -->
+  <div class="modal" id="incomeModal">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:12px;">
+        <div style="font-weight:700; font-size:17px;" id="incomeModalTitle">Catat Pemasukan</div>
+        <button type="button" class="btn-tertiary small-btn" id="btnIncomeModalClose">Tutup</button>
+      </div>
+
+      <div class="muted" style="margin-bottom:4px;">Nominal (Rp)</div>
+      <input type="number" id="inputIncomeAmount" placeholder="Contoh: 4000000" inputmode="numeric" style="margin-bottom:10px;" />
+
+      <div class="muted" style="margin-bottom:4px;">Sumber</div>
+      <select id="selectIncomeSource" style="margin-bottom:10px; width:100%;">
+        <option value="Gaji">Gaji</option>
+        <option value="Uang Bulanan">Uang Bulanan</option>
+        <option value="Freelance">Freelance</option>
+        <option value="Bonus">Bonus</option>
+        <option value="Penjualan">Penjualan</option>
+        <option value="Lainnya">Lainnya</option>
+      </select>
+
+      <div class="muted" style="margin-bottom:4px;">Tanggal</div>
+      <input type="date" id="inputIncomeDate" style="margin-bottom:10px;" />
+
+      <div class="muted" style="margin-bottom:4px;">Catatan (opsional)</div>
+      <input type="text" id="inputIncomeNote" placeholder="Contoh: Gaji bulanan kantor" />
+
+      <div id="incomeValidationError" style="display:none; color:var(--danger); font-size:13px; font-weight:600; margin-bottom:10px;"></div>
+
+      <div class="action-row">
+        <button type="button" class="btn-tertiary" id="btnIncomeModalCancel">Batal</button>
+        <button type="button" class="btn-secondary" id="btnIncomeModalSave">Simpan</button>
+      </div>
+      <div id="incomeDeleteWrap" style="display:none; margin-top:8px;">
+        <button type="button" class="btn-danger" id="btnIncomeModalDelete">Hapus Pemasukan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Tambah / Edit Pengeluaran Rutin -->
+  <div class="modal" id="recurringModal">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:12px;">
+        <div style="font-weight:700; font-size:17px;" id="recurringModalTitle">Tambah Tagihan Rutin</div>
+        <button type="button" class="btn-tertiary small-btn" id="btnRecurringModalClose">Tutup</button>
+      </div>
+
+      <div class="muted" style="margin-bottom:4px;">Nama Tagihan</div>
+      <input type="text" id="inputRecurringName" placeholder="Contoh: Internet, Kos, Spotify" style="margin-bottom:10px;" />
+
+      <div class="muted" style="margin-bottom:4px;">Nominal (Rp)</div>
+      <input type="number" id="inputRecurringAmount" placeholder="Contoh: 300000" inputmode="numeric" style="margin-bottom:10px;" />
+
+      <div class="muted" style="margin-bottom:4px;">Kategori</div>
+      <select id="selectRecurringCategory" style="margin-bottom:10px; width:100%;">
+      </select>
+
+      <div class="muted" style="margin-bottom:4px;">Jatuh Tempo (Setiap Tanggal)</div>
+      <input type="number" id="inputRecurringDueDay" placeholder="1 - 28" min="1" max="28" step="1" inputmode="numeric" style="margin-bottom:10px;" />
+      <div class="muted" style="font-size:11px; margin-top:-6px; margin-bottom:10px;">Pilih tanggal antara 1 sampai 28 setiap bulannya.</div>
+
+      <div id="recurringValidationError" style="display:none; color:var(--danger); font-size:13px; font-weight:600; margin-bottom:10px;"></div>
+
+      <div class="action-row">
+        <button type="button" class="btn-tertiary" id="btnRecurringModalCancel">Batal</button>
+        <button type="button" class="btn-secondary" id="btnRecurringModalSave">Simpan</button>
+      </div>
+      <div id="recurringDeleteWrap" style="display:none; margin-top:8px;">
+        <button type="button" class="btn-danger" id="btnRecurringModalDelete">Hapus Tagihan Rutin</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     const STORE_KEY = 'savings_app_v3';
     const EMERGENCY = 'emergency';
@@ -1036,7 +1210,9 @@
         settings: { darkMode: 'system' },
         wishlist: [],
         budgets: {},
-        expenses: []
+        expenses: [],
+        incomes: [],
+        recurringExpenses: []
       };
     }
 
@@ -1049,6 +1225,8 @@
             parsed.budgets = (parsed.budgets && typeof parsed.budgets === 'object' && !Array.isArray(parsed.budgets)) ? parsed.budgets : {};
             parsed.expenses = Array.isArray(parsed.expenses) ? parsed.expenses : [];
             parsed.wishlist = Array.isArray(parsed.wishlist) ? parsed.wishlist : [];
+            parsed.incomes = Array.isArray(parsed.incomes) ? parsed.incomes : [];
+            parsed.recurringExpenses = Array.isArray(parsed.recurringExpenses) ? parsed.recurringExpenses : [];
             return parsed;
           }
         }
@@ -1167,7 +1345,10 @@
       checkCircle: 'assets/icons/ui/check-circle.svg',
       xCircle: 'assets/icons/ui/x-circle.svg',
       sun: 'assets/icons/ui/sun.svg',
-      moon: 'assets/icons/ui/moon.svg'
+      moon: 'assets/icons/ui/moon.svg',
+      income: 'assets/icons/ui/income.svg',
+      recurring: 'assets/icons/ui/recurring.svg',
+      cashflow: 'assets/icons/ui/cashflow.svg'
     };
 
     const CATEGORY_ICONS = {
@@ -1263,6 +1444,13 @@
     let selectedBudgetMonth = '';
     let selectedCategoryFilter = 'ALL';
     let editingExpenseId = null;
+
+    // Income & Recurring Expense v1.5 state
+    let selectedIncomeMonth = '';
+    let selectedRecurringMonth = '';
+    let editingIncomeId = null;
+    let editingRecurringId = null;
+    const INCOME_SOURCES = ['Gaji', 'Uang Bulanan', 'Freelance', 'Bonus', 'Penjualan', 'Lainnya'];
 
     // Unified transaction state
     let currentTx = null; // { source: 'emergency' | 'goal', type: 'in' | 'out', goalId?: number }
@@ -1987,6 +2175,8 @@
       renderSettings();
       renderWishlistHomeCard();
       renderBudgetHomeCard();
+      renderIncomeHomeCard();
+      renderRecurringHomeCard();
       renderHomeTrendCard();
     }
 
@@ -2054,6 +2244,8 @@
       document.getElementById('pageWishlist').style.display = 'none';
       document.getElementById('pageBudget').style.display = 'none';
       document.getElementById('pageAnalytics').style.display = 'none';
+      document.getElementById('pageIncome').style.display = 'none';
+      document.getElementById('pageRecurring').style.display = 'none';
 
       if (name === 'home') document.getElementById('pageHome').style.display = 'block';
       if (name === 'emergency') document.getElementById('pageEmergency').style.display = 'block';
@@ -2063,10 +2255,21 @@
       if (name === 'wishlist') document.getElementById('pageWishlist').style.display = 'block';
       if (name === 'budget') document.getElementById('pageBudget').style.display = 'block';
       if (name === 'analytics') document.getElementById('pageAnalytics').style.display = 'block';
+      if (name === 'income') document.getElementById('pageIncome').style.display = 'block';
+      if (name === 'recurring') document.getElementById('pageRecurring').style.display = 'block';
 
       updateTabBarActive(name);
 
-      if (name === 'home') { renderEmergency(); renderGoals(); renderSettings(); renderWishlistHomeCard(); renderBudgetHomeCard(); renderHomeTrendCard(); }
+      if (name === 'home') {
+        renderEmergency();
+        renderGoals();
+        renderSettings();
+        renderWishlistHomeCard();
+        renderBudgetHomeCard();
+        renderIncomeHomeCard();
+        renderRecurringHomeCard();
+        renderHomeTrendCard();
+      }
       if (name === 'emergency') renderEmergencyFull();
       if (name === 'goals') renderGoalsFull();
       if (name === 'settings') renderSettings();
@@ -2074,6 +2277,8 @@
       if (name === 'wishlist') renderWishlist();
       if (name === 'budget') renderBudgetPage();
       if (name === 'analytics') renderAnalyticsPage();
+      if (name === 'income') renderIncomePage();
+      if (name === 'recurring') renderRecurringPage();
     }
 
     function setupGoalContainerEvents(containerId) {
@@ -2228,6 +2433,9 @@
         var idx = data.expenses.findIndex(function(e) { return e.id === expense.id; });
         if (idx !== -1) {
           data.expenses[idx] = Object.assign({}, data.expenses[idx], expense);
+        } else {
+          expense.createdAt = expense.createdAt || Date.now();
+          data.expenses.unshift(expense);
         }
       } else {
         expense.id = Date.now() + Math.random();
@@ -2243,6 +2451,486 @@
       saveData(data);
     }
 
+    // =============================================
+    // Income & Recurring Expenses v1.5.0 Engine
+    // =============================================
+    function getIncomesForMonth(ym) {
+      var data = getData();
+      return (data.incomes || []).filter(function(i) {
+        return i.date && typeof i.date === 'string' && i.date.startsWith(ym);
+      });
+    }
+
+    function getMonthlyIncomeTotal(ym) {
+      var incomes = getIncomesForMonth(ym);
+      return incomes.reduce(function(sum, i) { return sum + Number(i.amount || 0); }, 0);
+    }
+
+    function saveIncomeItem(income) {
+      if (!income) return false;
+      // Guard 7: Validate income amount as finite positive number
+      var amt = Number(income.amount);
+      if (!Number.isFinite(amt) || amt <= 0) return false;
+      income.amount = amt;
+
+      var data = getData();
+      data.incomes = data.incomes || [];
+      if (income.id) {
+        var idx = data.incomes.findIndex(function(i) { return i.id === income.id; });
+        if (idx !== -1) {
+          data.incomes[idx] = Object.assign({}, data.incomes[idx], income);
+        } else {
+          income.createdAt = income.createdAt || Date.now();
+          data.incomes.unshift(income);
+        }
+      } else {
+        // ponytail: reuse Date.now() + Math.random()
+        income.id = Date.now() + Math.random();
+        income.createdAt = Date.now();
+        data.incomes.unshift(income);
+      }
+      saveData(data);
+      return true;
+    }
+
+    function deleteIncomeItem(id) {
+      var data = getData();
+      data.incomes = (data.incomes || []).filter(function(i) { return i.id !== id; });
+      saveData(data);
+    }
+
+    function getRecurringExpenses() {
+      var data = getData();
+      return data.recurringExpenses || [];
+    }
+
+    function saveRecurringExpense(item) {
+      if (!item) return false;
+      // Guard 7: Validate recurring amount as finite positive number
+      var amt = Number(item.amount);
+      if (!Number.isFinite(amt) || amt <= 0) return false;
+      item.amount = amt;
+
+      // Guard 6: Validate dueDay as integer 1-28 at logic level
+      var dueDay = parseInt(item.dueDay, 10);
+      if (!Number.isInteger(dueDay) || dueDay < 1 || dueDay > 28) return false;
+      item.dueDay = dueDay;
+
+      var data = getData();
+      data.recurringExpenses = data.recurringExpenses || [];
+      if (item.id) {
+        var idx = data.recurringExpenses.findIndex(function(r) { return r.id === item.id; });
+        if (idx !== -1) {
+          // Guard 4: Editing template must never mutate historical expenses
+          data.recurringExpenses[idx] = Object.assign({}, data.recurringExpenses[idx], item);
+        } else {
+          item.active = (item.active !== undefined) ? item.active : true;
+          item.createdAt = item.createdAt || Date.now();
+          data.recurringExpenses.push(item);
+        }
+      } else {
+        item.id = Date.now() + Math.random();
+        item.active = (item.active !== undefined) ? item.active : true;
+        item.createdAt = Date.now();
+        data.recurringExpenses.push(item);
+      }
+      saveData(data);
+      return true;
+    }
+
+    function deleteRecurringExpense(id) {
+      var data = getData();
+      // Guard 4: Deleting template must never mutate historical expenses
+      data.recurringExpenses = (data.recurringExpenses || []).filter(function(r) { return r.id !== id; });
+      saveData(data);
+    }
+
+    // Guard 3: Paid status derived from expenses using recurringExpenseId + recurringOccurrence
+    function isRecurringPaidForMonth(recurringId, ym) {
+      var data = getData();
+      return (data.expenses || []).some(function(e) {
+        return e.recurringExpenseId === recurringId && e.recurringOccurrence === ym;
+      });
+    }
+
+    function getRecurringStatus(item, ym) {
+      // Guard 5: active:false recurring items do not count toward overdue or active status
+      if (item.active === false) {
+        return { status: 'inactive', label: 'Nonaktif', badgeClass: 'badge-gray' };
+      }
+      if (isRecurringPaidForMonth(item.id, ym)) {
+        return { status: 'paid', label: 'DIBAYAR', badgeClass: 'badge' };
+      }
+      var curYM = getLocalYearMonth();
+      if (ym < curYM) {
+        return { status: 'overdue', label: 'TERLEWAT', badgeClass: 'badge-red' };
+      }
+      if (ym > curYM) {
+        return { status: 'unpaid', label: 'BELUM DIBAYAR', badgeClass: 'badge-gray' };
+      }
+      // ym === curYM
+      var todayDate = new Date().getDate();
+      var due = Number(item.dueDay || 1);
+      if (todayDate > due) {
+        return { status: 'overdue', label: 'TERLEWAT', badgeClass: 'badge-red' };
+      } else if (todayDate === due) {
+        return { status: 'due_today', label: 'JATUH TEMPO HARI INI', badgeClass: 'badge-amber' };
+      } else {
+        return { status: 'unpaid', label: 'BELUM DIBAYAR', badgeClass: 'badge-gray' };
+      }
+    }
+
+    // Guard 1: recurringOccurrence must use local YYYY-MM
+    // Guard 2 & 11: Payment duplication must be prevented inside markRecurringAsPaid()
+    function markRecurringAsPaid(recurringId, ym) {
+      if (!ym) ym = getLocalYearMonth();
+      var data = getData();
+      var item = (data.recurringExpenses || []).find(function(r) { return r.id === recurringId; });
+      if (!item) {
+        showToast('Tagihan rutin tidak ditemukan');
+        return false;
+      }
+
+      if (isRecurringPaidForMonth(recurringId, ym)) {
+        // Guard 11: Show user-facing toast that recurring expense is already paid
+        showToast('Tagihan ' + item.name + ' sudah dibayar untuk bulan ini');
+        return false;
+      }
+
+      var dueDayNum = Number(item.dueDay || 1);
+      var dueDayStr = String(dueDayNum).padStart(2, '0');
+      var expenseDate = ym + '-' + dueDayStr;
+
+      var newExpense = {
+        id: Date.now() + Math.random(),
+        amount: Number(item.amount),
+        category: item.category || 'Tagihan',
+        date: expenseDate,
+        note: 'Tagihan ' + item.name + ' (' + formatMonthYear(ym) + ')',
+        recurringExpenseId: item.id,
+        recurringOccurrence: ym, // Guard 1: local YYYY-MM
+        createdAt: Date.now()
+      };
+
+      saveExpenseItem(newExpense);
+      showToast('Tagihan ' + item.name + ' ditandai dibayar');
+      return true;
+    }
+
+    // Guard 5: active:false recurring items must not count toward unpaid recurring totals
+    function getUnpaidRecurringExpenses(ym) {
+      var data = getData();
+      return (data.recurringExpenses || []).filter(function(item) {
+        return item.active !== false && !isRecurringPaidForMonth(item.id, ym);
+      });
+    }
+
+    function getUnpaidRecurringTotal(ym) {
+      var unpaid = getUnpaidRecurringExpenses(ym);
+      return unpaid.reduce(function(sum, r) { return sum + Number(r.amount || 0); }, 0);
+    }
+
+    // Guard 9: projectedRemaining may be negative; do not clamp it to zero
+    function getProjectedBudget(ym) {
+      var bSummary = getBudgetSummary(ym);
+      var unpaid = getUnpaidRecurringTotal(ym);
+      var projectedRemaining = bSummary.remainingBudget - unpaid;
+      return {
+        hasBudget: bSummary.hasBudget,
+        monthlyBudget: bSummary.monthlyBudget,
+        usedBudget: bSummary.usedBudget,
+        remainingBudget: bSummary.remainingBudget,
+        unpaidRecurring: unpaid,
+        projectedRemaining: projectedRemaining,
+        isOverProjected: bSummary.hasBudget && projectedRemaining < 0
+      };
+    }
+
+    function getMonthlyCashflow(ym) {
+      var income = getMonthlyIncomeTotal(ym);
+      var expense = getMonthlyExpenseTotal(ym);
+      var net = income - expense;
+      var savingsRate = income > 0 ? Math.round((net / income) * 100) : 0;
+      return {
+        income: income,
+        expense: expense,
+        net: net,
+        savingsRate: savingsRate
+      };
+    }
+
+    function renderIncomeHomeCard() {
+      var curYM = getLocalYearMonth();
+      var total = getMonthlyIncomeTotal(curYM);
+      var items = getIncomesForMonth(curYM);
+      var totalEl = document.getElementById('incomeHomeTotal');
+      var subEl = document.getElementById('incomeHomeSub');
+      if (totalEl) totalEl.textContent = formatRupiah(total);
+      if (subEl) subEl.textContent = items.length + ' pemasukan \u2022 ' + formatMonthYear(curYM);
+    }
+
+    function renderRecurringHomeCard() {
+      var curYM = getLocalYearMonth();
+      var recurring = getRecurringExpenses().filter(function(r) { return r.active !== false; });
+      var total = recurring.reduce(function(sum, r) { return sum + Number(r.amount || 0); }, 0);
+      var paidCount = 0;
+      var unpaidCount = 0;
+      recurring.forEach(function(r) {
+        if (isRecurringPaidForMonth(r.id, curYM)) paidCount++;
+        else unpaidCount++;
+      });
+      var totalEl = document.getElementById('recurringHomeTotal');
+      var subEl = document.getElementById('recurringHomeSub');
+      if (totalEl) totalEl.textContent = formatRupiah(total);
+      if (subEl) subEl.textContent = paidCount + ' sudah dibayar \u2022 ' + unpaidCount + ' belum dibayar';
+    }
+
+    function renderIncomePage() {
+      if (!selectedIncomeMonth) selectedIncomeMonth = getLocalYearMonth();
+      var ym = selectedIncomeMonth;
+      var titleEl = document.getElementById('incomeMonthTitle');
+      if (titleEl) titleEl.textContent = formatMonthYear(ym);
+
+      var incomes = getIncomesForMonth(ym);
+      var total = incomes.reduce(function(sum, i) { return sum + Number(i.amount || 0); }, 0);
+
+      var totalDisplay = document.getElementById('incomeTotalDisplay');
+      var countDisplay = document.getElementById('incomeCountDisplay');
+      if (totalDisplay) totalDisplay.textContent = formatRupiah(total);
+      if (countDisplay) countDisplay.textContent = incomes.length + ' transaksi pemasukan';
+
+      var container = document.getElementById('incomeListContainer');
+      if (!container) return;
+
+      incomes.sort(function(a, b) {
+        var da = a.date || '';
+        var db = b.date || '';
+        if (da !== db) return db.localeCompare(da);
+        return (b.createdAt || 0) - (a.createdAt || 0);
+      });
+
+      if (!incomes.length) {
+        container.innerHTML = '<div class="empty">Belum ada catatan pemasukan untuk bulan ini.</div>';
+        return;
+      }
+
+      var html = incomes.map(function(item) {
+        var dateFormatted = item.date ? new Date(item.date + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '';
+        return '<div class="card income-item-card" data-income-id="' + item.id + '" style="margin-bottom:8px; cursor:pointer; padding:12px 14px;">' +
+          '<div class="row-between">' +
+            '<div style="display:flex; align-items:center; gap:10px;" class="flex-1">' +
+              '<span class="ui-icon-mask" style="width:24px;height:24px;color:var(--accent-2);-webkit-mask-image:url(\'assets/icons/ui/income.svg\');mask-image:url(\'assets/icons/ui/income.svg\');" aria-hidden="true"></span>' +
+              '<div>' +
+                '<div style="font-weight:600; font-size:15px;">' + escapeHtml(item.source || 'Pemasukan') + '</div>' +
+                '<div class="muted" style="font-size:12px;">' + escapeHtml(item.note ? item.note + ' \u2022 ' : '') + dateFormatted + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="font-weight:700; font-size:15px; color:var(--accent-2);">' +
+              '+' + formatRupiah(item.amount) +
+            '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      container.innerHTML = html;
+      container.querySelectorAll('.income-item-card').forEach(function(card) {
+        card.onclick = function() {
+          var id = Number(this.getAttribute('data-income-id'));
+          openIncomeModal(id);
+        };
+      });
+    }
+
+    function renderRecurringPage() {
+      if (!selectedRecurringMonth) selectedRecurringMonth = getLocalYearMonth();
+      var ym = selectedRecurringMonth;
+      var titleEl = document.getElementById('recurringMonthTitle');
+      if (titleEl) titleEl.textContent = formatMonthYear(ym);
+
+      var recurringList = getRecurringExpenses();
+      var activeList = recurringList.filter(function(r) { return r.active !== false; });
+      var total = activeList.reduce(function(sum, r) { return sum + Number(r.amount || 0); }, 0);
+      var unpaidTotal = getUnpaidRecurringTotal(ym);
+
+      var paidCount = 0;
+      var unpaidCount = 0;
+      activeList.forEach(function(r) {
+        if (isRecurringPaidForMonth(r.id, ym)) paidCount++;
+        else unpaidCount++;
+      });
+
+      var totalDisplay = document.getElementById('recurringTotalDisplay');
+      var unpaidDisplay = document.getElementById('recurringUnpaidDisplay');
+      var countDisplay = document.getElementById('recurringCountDisplay');
+
+      if (totalDisplay) totalDisplay.textContent = formatRupiah(total);
+      if (unpaidDisplay) unpaidDisplay.textContent = formatRupiah(unpaidTotal);
+      if (countDisplay) countDisplay.textContent = paidCount + ' sudah dibayar \u2022 ' + unpaidCount + ' belum dibayar' + (recurringList.length > activeList.length ? ' (' + (recurringList.length - activeList.length) + ' nonaktif)' : '');
+
+      var container = document.getElementById('recurringListContainer');
+      if (!container) return;
+
+      if (!recurringList.length) {
+        container.innerHTML = '<div class="empty">Belum ada tagihan rutin bulanan. Tekan <strong>+ Tagihan</strong> untuk menambahkan.</div>';
+        return;
+      }
+
+      // Sort by dueDay ascending
+      var sorted = recurringList.slice().sort(function(a, b) {
+        return Number(a.dueDay || 1) - Number(b.dueDay || 1);
+      });
+
+      var html = sorted.map(function(item) {
+        var statusObj = getRecurringStatus(item, ym);
+        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === item.category; }) || { id: item.category || 'Tagihan', label: item.category || 'Tagihan' };
+        var isPaid = statusObj.status === 'paid';
+        var isInactive = item.active === false;
+
+        var actionButtonHtml = '';
+        if (isPaid) {
+          actionButtonHtml = '<span class="badge" style="font-size:11px; padding:3px 8px; display:inline-flex; align-items:center; gap:3px;">' + renderUiIconHtml('checkCircle', 12) + ' Sudah Dibayar</span>';
+        } else if (isInactive) {
+          actionButtonHtml = '<span class="badge-gray" style="font-size:11px; padding:3px 8px;">Nonaktif</span>';
+        } else {
+          actionButtonHtml = '<button type="button" class="btn-primary small-btn btn-mark-paid" data-recurring-id="' + item.id + '" style="padding:4px 10px; font-size:12px;">Tandai Dibayar</button>';
+        }
+
+        return '<div class="card recurring-item-card" data-recurring-id="' + item.id + '" style="margin-bottom:10px; cursor:pointer; padding:12px 14px; opacity:' + (isInactive ? '0.6' : '1') + ';">' +
+          '<div class="row-between" style="align-items:flex-start;">' +
+            '<div style="display:flex; align-items:center; gap:10px;" class="flex-1">' +
+              renderCategoryIconHtml(catObj.id, 24) +
+              '<div>' +
+                '<div style="font-weight:700; font-size:15px;">' + escapeHtml(item.name) + '</div>' +
+                '<div class="muted" style="font-size:12px;">Jatuh tempo setiap tgl ' + item.dueDay + ' &bull; ' + escapeHtml(catObj.label) + '</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<div style="font-weight:700; font-size:15px; color:var(--text);">' + formatRupiah(item.amount) + '</div>' +
+              '<div style="margin-top:2px;"><span class="' + statusObj.badgeClass + '" style="font-size:10px; padding:2px 6px;">' + statusObj.label + '</span></div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="row-between" style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border); align-items:center;">' +
+            '<div class="muted" style="font-size:11px;">Ketuk kartu untuk edit template</div>' +
+            '<div>' + actionButtonHtml + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      container.innerHTML = html;
+
+      // Click card opens edit modal
+      container.querySelectorAll('.recurring-item-card').forEach(function(card) {
+        card.onclick = function(e) {
+          if (e.target.closest('.btn-mark-paid')) return;
+          var id = Number(this.getAttribute('data-recurring-id'));
+          openRecurringModal(id);
+        };
+      });
+
+      // Click "Tandai Dibayar"
+      container.querySelectorAll('.btn-mark-paid').forEach(function(btn) {
+        btn.onclick = function(e) {
+          e.stopPropagation();
+          var id = Number(this.getAttribute('data-recurring-id'));
+          var success = markRecurringAsPaid(id, selectedRecurringMonth);
+          if (success) {
+            renderRecurringPage();
+            renderRecurringHomeCard();
+            renderBudgetHomeCard();
+            renderHomeTrendCard();
+          }
+        };
+      });
+    }
+
+    function openIncomeModal(incomeId) {
+      editingIncomeId = incomeId || null;
+      var err = document.getElementById('incomeValidationError');
+      if (err) { err.style.display = 'none'; err.textContent = ''; }
+
+      var titleEl = document.getElementById('incomeModalTitle');
+      var delWrap = document.getElementById('incomeDeleteWrap');
+      var sourceSelect = document.getElementById('selectIncomeSource');
+      var amtInput = document.getElementById('inputIncomeAmount');
+      var dateInput = document.getElementById('inputIncomeDate');
+      var noteInput = document.getElementById('inputIncomeNote');
+
+      if (editingIncomeId) {
+        titleEl.textContent = 'Edit Pemasukan';
+        if (delWrap) delWrap.style.display = 'block';
+        var data = getData();
+        var item = (data.incomes || []).find(function(i) { return i.id === editingIncomeId; });
+        if (item) {
+          amtInput.value = item.amount || '';
+          sourceSelect.value = item.source || 'Gaji';
+          dateInput.value = item.date || getLocalDateISO();
+          noteInput.value = item.note || '';
+        }
+      } else {
+        titleEl.textContent = 'Catat Pemasukan';
+        if (delWrap) delWrap.style.display = 'none';
+        amtInput.value = '';
+        sourceSelect.value = 'Gaji';
+        dateInput.value = getLocalDateISO();
+        noteInput.value = '';
+      }
+
+      document.getElementById('incomeModal').classList.add('open');
+      setTimeout(function() { if (amtInput) amtInput.focus(); }, 100);
+    }
+
+    function closeIncomeModal() {
+      document.getElementById('incomeModal').classList.remove('open');
+      editingIncomeId = null;
+    }
+
+    function openRecurringModal(recurringId) {
+      editingRecurringId = recurringId || null;
+      var err = document.getElementById('recurringValidationError');
+      if (err) { err.style.display = 'none'; err.textContent = ''; }
+
+      var catSelect = document.getElementById('selectRecurringCategory');
+      if (catSelect) {
+        catSelect.innerHTML = EXPENSE_CATEGORIES.map(function(c) {
+          return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.label) + '</option>';
+        }).join('');
+      }
+
+      var titleEl = document.getElementById('recurringModalTitle');
+      var delWrap = document.getElementById('recurringDeleteWrap');
+      var nameInput = document.getElementById('inputRecurringName');
+      var amtInput = document.getElementById('inputRecurringAmount');
+      var dueInput = document.getElementById('inputRecurringDueDay');
+
+      if (editingRecurringId) {
+        titleEl.textContent = 'Edit Tagihan Rutin';
+        if (delWrap) delWrap.style.display = 'block';
+        var data = getData();
+        var item = (data.recurringExpenses || []).find(function(r) { return r.id === editingRecurringId; });
+        if (item) {
+          nameInput.value = item.name || '';
+          amtInput.value = item.amount || '';
+          if (catSelect) catSelect.value = item.category || 'Tagihan';
+          dueInput.value = item.dueDay || 1;
+        }
+      } else {
+        titleEl.textContent = 'Tambah Tagihan Rutin';
+        if (delWrap) delWrap.style.display = 'none';
+        nameInput.value = '';
+        amtInput.value = '';
+        if (catSelect) catSelect.value = 'Tagihan';
+        dueInput.value = 1;
+      }
+
+      document.getElementById('recurringModal').classList.add('open');
+      setTimeout(function() { if (nameInput) nameInput.focus(); }, 100);
+    }
+
+    function closeRecurringModal() {
+      document.getElementById('recurringModal').classList.remove('open');
+      editingRecurringId = null;
+    }
+
     function renderBudgetHomeCard() {
       var card = document.getElementById('budgetHomeCard');
       if (!card) return;
@@ -2252,6 +2940,22 @@
       var subText = document.getElementById('budgetHomeSubText');
       var progress = document.getElementById('budgetHomeProgress');
       var overWarn = document.getElementById('budgetHomeOverWarning');
+      var projRow = document.getElementById('budgetHomeProjectedRow');
+
+      var proj = getProjectedBudget(curYM);
+      if (projRow) {
+        if (summary.hasBudget && proj.unpaidRecurring > 0) {
+          projRow.style.display = 'block';
+          var pColor = proj.projectedRemaining < 0 ? 'var(--danger)' : 'var(--accent-2)';
+          var pPrefix = proj.projectedRemaining < 0 ? '-' : '';
+          projRow.innerHTML = '<div class="row-between" style="align-items:center;">' +
+            '<div><span class="muted">Tagihan rutin belum dibayar:</span> <strong>' + formatRupiah(proj.unpaidRecurring) + '</strong></div>' +
+            '<div><span class="muted">Sisa terproyeksi:</span> <strong style="color:' + pColor + ';">' + pPrefix + formatRupiah(Math.abs(proj.projectedRemaining)) + '</strong></div>' +
+            '</div>';
+        } else {
+          projRow.style.display = 'none';
+        }
+      }
 
       if (!summary.hasBudget) {
         mainText.textContent = 'Belum diatur';
@@ -2331,8 +3035,20 @@
           '<div class="progress-bar" style="margin-top:8px;">' +
           '<div class="progress-fill" style="width:' + summary.pct + '%; background:' + (summary.isOverBudget ? 'var(--danger)' : 'linear-gradient(90deg, var(--accent-2), #34d399)') + ';"></div>' +
           '</div>' +
-          '<div class="row-between" style="margin-top:4px;"><div class="muted">' + summary.pct + '% digunakan</div>' + (summary.isOverBudget ? '<div class="badge-red" style="font-size:11px; padding:2px 8px;">OVER BUDGET</div>' : '') + '</div>' +
-          overHtml;
+          '<div class="row-between" style="margin-top:4px;"><div class="muted">' + summary.pct + '% digunakan</div>' + (summary.isOverBudget ? '<div class="badge-red" style="font-size:11px; padding:2px 8px;">OVER BUDGET</div>' : '') + '</div>';
+
+        var proj = getProjectedBudget(ym);
+        if (proj.unpaidRecurring > 0) {
+          var pColor = proj.projectedRemaining < 0 ? 'var(--danger)' : 'var(--accent-2)';
+          var pPrefix = proj.projectedRemaining < 0 ? '-' : '';
+          summaryEl.innerHTML += '<div style="margin-top:10px; padding:10px 12px; background:var(--surface-secondary); border-radius:10px; border:1px solid var(--border);">' +
+            '<div class="row-between" style="font-size:12px; margin-bottom:4px;"><span class="muted">Tagihan Rutin Belum Dibayar:</span> <strong style="color:var(--danger);">' + formatRupiah(proj.unpaidRecurring) + '</strong></div>' +
+            '<div class="row-between" style="font-size:13px;"><span class="muted">Sisa Terproyeksi:</span> <strong style="color:' + pColor + ';">' + pPrefix + formatRupiah(Math.abs(proj.projectedRemaining)) + '</strong></div>' +
+            (proj.projectedRemaining < 0 ? '<div style="font-size:11px; color:var(--danger); margin-top:4px; font-weight:600;">Peringatan: Berisiko over budget setelah membayar tagihan rutin!</div>' : '') +
+            '</div>';
+        }
+
+        if (overHtml) summaryEl.innerHTML += overHtml;
         var editBtn = document.getElementById('btnEditBudget');
         if (editBtn) editBtn.onclick = function() { openBudgetModal(ym); };
       }
@@ -2959,6 +3675,29 @@
           }
         }
 
+        var unpaidRecurring = getUnpaidRecurringTotal(curYM);
+        var projectedRemaining = remainingBudget - unpaidRecurring;
+        var projWarningHtml = '';
+
+        if (unpaidRecurring > 0) {
+          var pColor = projectedRemaining < 0 ? 'var(--danger)' : 'var(--text)';
+          var pPrefix = projectedRemaining < 0 ? '-' : '';
+          projWarningHtml = `
+            <div style="background:var(--surface-secondary); border:1px solid var(--border); border-radius:8px; padding:8px 10px; margin-top:8px; font-size:12px;">
+              <div class="row-between"><span>Tagihan rutin belum dibayar:</span> <strong>${formatRupiah(unpaidRecurring)}</strong></div>
+              <div class="row-between" style="margin-top:2px;"><span>Sisa setelah tagihan rutin:</span> <strong style="color:${pColor};">${pPrefix}${formatRupiah(Math.abs(projectedRemaining))}</strong></div>
+              ${price > projectedRemaining ? '<div style="color:var(--danger); font-weight:600; margin-top:4px;">Peringatan: Melebihi sisa terproyeksi setelah tagihan rutin!</div>' : ''}
+            </div>
+          `;
+          if (remainingBudget >= price && price > projectedRemaining) {
+            budgetAdvice += ' Perhatian: Meskipun sisa budget saat ini mencukupi, tagihan rutin belum dibayar (' + formatRupiah(unpaidRecurring) + ') membuat sisa dana tidak cukup.';
+            if (budgetStatus === 'AMAN') {
+              budgetStatus = 'PERLU DIPERTIMBANGKAN';
+              budgetBadgeClass = 'badge-amber';
+            }
+          }
+        }
+
         var afterRemaining = Math.max(0, remainingBudget - price);
 
         let detail = `
@@ -2967,6 +3706,7 @@
           <div class="row-between"><div><div class="muted">Sisa Budget Sekarang</div><div style="font-weight:700;">${formatRupiah(remainingBudget)}</div></div><div class="text-right"><div class="muted">Limit Budget</div><div style="font-weight:700;">${formatRupiah(monthlyBudget)}</div></div></div>
           <div class="divider"></div>
           <div class="row-between"><div><div class="muted">Harga Barang</div><div style="font-weight:700;">${formatRupiah(price)}</div></div><div class="text-right"><div class="muted">Sisa Setelah Beli</div><div style="font-weight:700;">${formatRupiah(afterRemaining)}</div></div></div>
+          ${projWarningHtml}
           <div class="divider"></div>
           <div class="row-between"><div class="muted">Porsi sisa budget terpakai</div><div class="muted">${budgetUsedPct}%</div></div>
           <div class="muted" style="font-size:11px; margin-top:6px;">Tabungan Darurat dan Celengan tidak terpengaruh.</div>
@@ -3239,6 +3979,8 @@
           if (top.id === 'detailModal') closeDetailModal();
           else if (top.id === 'goalModal') closeGoalModal();
           else if (top.id === 'txModal') closeTransactionModal();
+          else if (top.id === 'incomeModal') closeIncomeModal();
+          else if (top.id === 'recurringModal') closeRecurringModal();
           else top.classList.remove('open');
         }
       }
@@ -3297,7 +4039,7 @@
 
           await window.Capacitor.Plugins.Share.share({
             title: 'Backup Data Berithung',
-            text: 'Backup data tabungan dan budget Berithung v1.4.0',
+            text: 'Backup data tabungan dan budget Berithung v1.5.0',
             url: fileUri,
             dialogTitle: 'Simpan / Bagikan Backup Berithung'
           });
@@ -3340,6 +4082,8 @@
           parsed.budgets = (parsed.budgets && typeof parsed.budgets === 'object' && !Array.isArray(parsed.budgets)) ? parsed.budgets : {};
           parsed.expenses = Array.isArray(parsed.expenses) ? parsed.expenses : [];
           parsed.wishlist = Array.isArray(parsed.wishlist) ? parsed.wishlist : [];
+          parsed.incomes = Array.isArray(parsed.incomes) ? parsed.incomes : [];
+          parsed.recurringExpenses = Array.isArray(parsed.recurringExpenses) ? parsed.recurringExpenses : [];
           saveData(parsed);
           render();
           showToast('Data berhasil direstore');
@@ -3420,19 +4164,188 @@
 
     document.getElementById('btnExpenseModalDelete').addEventListener('click', function() {
       if (!editingExpenseId) return;
-      if (!confirm('Hapus catatan pengeluaran ini?')) return;
-      deleteExpenseItem(editingExpenseId);
-      closeExpenseModal();
-      renderBudgetPage();
-      renderBudgetHomeCard();
-      renderHomeTrendCard();
-      showToast('Pengeluaran dihapus');
+      var d = getData();
+      var exp = (d.expenses || []).find(function(e) { return e.id === editingExpenseId; });
+      var expName = exp ? (formatRupiah(exp.amount) + (exp.note ? ' - ' + exp.note : '')) : '';
+      openConfirmModal({
+        title: 'Hapus Pengeluaran?',
+        icon: 'alert',
+        targetLabel: 'Pengeluaran',
+        targetName: expName,
+        message: 'Catatan pengeluaran ini akan dihapus permanen.',
+        warning: 'Tindakan ini tidak dapat dibatalkan.',
+        confirmText: 'Hapus Pengeluaran',
+        cancelText: 'Batal',
+        danger: true,
+        onConfirm: function() {
+          deleteExpenseItem(editingExpenseId);
+          closeConfirmModal(true);
+          closeExpenseModal();
+          renderBudgetPage();
+          renderBudgetHomeCard();
+          renderHomeTrendCard();
+          showToast('Pengeluaran dihapus');
+        }
+      });
     });
 
     // Should I Buy Radio toggle listeners
     document.getElementById('sibSourceGoal').addEventListener('change', function() {
       document.getElementById('sibGoalWrap').style.display = 'block';
       document.getElementById('sibBudgetWrap').style.display = 'none';
+    });
+
+    // Income v1.5.0 Listeners
+    document.getElementById('btnOpenIncomeHome').addEventListener('click', function() { showPage('income'); });
+    document.getElementById('btnIncomeBack').addEventListener('click', function() { showPage('home'); });
+    document.getElementById('btnIncomePrevMonth').addEventListener('click', function() {
+      selectedIncomeMonth = shiftMonth(selectedIncomeMonth, -1);
+      renderIncomePage();
+    });
+    document.getElementById('btnIncomeNextMonth').addEventListener('click', function() {
+      selectedIncomeMonth = shiftMonth(selectedIncomeMonth, 1);
+      renderIncomePage();
+    });
+    document.getElementById('btnIncomeAdd').addEventListener('click', function() { openIncomeModal(null); });
+    document.getElementById('btnIncomeModalClose').addEventListener('click', closeIncomeModal);
+    document.getElementById('btnIncomeModalCancel').addEventListener('click', closeIncomeModal);
+    document.getElementById('incomeModal').addEventListener('click', function(e) { if (e.target === this) closeIncomeModal(); });
+    document.getElementById('btnIncomeModalSave').addEventListener('click', function() {
+      var rawAmt = String(document.getElementById('inputIncomeAmount').value).replace(/[^0-9]/g, '');
+      var amt = Number(rawAmt);
+      var src = document.getElementById('selectIncomeSource').value;
+      var dt = document.getElementById('inputIncomeDate').value || getLocalDateISO();
+      var note = document.getElementById('inputIncomeNote').value.trim();
+      var err = document.getElementById('incomeValidationError');
+
+      // Guard 7: Validate amount as finite positive number
+      if (!Number.isFinite(amt) || amt <= 0) {
+        if (err) { err.style.display = 'block'; err.textContent = 'Nominal pemasukan harus berupa angka lebih dari 0'; }
+        return;
+      }
+
+      saveIncomeItem({
+        id: editingIncomeId,
+        amount: amt,
+        source: src,
+        date: dt,
+        note: note
+      });
+
+      closeIncomeModal();
+      selectedIncomeMonth = dt.slice(0, 7);
+      renderIncomePage();
+      renderIncomeHomeCard();
+      showToast('Pemasukan disimpan');
+    });
+
+    document.getElementById('btnIncomeModalDelete').addEventListener('click', function() {
+      if (!editingIncomeId) return;
+      var d = getData();
+      var inc = (d.incomes || []).find(function(i) { return i.id === editingIncomeId; });
+      var incName = inc ? ((inc.source || 'Pemasukan') + ' - ' + formatRupiah(inc.amount)) : '';
+      openConfirmModal({
+        title: 'Hapus Pemasukan?',
+        icon: 'alert',
+        targetLabel: 'Pemasukan',
+        targetName: incName,
+        message: 'Catatan pemasukan ini akan dihapus permanen.',
+        warning: 'Tindakan ini tidak dapat dibatalkan.',
+        confirmText: 'Hapus Pemasukan',
+        cancelText: 'Batal',
+        danger: true,
+        onConfirm: function() {
+          deleteIncomeItem(editingIncomeId);
+          closeConfirmModal(true);
+          closeIncomeModal();
+          renderIncomePage();
+          renderIncomeHomeCard();
+          showToast('Pemasukan dihapus');
+        }
+      });
+    });
+
+    // Recurring Expenses v1.5.0 Listeners
+    document.getElementById('btnOpenRecurringHome').addEventListener('click', function() { showPage('recurring'); });
+    document.getElementById('btnRecurringBack').addEventListener('click', function() { showPage('home'); });
+    document.getElementById('btnRecurringPrevMonth').addEventListener('click', function() {
+      selectedRecurringMonth = shiftMonth(selectedRecurringMonth, -1);
+      renderRecurringPage();
+    });
+    document.getElementById('btnRecurringNextMonth').addEventListener('click', function() {
+      selectedRecurringMonth = shiftMonth(selectedRecurringMonth, 1);
+      renderRecurringPage();
+    });
+    document.getElementById('btnRecurringAdd').addEventListener('click', function() { openRecurringModal(null); });
+    document.getElementById('btnRecurringModalClose').addEventListener('click', closeRecurringModal);
+    document.getElementById('btnRecurringModalCancel').addEventListener('click', closeRecurringModal);
+    document.getElementById('recurringModal').addEventListener('click', function(e) { if (e.target === this) closeRecurringModal(); });
+    document.getElementById('btnRecurringModalSave').addEventListener('click', function() {
+      var name = document.getElementById('inputRecurringName').value.trim();
+      var rawAmt = String(document.getElementById('inputRecurringAmount').value).replace(/[^0-9]/g, '');
+      var amt = Number(rawAmt);
+      var cat = document.getElementById('selectRecurringCategory').value || 'Tagihan';
+      var rawDue = document.getElementById('inputRecurringDueDay').value;
+      var dueDay = parseInt(rawDue, 10);
+      var err = document.getElementById('recurringValidationError');
+
+      if (!name) {
+        if (err) { err.style.display = 'block'; err.textContent = 'Nama tagihan harus diisi'; }
+        return;
+      }
+
+      // Guard 7: Validate amount as finite positive number
+      if (!Number.isFinite(amt) || amt <= 0) {
+        if (err) { err.style.display = 'block'; err.textContent = 'Nominal tagihan harus berupa angka lebih dari 0'; }
+        return;
+      }
+
+      // Guard 6: Validate dueDay as integer 1-28
+      if (!Number.isInteger(dueDay) || dueDay < 1 || dueDay > 28) {
+        if (err) { err.style.display = 'block'; err.textContent = 'Jatuh tempo harus antara tanggal 1 sampai 28'; }
+        return;
+      }
+
+      saveRecurringExpense({
+        id: editingRecurringId,
+        name: name,
+        amount: amt,
+        category: cat,
+        dueDay: dueDay
+      });
+
+      closeRecurringModal();
+      renderRecurringPage();
+      renderRecurringHomeCard();
+      renderBudgetHomeCard();
+      showToast('Tagihan rutin disimpan');
+    });
+
+    document.getElementById('btnRecurringModalDelete').addEventListener('click', function() {
+      if (!editingRecurringId) return;
+      var d = getData();
+      var rec = (d.recurringExpenses || []).find(function(r) { return r.id === editingRecurringId; });
+      var recName = rec ? (rec.name + ' (' + formatRupiah(rec.amount) + ')') : '';
+      openConfirmModal({
+        title: 'Hapus Tagihan Rutin?',
+        icon: 'alert',
+        targetLabel: 'Tagihan Rutin',
+        targetName: recName,
+        message: 'Template tagihan rutin akan dihapus. Riwayat pengeluaran yang sudah dibayar pada bulan-bulan sebelumnya tetap aman.',
+        warning: 'Tindakan ini tidak dapat dibatalkan.',
+        confirmText: 'Hapus Tagihan',
+        cancelText: 'Batal',
+        danger: true,
+        onConfirm: function() {
+          deleteRecurringExpense(editingRecurringId);
+          closeConfirmModal(true);
+          closeRecurringModal();
+          renderRecurringPage();
+          renderRecurringHomeCard();
+          renderBudgetHomeCard();
+          showToast('Tagihan rutin dihapus');
+        }
+      });
     });
     // =============================================
     // Analytics & Financial Insights v1.4.0
@@ -3841,6 +4754,25 @@
           type: 'success',
           title: 'Impulse Protection',
           text: wishlistData.cancelledCount + ' pembelian dibatalkan via Wishlist (hemat ' + formatRupiah(wishlistData.avoidedAmount) + ').'
+        });
+      }
+
+      var cf = getMonthlyCashflow(ym);
+      if (cf.income > 0 && cf.net < 0) {
+        insights.push({
+          priority: 2,
+          iconType: 'ui', iconKey: 'cashflow',
+          type: 'danger',
+          title: 'Defisit Arus Kas',
+          text: 'Pengeluaran melebihi pemasukan bulan ini sebesar ' + formatRupiah(Math.abs(cf.net)) + '.'
+        });
+      } else if (cf.income > 0 && cf.net > 0 && cf.savingsRate >= 30) {
+        insights.push({
+          priority: 2,
+          iconType: 'ui', iconKey: 'cashflow',
+          type: 'success',
+          title: 'Arus Kas Sehat',
+          text: 'Surplus kas mencapai ' + cf.savingsRate + '% dari total pemasukan bulan ini (' + formatRupiah(cf.net) + ').'
         });
       }
 
@@ -4324,6 +5256,41 @@
         overWarningHtml +
       '</div>';
 
+      var cf = getMonthlyCashflow(ym);
+      var netColor = cf.net >= 0 ? 'var(--accent-2)' : 'var(--danger)';
+      var netSign = cf.net >= 0 ? '+' : '-';
+      var cfBadgeClass = cf.net >= 0 ? 'badge' : 'badge-red';
+      var cfBadgeText = cf.net >= 0 ? 'Surplus' : 'Defisit';
+
+      html += '<div class="card" style="margin-bottom:12px; border-left:4px solid var(--accent-2);">' +
+        '<div class="row-between" style="margin-bottom:8px;">' +
+          '<div style="font-weight:700; font-size:14px; text-transform:uppercase; letter-spacing:0.5px; color:var(--muted); display:flex; align-items:center; gap:6px;"><span class="ui-icon-mask" style="width:16px;height:16px;-webkit-mask-image:url(\'assets/icons/ui/cashflow.svg\');mask-image:url(\'assets/icons/ui/cashflow.svg\');" aria-hidden="true"></span>Arus Kas (Cashflow)</div>' +
+          '<div><span class="' + cfBadgeClass + '" style="font-size:11px; padding:2px 8px;">' + cfBadgeText + '</span></div>' +
+        '</div>' +
+        '<div class="analytics-grid-2">' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Pemasukan</div>' +
+            '<div class="analytics-metric-value green">+' + formatRupiah(cf.income) + '</div>' +
+            '<div class="analytics-metric-sub">Bulan ' + formatMonthYear(ym) + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Pengeluaran</div>' +
+            '<div class="analytics-metric-value" style="color:var(--danger);">' + (cf.expense > 0 ? '-' : '') + formatRupiah(cf.expense) + '</div>' +
+            '<div class="analytics-metric-sub">Total terpakai</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Selisih Bersih</div>' +
+            '<div class="analytics-metric-value" style="color:' + netColor + ';">' + netSign + formatRupiah(Math.abs(cf.net)) + '</div>' +
+            '<div class="analytics-metric-sub">' + (cf.net >= 0 ? 'Surplus kas' : 'Defisit kas') + '</div>' +
+          '</div>' +
+          '<div class="analytics-metric-card">' +
+            '<div class="analytics-metric-title">Rasio Tabungan</div>' +
+            '<div class="analytics-metric-value">' + (cf.income > 0 ? (cf.savingsRate + '%') : '-') + '</div>' +
+            '<div class="analytics-metric-sub">' + (cf.income > 0 ? 'Dari pemasukan' : 'Belum ada pemasukan') + '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
       // EMPTY STATE CHECK: Jika tidak ada transaksi sama sekali
       if (bSummary.usedBudget === 0) {
         html += '<div class="card" style="text-align:center; padding:18px 14px; margin-bottom:12px;">' +
@@ -4541,6 +5508,8 @@
             const top = openModals[openModals.length - 1];
             if (top.id === 'goalModal') closeGoalModal();
             else if (top.id === 'txModal') closeTransactionModal();
+            else if (top.id === 'incomeModal') closeIncomeModal();
+            else if (top.id === 'recurringModal') closeRecurringModal();
             else top.classList.remove('open');
             return;
           }
