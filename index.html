@@ -345,6 +345,41 @@
     body.dark .emergency-icon-sm {
       filter: brightness(0) invert(0.92);
     }
+    .ui-icon-mask,
+    .category-icon-mask {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: currentColor;
+      -webkit-mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      -webkit-mask-size: contain;
+      mask-repeat: no-repeat;
+      mask-position: center;
+      mask-size: contain;
+      vertical-align: middle;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+    .category-select-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    .category-select-wrap select {
+      width: 100%;
+      padding-left: 40px !important;
+      margin-bottom: 0 !important;
+    }
+    .category-select-preview {
+      position: absolute;
+      left: 12px;
+      width: 20px;
+      height: 20px;
+      pointer-events: none;
+      z-index: 2;
+      color: var(--text);
+    }
     .goal-icon-mask {
       display: inline-block;
       width: 24px;
@@ -481,7 +516,7 @@
           <div style="font-weight:700; font-size:18px;">Menabung</div>
           <div class="sub" id="headerSub">Kelola tabunganmu hari ini</div>
         </div>
-        <div class="pill" id="modeToggle" title="Ganti Tema">🌙</div>
+        <div class="pill" id="modeToggle" title="Ganti Tema"><span id="modeToggleIcon" class="ui-icon-mask" style="width:16px;height:16px;-webkit-mask-image:url('assets/icons/ui/moon.svg');mask-image:url('assets/icons/ui/moon.svg');" aria-hidden="true"></span></div>
       </div>
     </div>
   </header>
@@ -547,7 +582,7 @@
 
       <div class="card" id="shouldIBuyCard" style="border-left: 4px solid var(--accent-3); margin-top:8px;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-          <span style="font-size:22px;">🧠</span>
+          <span class="ui-icon-mask" style="width:24px;height:24px;color:var(--accent-3);-webkit-mask-image:url('assets/icons/ui/should-buy.svg');mask-image:url('assets/icons/ui/should-buy.svg');" aria-hidden="true"></span>
           <div>
             <div style="font-weight:700; font-size:16px;">Boleh Beli?</div>
             <div class="muted">Cek dampak pembelian sebelum mengeluarkan uang.</div>
@@ -558,7 +593,7 @@
 
       <div class="card" id="wishlistHomeCard" style="border-left:4px solid var(--accent); margin-top:8px; display:none;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-          <span style="font-size:22px;">💝</span>
+          <span class="ui-icon-mask" style="width:24px;height:24px;color:var(--accent);-webkit-mask-image:url('assets/icons/ui/wishlist.svg');mask-image:url('assets/icons/ui/wishlist.svg');" aria-hidden="true"></span>
           <div class="flex-1">
             <div style="font-weight:700; font-size:16px;">Wishlist</div>
             <div class="muted" id="wishlistHomeSubtitle">0 barang sedang dipertimbangkan</div>
@@ -569,7 +604,7 @@
 
       <div class="card" id="analyticsHomeCard" style="border-left:4px solid #8b5cf6; margin-top:8px;">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
-          <span style="font-size:22px;">📊</span>
+          <span class="ui-icon-mask" style="width:24px;height:24px;color:#8b5cf6;-webkit-mask-image:url('assets/icons/ui/analytics.svg');mask-image:url('assets/icons/ui/analytics.svg');" aria-hidden="true"></span>
           <div class="flex-1">
             <div style="font-weight:700; font-size:16px;">Analytics</div>
             <div class="muted">Lihat pola pengeluaran dan progres keuanganmu.</div>
@@ -634,8 +669,8 @@
       <div class="section-title">Data</div>
       <div class="card">
         <div class="muted" style="margin-bottom:8px;">Backup dan restore data lokal.</div>
-        <button class="btn-secondary" id="btnExport">⬇️ Download Backup</button>
-        <button class="btn-primary" id="btnImport">⬆️ Restore Backup</button>
+        <button class="btn-secondary" id="btnExport">Download Backup</button>
+        <button class="btn-primary" id="btnImport">Restore Backup</button>
         <input type="file" id="importFile" accept="application/json" style="display:none;" />
       </div>
 
@@ -699,7 +734,7 @@
           <div class="muted" style="margin-top:10px;" id="sibAdvice"></div>
         </div>
         <div id="sibWishlistActions" style="display:none; margin-bottom:4px;">
-          <button class="btn-secondary" id="btnSaveToWishlist">💝 Simpan ke Wishlist</button>
+          <button class="btn-secondary" id="btnSaveToWishlist">Simpan ke Wishlist</button>
           <button class="btn-tertiary" id="btnGoToWishlist" style="display:none; margin-top:0;">Lihat Wishlist →</button>
         </div>
         <button class="btn-tertiary" id="btnSibReset">← Analisis Lagi</button>
@@ -709,7 +744,7 @@
     <div id="pageWishlist" style="display:none;">
       <div class="row-between" style="margin-bottom:12px;">
         <div>
-          <div style="font-weight:700; font-size:18px;">💝 Wishlist</div>
+          <div style="font-weight:700; font-size:18px; display:flex; align-items:center; gap:6px;"><span class="ui-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url('assets/icons/ui/wishlist.svg');mask-image:url('assets/icons/ui/wishlist.svg');" aria-hidden="true"></span>Wishlist</div>
           <div class="sub">Barang dalam masa pertimbangan.</div>
         </div>
         <button class="btn-tertiary small-btn" id="btnWishlistBack">✕ Kembali</button>
@@ -723,7 +758,7 @@
     <div id="pageBudget" style="display:none;">
       <div class="row-between" style="margin-bottom:12px;">
         <div>
-          <div style="font-weight:700; font-size:18px;">📊 Budget Bulanan</div>
+          <div style="font-weight:700; font-size:18px; display:flex; align-items:center; gap:6px;"><span class="ui-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url('assets/icons/ui/budget.svg');mask-image:url('assets/icons/ui/budget.svg');" aria-hidden="true"></span>Budget Bulanan</div>
           <div class="sub">Kelola batas pengeluaran operasional.</div>
         </div>
         <button class="btn-tertiary small-btn" id="btnBudgetBack">✕ Kembali</button>
@@ -732,9 +767,9 @@
       <!-- Month Navigation -->
       <div class="card" style="padding:10px 14px; margin-bottom:10px;">
         <div class="row-between">
-          <button type="button" class="btn-tertiary small-btn" id="btnPrevMonth" style="padding:6px 12px; min-height:36px;">◀</button>
+          <button type="button" class="btn-tertiary small-btn" id="btnPrevMonth" style="padding:6px 12px; min-height:36px;">←</button>
           <div style="font-weight:700; font-size:16px; text-align:center;" id="budgetMonthTitle">September 2026</div>
-          <button type="button" class="btn-tertiary small-btn" id="btnNextMonth" style="padding:6px 12px; min-height:36px;">▶</button>
+          <button type="button" class="btn-tertiary small-btn" id="btnNextMonth" style="padding:6px 12px; min-height:36px;">→</button>
         </div>
       </div>
 
@@ -761,7 +796,7 @@
     <div id="pageAnalytics" style="display:none;">
       <div class="row-between" style="margin-bottom:12px;">
         <div>
-          <div style="font-weight:700; font-size:18px;">📊 Analytics & Insights</div>
+          <div style="font-weight:700; font-size:18px; display:flex; align-items:center; gap:6px;"><span class="ui-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url('assets/icons/ui/analytics.svg');mask-image:url('assets/icons/ui/analytics.svg');" aria-hidden="true"></span>Analytics & Insights</div>
           <div class="sub">Pola pengeluaran dan progres finansialmu.</div>
         </div>
         <button type="button" class="btn-tertiary small-btn" id="btnAnalyticsBack">✕ Kembali</button>
@@ -869,7 +904,7 @@
   <div class="modal" id="wishlistCoolingModal">
     <div class="modal-sheet">
       <div class="row-between" style="margin-bottom:8px;">
-        <div style="font-weight:700; font-size:16px;">⏳ Cooling Period</div>
+        <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:6px;"><span class="ui-icon-mask" style="width:18px;height:18px;-webkit-mask-image:url('assets/icons/ui/cooling.svg');mask-image:url('assets/icons/ui/cooling.svg');" aria-hidden="true"></span>Cooling Period</div>
         <button class="btn-tertiary small-btn" id="btnCoolingCancel">Tutup</button>
       </div>
       <div class="muted" style="margin-bottom:4px;">Berapa hari kamu ingin menunda keputusan?</div>
@@ -880,7 +915,7 @@
         <button type="button" class="cooling-option" data-days="30">30 hari</button>
       </div>
       <div class="muted" style="margin-bottom:12px; font-size:12px;">Setelah masa ini selesai, kamu bisa mengambil keputusan final.</div>
-      <button class="btn-secondary" id="btnCoolingSave">💝 Simpan ke Wishlist</button>
+      <button class="btn-secondary" id="btnCoolingSave">Simpan ke Wishlist</button>
       <button class="btn-tertiary" id="btnCoolingCancel2">Batal</button>
     </div>
   </div>
@@ -900,7 +935,7 @@
   <div class="modal" id="wishlistBoughtModal">
     <div class="modal-sheet">
       <div style="text-align:center; padding:8px 0 16px;">
-        <div style="font-size:40px; margin-bottom:8px;">🛍️</div>
+        <div style="margin-bottom:8px; display:flex; justify-content:center;"><span class="category-icon-mask" style="width:40px;height:40px;color:var(--accent);-webkit-mask-image:url('assets/icons/categories/shopping.svg');mask-image:url('assets/icons/categories/shopping.svg');" aria-hidden="true"></span></div>
         <div style="font-weight:700; font-size:16px; margin-bottom:8px;">Konfirmasi Pembelian</div>
         <div class="muted">Apakah kamu benar-benar ingin menandai barang ini sebagai dibeli?</div>
         <div class="muted" style="margin-top:6px; font-size:12px;">Saldo celengan tidak akan berubah secara otomatis.</div>
@@ -915,7 +950,7 @@
   <!-- Modal: Reusable Confirmation Dialog -->
   <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmModalTitle">
     <div class="modal-sheet" style="text-align:center; padding:20px 16px;">
-      <div id="confirmModalIcon" style="width:48px; height:48px; border-radius:50%; background:var(--badge-red-bg); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:24px;">⚠️</div>
+      <div id="confirmModalIcon" style="width:48px; height:48px; border-radius:50%; background:var(--badge-red-bg); color:var(--danger); display:flex; align-items:center; justify-content:center; margin:0 auto 12px;"><span class="ui-icon-mask" style="width:24px;height:24px;-webkit-mask-image:url('assets/icons/ui/alert.svg');mask-image:url('assets/icons/ui/alert.svg');" aria-hidden="true"></span></div>
       <div id="confirmModalTitle" style="font-weight:700; font-size:17px; margin-bottom:12px; color:var(--text);">Hapus Celengan?</div>
       
       <div id="confirmModalTargetWrap" style="background:var(--surface-secondary); border:1px solid var(--border); border-radius:12px; padding:10px 14px; margin-bottom:12px; text-align:left; display:none;">
@@ -966,7 +1001,10 @@
       <input type="number" id="inputExpenseAmount" placeholder="Contoh: 45000" inputmode="numeric" />
 
       <div class="muted" style="margin-bottom:4px;">Kategori</div>
-      <select id="selectExpenseCategory" style="margin-bottom:10px;"></select>
+      <div class="category-select-wrap">
+        <span id="expenseCategoryIconPreview" class="category-icon-mask category-select-preview" aria-hidden="true"></span>
+        <select id="selectExpenseCategory"></select>
+      </div>
 
       <div class="muted" style="margin-bottom:4px;">Tanggal</div>
       <input type="date" id="inputExpenseDate" style="margin-bottom:10px;" />
@@ -981,7 +1019,7 @@
         <button type="button" class="btn-secondary" id="btnExpenseModalSave">Simpan</button>
       </div>
       <div id="expenseDeleteWrap" style="display:none; margin-top:8px;">
-        <button type="button" class="btn-danger" id="btnExpenseModalDelete">🗑️ Hapus Pengeluaran</button>
+        <button type="button" class="btn-danger" id="btnExpenseModalDelete">Hapus Pengeluaran</button>
       </div>
     </div>
   </div>
@@ -1054,7 +1092,7 @@
             migrated.goals.push({
               id: migrated.nextGoalId++, name: v2.wishlistName || 'Tabungan Barang Impian',
               targetAmount: Number(v2.wishlistTarget || wishSum || 0), currentAmount: wishSum,
-              weeklyTarget: 0, targetDate: '', note: '', emoji: '💰',
+              weeklyTarget: 0, targetDate: '', note: '', emoji: 'money',
               status: wishSum >= Number(v2.wishlistTarget || wishSum || 0) ? 'completed' : 'active',
               completedAt: wishSum >= Number(v2.wishlistTarget || wishSum || 0) ? todayISO() : '', createdAt: todayISO(), transactions: []
             });
@@ -1114,6 +1152,101 @@
       return `<span class="goal-icon-mask" style="${style}" role="img" aria-label="${key}"></span>`;
     }
 
+    const UI_ICONS = {
+      shouldBuy: 'assets/icons/ui/should-buy.svg',
+      analytics: 'assets/icons/ui/analytics.svg',
+      dailyAverage: 'assets/icons/ui/daily-average.svg',
+      comparison: 'assets/icons/ui/comparison.svg',
+      category: 'assets/icons/ui/category.svg',
+      wishlist: 'assets/icons/ui/wishlist.svg',
+      budget: 'assets/icons/ui/budget.svg',
+      trendUp: 'assets/icons/ui/trend-up.svg',
+      trendDown: 'assets/icons/ui/trend-down.svg',
+      alert: 'assets/icons/ui/alert.svg',
+      cooling: 'assets/icons/ui/cooling.svg',
+      checkCircle: 'assets/icons/ui/check-circle.svg',
+      xCircle: 'assets/icons/ui/x-circle.svg',
+      sun: 'assets/icons/ui/sun.svg',
+      moon: 'assets/icons/ui/moon.svg'
+    };
+
+    const CATEGORY_ICONS = {
+      food: 'assets/icons/categories/food.svg',
+      transport: 'assets/icons/categories/transport.svg',
+      shopping: 'assets/icons/categories/shopping.svg',
+      entertainment: 'assets/icons/categories/entertainment.svg',
+      bills: 'assets/icons/categories/bills.svg',
+      education: 'assets/icons/categories/education.svg',
+      health: 'assets/icons/categories/health.svg',
+      other: 'assets/icons/categories/other.svg'
+    };
+
+    const CATEGORY_MAP = {
+      'makanan': 'food',
+      'food': 'food',
+      'transportasi': 'transport',
+      'transport': 'transport',
+      'belanja': 'shopping',
+      'shopping': 'shopping',
+      'hiburan': 'entertainment',
+      'entertainment': 'entertainment',
+      'tagihan': 'bills',
+      'bills': 'bills',
+      'pendidikan': 'education',
+      'education': 'education',
+      'kesehatan': 'health',
+      'health': 'health',
+      'lainnya': 'other',
+      'other': 'other'
+    };
+
+    function getCategoryKey(val) {
+      if (!val) return 'other';
+      const clean = String(val).trim().toLowerCase();
+      return CATEGORY_MAP[clean] || (CATEGORY_ICONS[clean] ? clean : 'other');
+    }
+
+    function getUiIcon(key) {
+      if (!key) return '';
+      const clean = String(key).trim();
+      if (UI_ICONS[clean]) return UI_ICONS[clean];
+      // ponytail: normalize standard kebab/snake alias (e.g. daily-average, daily_average -> dailyAverage)
+      const canonical = clean.replace(/[-_]([a-z])/gi, function(_, c) { return c.toUpperCase(); });
+      if (UI_ICONS[canonical]) return UI_ICONS[canonical];
+      return UI_ICONS.category || '';
+    }
+
+    function getCategoryIcon(key) {
+      const canonicalKey = getCategoryKey(key);
+      return CATEGORY_ICONS[canonicalKey] || CATEGORY_ICONS.other || '';
+    }
+
+    function renderCategoryIconHtml(val, size, extraStyle) {
+      const src = getCategoryIcon(val);
+      if (!src) return '';
+      const px = size || 20;
+      const style = `width:${px}px;height:${px}px;-webkit-mask-image:url('${src}');mask-image:url('${src}');${extraStyle || ''}`;
+      return `<span class="category-icon-mask" style="${style}" role="img" aria-hidden="true"></span>`;
+    }
+
+    function renderUiIconHtml(val, size, extraStyle) {
+      const src = getUiIcon(val);
+      if (!src) return '';
+      const px = size || 20;
+      const style = `width:${px}px;height:${px}px;-webkit-mask-image:url('${src}');mask-image:url('${src}');${extraStyle || ''}`;
+      return `<span class="ui-icon-mask" style="${style}" role="img" aria-hidden="true"></span>`;
+    }
+
+    function renderIconHtml(type, key, size, extraStyle) {
+      if (type === 'category') return renderCategoryIconHtml(key, size, extraStyle);
+      if (type === 'goal') return renderGoalIconHtml(key, size, extraStyle);
+      if (type === 'emergency') {
+        const px = size || 22;
+        return `<span class="emergency-icon-sm" style="width:${px}px;height:${px}px;${extraStyle || ''}" aria-hidden="true"></span>`;
+      }
+      return renderUiIconHtml(key, size, extraStyle);
+    }
+
     let currentTab = 'active';
     let goalsTabFull = 'active';
     let editingGoalId = null;
@@ -1152,7 +1285,14 @@
       document.documentElement.setAttribute('data-theme', shouldDark ? 'dark' : 'light');
       document.body.classList.toggle('dark', shouldDark);
       const modeToggle = document.getElementById('modeToggle');
-      if (modeToggle) modeToggle.textContent = shouldDark ? '☀️' : '🌙';
+      if (modeToggle) {
+        const toggleIcon = document.getElementById('modeToggleIcon');
+        if (toggleIcon) {
+          const iconSrc = shouldDark ? 'assets/icons/ui/sun.svg' : 'assets/icons/ui/moon.svg';
+          toggleIcon.style.webkitMaskImage = "url('" + iconSrc + "')";
+          toggleIcon.style.maskImage = "url('" + iconSrc + "')";
+        }
+      }
       const selectEl = document.getElementById('darkModeSelect');
       if (selectEl && selectEl.value !== mode) selectEl.value = mode;
 
@@ -1200,7 +1340,7 @@
       const remaining = Math.max(0, g.targetAmount - g.currentAmount);
       let meta = '';
       if (g.status === 'completed') {
-        meta = `<div class="badge">✅ Target Tercapai</div><div class="muted">${g.completedAt ? 'Tercapai: ' + g.completedAt : ''}</div>`;
+        meta = `<div class="badge">${renderUiIconHtml('checkCircle', 12, 'margin-right:4px;')}Target Tercapai</div><div class="muted">${g.completedAt ? 'Tercapai: ' + g.completedAt : ''}</div>`;
       } else {
         if (g.targetDate) meta += `<div class="muted">Target: ${g.targetDate}</div>`;
         if (g.weeklyTarget) meta += `<div class="muted">Target mingguan: ${formatRupiah(g.weeklyTarget)}</div>`;
@@ -1243,7 +1383,7 @@
       if (!filtered.length) {
         container.innerHTML = `
           <div class="empty">
-            <div class="empty-illustration">🐷</div>
+            <div class="empty-illustration"><span style="display:inline-block; width:40px; height:40px; background-color:currentColor; -webkit-mask:url('assets/icons/celengan.png') no-repeat center/contain; mask:url('assets/icons/celengan.png') no-repeat center/contain; opacity:0.6;" aria-hidden="true"></span></div>
             <div>${currentTab === 'active' ? 'Belum ada celengan aktif.' : 'Belum ada celengan yang tercapai.'}</div>
             ${currentTab === 'active' ? '<div style="margin-top:6px;">Mulai buat target tabungan pertama kamu.</div>' : ''}
           </div>`;
@@ -1261,7 +1401,7 @@
       if (!filtered.length) {
         container.innerHTML = `
           <div class="empty">
-            <div class="empty-illustration">🐷</div>
+            <div class="empty-illustration"><span style="display:inline-block; width:40px; height:40px; background-color:currentColor; -webkit-mask:url('assets/icons/celengan.png') no-repeat center/contain; mask:url('assets/icons/celengan.png') no-repeat center/contain; opacity:0.6;" aria-hidden="true"></span></div>
             <div>${goalsTabFull === 'active' ? 'Belum ada celengan aktif.' : 'Belum ada celengan yang tercapai.'}</div>
             ${goalsTabFull === 'active' ? '<div style="margin-top:6px;">Mulai buat target tabungan pertama kamu.</div>' : ''}
           </div>`;
@@ -1548,7 +1688,7 @@
       pendingDeleteGoalId = goalId;
       openConfirmModal({
         title: 'Hapus Celengan?',
-        icon: '⚠️',
+        icon: 'alert',
         targetLabel: 'Nama Celengan',
         targetName: g.name,
         message: 'Semua saldo dan riwayat transaksi pada celengan ini akan dihapus permanen.',
@@ -2001,14 +2141,14 @@
     // Budget & Expense v1.3.0
     // =============================================
     const EXPENSE_CATEGORIES = [
-      { id: 'Makanan', label: 'Makanan', emoji: '🍔' },
-      { id: 'Transportasi', label: 'Transportasi', emoji: '🚗' },
-      { id: 'Belanja', label: 'Belanja', emoji: '🛍️' },
-      { id: 'Hiburan', label: 'Hiburan', emoji: '🎮' },
-      { id: 'Tagihan', label: 'Tagihan', emoji: '📱' },
-      { id: 'Pendidikan', label: 'Pendidikan', emoji: '📚' },
-      { id: 'Kesehatan', label: 'Kesehatan', emoji: '❤️' },
-      { id: 'Lainnya', label: 'Lainnya', emoji: '📦' }
+      { id: 'Makanan', label: 'Makanan', key: 'food' },
+      { id: 'Transportasi', label: 'Transportasi', key: 'transport' },
+      { id: 'Belanja', label: 'Belanja', key: 'shopping' },
+      { id: 'Hiburan', label: 'Hiburan', key: 'entertainment' },
+      { id: 'Tagihan', label: 'Tagihan', key: 'bills' },
+      { id: 'Pendidikan', label: 'Pendidikan', key: 'education' },
+      { id: 'Kesehatan', label: 'Kesehatan', key: 'health' },
+      { id: 'Lainnya', label: 'Lainnya', key: 'other' }
     ];
 
     function getLocalDateISO(d) {
@@ -2130,7 +2270,7 @@
         progress.style.background = 'var(--danger)';
         if (overWarn) {
           overWarn.style.display = 'block';
-          overWarn.textContent = '⚠️ Melebihi budget ' + formatRupiah(summary.overAmount);
+          overWarn.innerHTML = renderUiIconHtml('alert', 14, 'margin-right:4px;') + 'Melebihi budget ' + formatRupiah(summary.overAmount);
         }
       } else {
         mainText.textContent = formatRupiah(summary.remainingBudget) + ' tersisa';
@@ -2153,10 +2293,10 @@
       var summaryEl = document.getElementById('budgetSummaryCard');
       if (!summary.hasBudget) {
         var copyBtnHtml = prevBudget > 0
-          ? '<button type="button" class="btn-tertiary" id="btnCopyPrevBudget" style="margin-top:8px;">📋 Gunakan budget ' + formatMonthYear(prevYM) + ' (' + formatRupiah(prevBudget) + ')</button>'
+          ? '<button type="button" class="btn-tertiary" id="btnCopyPrevBudget" style="margin-top:8px;">Gunakan budget ' + formatMonthYear(prevYM) + ' (' + formatRupiah(prevBudget) + ')</button>'
           : '';
         summaryEl.innerHTML = '<div style="text-align:center; padding:10px 0;">' +
-          '<div style="font-size:36px; margin-bottom:6px;">📅</div>' +
+          '<div style="margin-bottom:8px; display:flex; justify-content:center;"><span class="ui-icon-mask" style="width:36px;height:36px;opacity:0.6;-webkit-mask-image:url(\'assets/icons/ui/daily-average.svg\');mask-image:url(\'assets/icons/ui/daily-average.svg\');" aria-hidden="true"></span></div>' +
           '<div style="font-weight:700; font-size:16px;">Belum ada budget untuk ' + formatMonthYear(ym) + '</div>' +
           '<div class="muted" style="margin-top:4px; margin-bottom:12px;">Tentukan batas pengeluaran untuk bulan ini.</div>' +
           '<button type="button" class="btn-primary" id="btnCreateBudget">+ Buat Budget</button>' +
@@ -2173,7 +2313,7 @@
         };
       } else {
         var overHtml = summary.isOverBudget
-          ? '<div class="over-budget-card">⚠️ <strong>OVER BUDGET!</strong> Melebihi budget ' + formatRupiah(summary.overAmount) + '</div>'
+          ? '<div class="over-budget-card">' + renderUiIconHtml('alert', 16, 'margin-right:6px;') + '<strong>OVER BUDGET!</strong> Melebihi budget ' + formatRupiah(summary.overAmount) + '</div>'
           : '';
         var remainingColor = summary.isOverBudget ? 'var(--danger)' : 'var(--accent-2)';
         var remainingLabel = summary.isOverBudget ? 'Melebihi' : 'Sisa Budget';
@@ -2208,7 +2348,7 @@
       var html = '<button type="button" class="cat-filter-btn ' + (selectedCategoryFilter === 'ALL' ? 'active' : '') + '" data-cat="ALL">Semua</button>';
       EXPENSE_CATEGORIES.forEach(function(c) {
         var active = selectedCategoryFilter === c.id ? 'active' : '';
-        html += '<button type="button" class="cat-filter-btn ' + active + '" data-cat="' + escapeHtml(c.id) + '">' + c.emoji + ' ' + escapeHtml(c.label) + '</button>';
+        html += '<button type="button" class="cat-filter-btn ' + active + '" data-cat="' + escapeHtml(c.id) + '">' + renderCategoryIconHtml(c.id, 16, 'margin-right:6px;') + escapeHtml(c.label) + '</button>';
       });
       container.innerHTML = html;
       container.querySelectorAll('.cat-filter-btn').forEach(function(btn) {
@@ -2240,11 +2380,11 @@
       }).sort(function(a, b) { return b.amount - a.amount; });
 
       var html = sorted.map(function(item) {
-        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === item.category; }) || { emoji: '📦', label: item.category };
+        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === item.category; }) || { id: item.category, label: item.category };
         var pct = total > 0 ? Math.round((item.amount / total) * 100) : 0;
         return '<div class="category-bar-row">' +
           '<div style="display:flex; align-items:center; gap:8px;">' +
-          '<span style="font-size:18px;">' + catObj.emoji + '</span>' +
+          renderCategoryIconHtml(catObj.id, 20) +
           '<div><div style="font-weight:600;">' + escapeHtml(catObj.label) + '</div><div class="muted" style="font-size:11px;">' + pct + '% dari total</div></div>' +
           '</div>' +
           '<div style="font-weight:700;">' + formatRupiah(item.amount) + '</div>' +
@@ -2274,12 +2414,12 @@
       }
 
       var html = expenses.map(function(e) {
-        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === e.category; }) || { emoji: '📦', label: e.category };
+        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === e.category; }) || { id: e.category, label: e.category };
         var dateFormatted = e.date ? new Date(e.date + 'T00:00:00').toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : '';
         return '<div class="card expense-item-card" data-expense-id="' + e.id + '" style="margin-bottom:8px; cursor:pointer; padding:12px 14px;">' +
           '<div class="row-between">' +
           '<div style="display:flex; align-items:center; gap:10px;" class="flex-1">' +
-          '<span style="font-size:24px;">' + catObj.emoji + '</span>' +
+          renderCategoryIconHtml(catObj.id, 24) +
           '<div>' +
           '<div style="font-weight:600; font-size:15px;">' + escapeHtml(e.note || catObj.label) + '</div>' +
           '<div class="muted" style="font-size:12px;">' + escapeHtml(catObj.label) + ' &bull; ' + dateFormatted + '</div>' +
@@ -2321,8 +2461,20 @@
 
       var catSelect = document.getElementById('selectExpenseCategory');
       catSelect.innerHTML = EXPENSE_CATEGORIES.map(function(c) {
-        return '<option value="' + escapeHtml(c.id) + '">' + c.emoji + ' ' + escapeHtml(c.label) + '</option>';
+        return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.label) + '</option>';
       }).join('');
+
+      function updateCatPreview() {
+        var preview = document.getElementById('expenseCategoryIconPreview');
+        if (preview && catSelect) {
+          var k = getCategoryKey(catSelect.value);
+          var src = CATEGORY_ICONS[k] || CATEGORY_ICONS.other;
+          preview.style.webkitMaskImage = "url('" + src + "')";
+          preview.style.maskImage = "url('" + src + "')";
+        }
+      }
+      catSelect.onchange = updateCatPreview;
+      updateCatPreview();
 
       var delWrap = document.getElementById('expenseDeleteWrap');
       var titleEl = document.getElementById('expenseModalTitle');
@@ -2335,6 +2487,7 @@
         if (exp) {
           document.getElementById('inputExpenseAmount').value = exp.amount || '';
           catSelect.value = exp.category || 'Makanan';
+          updateCatPreview();
           document.getElementById('inputExpenseDate').value = exp.date || getLocalDateISO();
           document.getElementById('inputExpenseNote').value = exp.note || '';
         }
@@ -2468,7 +2621,7 @@
       data.wishlist.unshift(item);
       saveData(data);
       renderWishlistHomeCard();
-      showToast('Tersimpan ke Wishlist 💝');
+      showToast('Tersimpan ke Wishlist');
     }
 
     function makeWishlistDecision(id, decision) {
@@ -2490,18 +2643,18 @@
     }
 
     function getStatusBadgeHtml(status) {
-      if (status === 'waiting') return '<span class="badge-blue">⏳ Cooling Period</span>';
-      if (status === 'ready') return '<span class="badge">✅ Siap Diputuskan</span>';
-      if (status === 'bought') return '<span class="badge">🛍️ Dibeli</span>';
-      if (status === 'cancelled') return '<span class="badge-gray">❌ Dibatalkan</span>';
+      if (status === 'waiting') return '<span class="badge-blue">' + renderUiIconHtml('cooling', 11, 'margin-right:4px;') + 'Cooling Period</span>';
+      if (status === 'ready') return '<span class="badge">' + renderUiIconHtml('checkCircle', 11, 'margin-right:4px;') + 'Siap Diputuskan</span>';
+      if (status === 'bought') return '<span class="badge">' + renderCategoryIconHtml('shopping', 11, 'margin-right:4px;') + 'Dibeli</span>';
+      if (status === 'cancelled') return '<span class="badge-gray">' + renderUiIconHtml('xCircle', 11, 'margin-right:4px;') + 'Dibatalkan</span>';
       return '';
     }
 
     function getAnalysisBadgeHtml(status) {
-      if (status === 'AMAN') return '<span class="badge">✅ AMAN</span>';
-      if (status === 'PERLU DIPERTIMBANGKAN') return '<span class="badge-amber">⚠️ PERTIMBANGKAN</span>';
-      if (status === 'SEBAIKNYA TUNDA') return '<span class="badge-red">🚫 TUNDA</span>';
-      if (status === 'TIDAK CUKUP') return '<span class="badge-gray">⛔ TDK CUKUP</span>';
+      if (status === 'AMAN') return '<span class="badge">' + renderUiIconHtml('checkCircle', 11, 'margin-right:4px;') + 'AMAN</span>';
+      if (status === 'PERLU DIPERTIMBANGKAN') return '<span class="badge-amber">' + renderUiIconHtml('alert', 11, 'margin-right:4px;') + 'PERTIMBANGKAN</span>';
+      if (status === 'SEBAIKNYA TUNDA') return '<span class="badge-red">' + renderUiIconHtml('xCircle', 11, 'margin-right:4px;') + 'TUNDA</span>';
+      if (status === 'TIDAK CUKUP') return '<span class="badge-gray">' + renderUiIconHtml('alert', 11, 'margin-right:4px;') + 'TDK CUKUP</span>';
       return '<span class="badge-gray">' + escapeHtml(status || '-') + '</span>';
     }
 
@@ -2542,7 +2695,7 @@
 
     function renderWishlistStats() {
       var stats = getWishlistStats();
-      return '<div style="font-weight:700; margin-bottom:10px; font-size:14px;">📊 Statistik Bulan Ini</div>' +
+      return '<div style="font-weight:700; margin-bottom:10px; font-size:14px; display:flex; align-items:center; gap:6px;">' + renderUiIconHtml('analytics', 16) + 'Statistik Bulan Ini</div>' +
         '<div class="stats-grid">' +
           '<div class="stat-box"><div class="stat-label">Ditunda</div><div class="stat-num">' + stats.ditunda + '</div><div class="stat-label">barang</div></div>' +
           '<div class="stat-box"><div class="stat-label">Dibatalkan</div><div class="stat-num">' + stats.cancelled + '</div><div class="stat-label">barang</div></div>' +
@@ -2577,7 +2730,7 @@
       if (!container) return;
       if (wishlistCountdownTimer) { clearInterval(wishlistCountdownTimer); wishlistCountdownTimer = null; }
       if (!items.length) {
-        container.innerHTML = '<div class="empty"><div class="empty-illustration">💝</div><div>Belum ada barang di Wishlist.</div><div style="margin-top:6px;">Analisis dulu di <strong>Boleh Beli?</strong> lalu simpan ke sini.</div></div>';
+        container.innerHTML = '<div class="empty"><div class="empty-illustration"><span class="ui-icon-mask" style="width:36px;height:36px;opacity:0.6;-webkit-mask-image:url(\'assets/icons/ui/wishlist.svg\');mask-image:url(\'assets/icons/ui/wishlist.svg\');" aria-hidden="true"></span></div><div>Belum ada barang di Wishlist.</div><div style="margin-top:6px;">Analisis dulu di <strong>Boleh Beli?</strong> lalu simpan ke sini.</div></div>';
         return;
       }
       var ready = items.filter(function(i) { return i.status === 'ready'; });
@@ -2585,15 +2738,15 @@
       var done = items.filter(function(i) { return i.status === 'bought' || i.status === 'cancelled'; });
       var html = '';
       if (ready.length) {
-        html += '<div class="section-title" style="color:var(--accent-2); margin-top:0;">✅ Siap Diputuskan (' + ready.length + ')</div>';
+        html += '<div class="section-title" style="color:var(--accent-2); margin-top:0; display:flex; align-items:center; gap:6px;">' + renderUiIconHtml('checkCircle', 14) + 'Siap Diputuskan (' + ready.length + ')</div>';
         html += ready.map(renderWishlistCard).join('');
       }
       if (waiting.length) {
-        html += '<div class="section-title">⏳ Cooling Period (' + waiting.length + ')</div>';
+        html += '<div class="section-title" style="display:flex; align-items:center; gap:6px;">' + renderUiIconHtml('cooling', 14) + 'Cooling Period (' + waiting.length + ')</div>';
         html += waiting.map(renderWishlistCard).join('');
       }
       if (done.length) {
-        html += '<div class="section-title">📋 Selesai (' + done.length + ')</div>';
+        html += '<div class="section-title">Selesai (' + done.length + ')</div>';
         html += done.map(renderWishlistCard).join('');
       }
       container.innerHTML = html;
@@ -2639,7 +2792,7 @@
       var live = getLiveWishlistAnalysis(item);
       var currentConditionHtml = '';
       if (live.available) {
-        var reachedBadge = live.isReached ? ' <span class="badge" style="font-size:10px; padding:2px 6px;">🎯 Target tercapai</span>' : '';
+        var reachedBadge = live.isReached ? ' <span class="badge" style="font-size:10px; padding:2px 6px;">' + renderUiIconHtml('checkCircle', 10, 'margin-right:3px;') + 'Target tercapai</span>' : '';
         currentConditionHtml = '<div style="font-weight:700; font-size:12px; color:var(--muted); letter-spacing:0.5px; margin-bottom:8px;">KONDISI SAAT INI</div>' +
           '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Saldo Celengan</div><div style="font-weight:600;">' + formatRupiah(live.balanceNow) + reachedBadge + '</div></div>' +
           '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Harga Barang</div><div style="font-weight:600;">' + formatRupiah(item.price) + '</div></div>' +
@@ -2650,14 +2803,14 @@
           '<div class="muted" style="font-size:12px; margin-top:6px;">' + escapeHtml(live.advice) + '</div>';
       } else {
         currentConditionHtml = '<div style="font-weight:700; font-size:12px; color:var(--muted); letter-spacing:0.5px; margin-bottom:8px;">KONDISI SAAT INI</div>' +
-          '<div class="muted" style="font-size:13px; padding:6px 0;">⚠️ Celengan tidak tersedia (sudah dihapus).</div>';
+          '<div class="muted" style="font-size:13px; padding:6px 0; display:flex; align-items:center; gap:6px;">' + renderUiIconHtml('alert', 14) + 'Celengan tidak tersedia (sudah dihapus).</div>';
       }
 
       var decisionHtml = '';
       if (isReady) {
         decisionHtml = '<div class="action-row" style="margin-top:10px;">' +
-          '<button type="button" class="btn-secondary" id="btnWishlistBuy">🛍️ Masih Ingin Beli</button>' +
-          '<button type="button" class="btn-danger" id="btnWishlistCancel">❌ Batal Beli</button>' +
+          '<button type="button" class="btn-secondary" id="btnWishlistBuy">Masih Ingin Beli</button>' +
+          '<button type="button" class="btn-danger" id="btnWishlistCancel">Batal Beli</button>' +
           '</div>';
       }
       var dateStr = new Date(item.createdAt).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
@@ -2681,7 +2834,7 @@
         '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Ditambahkan</div><div class="muted">' + dateStr + '</div></div>' +
         (decidedStr ? '<div class="row-between" style="margin-bottom:4px;"><div class="muted">Diputuskan</div><div class="muted">' + decidedStr + '</div></div>' : '') +
         decisionHtml +
-        '<div style="margin-top:' + (isReady ? '8' : '12') + 'px;"><button type="button" class="btn-danger" id="btnWishlistDelete">🗑️ Hapus dari Wishlist</button></div>';
+        '<div style="margin-top:' + (isReady ? '8' : '12') + 'px;"><button type="button" class="btn-danger" id="btnWishlistDelete">Hapus dari Wishlist</button></div>';
 
       document.getElementById('wishlistDetailContent').innerHTML = html;
       document.getElementById('wishlistDetailModal').classList.add('open');
@@ -2733,7 +2886,7 @@
         var div = document.createElement('div');
         div.id = 'sibDupWarning';
         div.className = 'dup-warning';
-        div.innerHTML = '⚠️ <strong>Barang ini sudah ada di Wishlist</strong> (Status: ' + statusLabel + ')' +
+        div.innerHTML = '<div style="display:flex; align-items:center; gap:6px;">' + renderUiIconHtml('alert', 16) + '<strong>Barang ini sudah ada di Wishlist</strong> (Status: ' + statusLabel + ')</div>' +
           '<div class="dup-warning-row">' +
           '<button type="button" class="dup-btn" id="btnDupView" style="background:var(--accent); color:#fff;">Lihat Wishlist</button>' +
           '<button type="button" class="dup-btn" id="btnDupSave" style="background:transparent; border:1px solid currentColor;">Simpan Lagi</button>' +
@@ -2809,7 +2962,7 @@
         var afterRemaining = Math.max(0, remainingBudget - price);
 
         let detail = `
-          <div><div class="muted">Sumber Dana</div><div style="font-weight:600;">📊 Budget Bulanan (${formatMonthYear(curYM)})</div></div>
+          <div><div class="muted">Sumber Dana</div><div style="font-weight:600; display:flex; align-items:center; gap:6px;">${renderUiIconHtml('budget', 16)} Budget Bulanan (${formatMonthYear(curYM)})</div></div>
           <div class="divider"></div>
           <div class="row-between"><div><div class="muted">Sisa Budget Sekarang</div><div style="font-weight:700;">${formatRupiah(remainingBudget)}</div></div><div class="text-right"><div class="muted">Limit Budget</div><div style="font-weight:700;">${formatRupiah(monthlyBudget)}</div></div></div>
           <div class="divider"></div>
@@ -2899,7 +3052,7 @@
       document.getElementById('sibResult').style.display = 'block';
 
       // Store analysis for Wishlist feature
-      lastSibAnalysis = { name: name, price: price, goalId: goalId, goalName: g.name, goalEmoji: g.emoji || '🎯', status: status, usedPct: usedPct, additionalWeeks: additionalWeeks, advice: advice, balance: balance };
+      lastSibAnalysis = { name: name, price: price, goalId: goalId, goalName: g.name, goalEmoji: g.emoji || 'money', status: status, usedPct: usedPct, additionalWeeks: additionalWeeks, advice: advice, balance: balance };
       var wishlistActions = document.getElementById('sibWishlistActions');
       if (wishlistActions) {
         wishlistActions.style.display = 'block';
@@ -3048,7 +3201,7 @@
       document.getElementById('wishlistDetailModal').classList.remove('open');
       renderWishlist();
       renderWishlistHomeCard();
-      showToast('Ditandai sebagai dibeli 🛍️');
+      showToast('Ditandai sebagai dibeli');
     });
 
     // Reusable Confirmation Modal Listeners
@@ -3148,7 +3301,7 @@
             url: fileUri,
             dialogTitle: 'Simpan / Bagikan Backup Berithung'
           });
-          showToast('Siap disimpan atau dibagikan 📦');
+          showToast('Siap disimpan atau dibagikan');
           return;
         } catch (err) {
           console.error('Capacitor Share Error:', err);
@@ -3355,16 +3508,16 @@
       if (hasBudget) {
         if (isOverBudget) {
           statusText = 'OVER BUDGET';
-          statusBadgeHtml = '<span class="badge-red">🚨 OVER BUDGET</span>';
+          statusBadgeHtml = '<span class="badge-red">' + renderUiIconHtml('alert', 10, 'margin-right:3px;') + 'OVER BUDGET</span>';
         } else if (pct <= 50) {
           statusText = 'AMAN';
-          statusBadgeHtml = '<span class="badge">✅ AMAN</span>';
+          statusBadgeHtml = '<span class="badge">' + renderUiIconHtml('checkCircle', 10, 'margin-right:3px;') + 'AMAN</span>';
         } else if (pct <= 75) {
           statusText = 'TERKENDALI';
-          statusBadgeHtml = '<span class="badge-blue">ℹ️ TERKENDALI</span>';
+          statusBadgeHtml = '<span class="badge-blue">TERKENDALI</span>';
         } else {
           statusText = 'WASPADA';
-          statusBadgeHtml = '<span class="badge-amber">⚠️ WASPADA</span>';
+          statusBadgeHtml = '<span class="badge-amber">' + renderUiIconHtml('alert', 10, 'margin-right:3px;') + 'WASPADA</span>';
         }
       }
 
@@ -3513,13 +3666,12 @@
       });
 
       var categories = Object.keys(map).map(function(catId) {
-        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === catId; }) || { id: catId, label: catId, emoji: '📦' };
+        var catObj = EXPENSE_CATEGORIES.find(function(c) { return c.id === catId; }) || { id: catId, label: catId };
         var amount = map[catId];
         var pct = total > 0 ? Math.round((amount / total) * 100) : 0;
         return {
           id: catId,
           label: catObj.label,
-          emoji: catObj.emoji,
           amount: amount,
           pct: pct
         };
@@ -3547,7 +3699,7 @@
         return {
           id: g.id,
           name: g.name,
-          emoji: g.emoji || '🎯',
+          emoji: g.emoji || 'money',
           target: target,
           current: current,
           pct: pct
@@ -3614,7 +3766,7 @@
       if (budgetSummary.isOverBudget) {
         insights.push({
           priority: 1,
-          icon: '🚨',
+          iconType: 'ui', iconKey: 'alert',
           type: 'danger',
           title: 'Melebihi Budget',
           text: 'Pengeluaran bulan ini melebihi budget sebesar ' + formatRupiah(budgetSummary.overAmount) + ' (' + budgetSummary.pct + '% terpakai).'
@@ -3624,7 +3776,7 @@
       if (comp.hasComparison && comp.direction === 'up' && comp.pct >= 15) {
         insights.push({
           priority: 2,
-          icon: '📈',
+          iconType: 'ui', iconKey: 'trendUp',
           type: 'warning',
           title: 'Peningkatan Pengeluaran',
           text: 'Pengeluaran naik ' + comp.pct + '% dibanding ' + formatMonthYear(comp.prevYM) + ' (' + formatRupiah(comp.curTotal) + ' vs ' + formatRupiah(comp.prevTotal) + ').'
@@ -3632,7 +3784,7 @@
       } else if (comp.hasComparison && comp.direction === 'down' && comp.pct <= -10) {
         insights.push({
           priority: 2,
-          icon: '📉',
+          iconType: 'ui', iconKey: 'trendDown',
           type: 'success',
           title: 'Penghematan Efektif',
           text: 'Bagus! Pengeluaran turun ' + Math.abs(comp.pct) + '% dibanding bulan lalu.'
@@ -3642,7 +3794,7 @@
       if (budgetSummary.hasBudget && !budgetSummary.isOverBudget && budgetSummary.pct >= 75) {
         insights.push({
           priority: 3,
-          icon: '⚠️',
+          iconType: 'ui', iconKey: 'alert',
           type: 'warning',
           title: 'Budget Menipis',
           text: budgetSummary.pct + '% budget bulan ini sudah digunakan. Tersisa ' + formatRupiah(budgetSummary.remainingBudget) + '.'
@@ -3652,7 +3804,7 @@
       if (topCat && topCat.pct >= 25) {
         insights.push({
           priority: 4,
-          icon: topCat.emoji,
+          iconType: 'category', iconKey: topCat.id,
           type: 'info',
           title: 'Kategori Terbesar',
           text: topCat.label + ' mendominasi ' + topCat.pct + '% dari pengeluaran (' + formatRupiah(topCat.amount) + ').'
@@ -3662,7 +3814,7 @@
       if (dailyAvg > 0) {
         insights.push({
           priority: 5,
-          icon: '📅',
+          iconType: 'ui', iconKey: 'dailyAverage',
           type: 'neutral',
           title: 'Rata-rata Harian',
           text: 'Rata-rata pengeluaranmu bulan ini adalah ' + formatRupiah(dailyAvg) + ' / hari.'
@@ -3674,7 +3826,7 @@
         if (almostThere) {
           insights.push({
             priority: 6,
-            icon: almostThere.emoji,
+            iconType: 'goal', iconKey: almostThere.emoji,
             type: 'success',
             title: 'Celengan Hampir Tercapai',
             text: 'Celengan ' + escapeHtml(almostThere.name) + ' sudah mencapai ' + almostThere.pct + '% (' + formatRupiah(almostThere.current) + ').'
@@ -3685,7 +3837,7 @@
       if (wishlistData.cancelledCount > 0 && wishlistData.avoidedAmount > 0) {
         insights.push({
           priority: 7,
-          icon: '🛡️',
+          iconType: 'emergency', iconKey: 'emergency',
           type: 'success',
           title: 'Impulse Protection',
           text: wishlistData.cancelledCount + ' pembelian dibatalkan via Wishlist (hemat ' + formatRupiah(wishlistData.avoidedAmount) + ').'
@@ -3879,7 +4031,7 @@
       var curPt = pts[pts.length - 1];
       var initialBudgetText = curPt.hasBudget ? formatRupiah(curPt.budget) : 'Belum diatur';
       var initialStatusText = curPt.isOver
-        ? '<span class="badge-red" style="padding:2px 6px;font-size:10px;">🚨 OVER BUDGET</span>'
+        ? '<span class="badge-red" style="padding:2px 6px;font-size:10px;">' + renderUiIconHtml('alert', 10, 'margin-right:3px;') + 'OVER BUDGET</span>'
         : 'Bulan Terpilih';
 
       var html = '<div class="section-title">Tren 6 Bulan</div>' +
@@ -3944,7 +4096,7 @@
 
       if (statusEl) {
         if (pt.isOver) {
-          statusEl.innerHTML = '<span class="badge-red" style="padding:2px 6px;font-size:10px;">🚨 OVER BUDGET</span>';
+          statusEl.innerHTML = '<span class="badge-red" style="padding:2px 6px;font-size:10px;">' + renderUiIconHtml('alert', 10, 'margin-right:3px;') + 'OVER BUDGET</span>';
         } else if (idx === 5) {
           statusEl.textContent = 'Bulan Terpilih';
         } else {
@@ -3991,7 +4143,7 @@
       if (!comp.hasComparison) {
         badgeHtml = '<span class="badge-gray" style="font-size:11px; padding:3px 8px;">Belum ada data pembanding</span>';
       } else if (bSummary.isOverBudget) {
-        badgeHtml = '<span class="badge-red" style="font-size:11px; padding:3px 8px;">🚨 OVER BUDGET</span>';
+        badgeHtml = '<span class="badge-red" style="font-size:11px; padding:3px 8px;">' + renderUiIconHtml('alert', 10, 'margin-right:3px;') + 'OVER BUDGET</span>';
       } else if (comp.direction === 'down') {
         badgeHtml = '<span class="badge" style="font-size:11px; padding:3px 8px;">↓ ' + Math.abs(comp.pct) + '% dari bulan lalu</span>';
       } else if (comp.direction === 'up') {
@@ -4139,7 +4291,7 @@
         : '<div class="analytics-metric-value" style="color:var(--muted);">-</div>';
 
       var overWarningHtml = bSummary.isOverBudget
-        ? '<div class="over-budget-card" style="margin-top:10px;">⚠️ Pengeluaran melebihi budget sebesar ' + formatRupiah(bSummary.overAmount) + '!</div>'
+        ? '<div class="over-budget-card" style="margin-top:10px;">' + renderUiIconHtml('alert', 16, 'margin-right:6px;') + 'Pengeluaran melebihi budget sebesar ' + formatRupiah(bSummary.overAmount) + '!</div>'
         : '';
 
       html += '<div class="card" style="margin-bottom:12px;">' +
@@ -4175,7 +4327,7 @@
       // EMPTY STATE CHECK: Jika tidak ada transaksi sama sekali
       if (bSummary.usedBudget === 0) {
         html += '<div class="card" style="text-align:center; padding:18px 14px; margin-bottom:12px;">' +
-          '<div style="font-size:36px; margin-bottom:8px;">📝</div>' +
+          '<div style="margin-bottom:8px; display:flex; justify-content:center;"><span class="ui-icon-mask" style="width:36px;height:36px;opacity:0.6;-webkit-mask-image:url(\'assets/icons/ui/analytics.svg\');mask-image:url(\'assets/icons/ui/analytics.svg\');" aria-hidden="true"></span></div>' +
           '<div style="font-weight:700; font-size:16px;">Belum Ada Data Pengeluaran</div>' +
           '<div class="muted" style="margin-top:4px; margin-bottom:14px; font-size:13px;">Mulai catat pengeluaran agar Analytics dapat membaca pola keuanganmu.</div>' +
           '<button type="button" class="btn-primary" id="btnAnalyticsAddExpense">+ Catat Pengeluaran</button>' +
@@ -4183,13 +4335,13 @@
       }
 
       // 2. PERBANDINGAN BULAN
-      var compIcon = comp.direction === 'up' ? '📈' : (comp.direction === 'down' ? '📉' : '⚖️');
+      var compIconKey = comp.direction === 'up' ? 'trendUp' : (comp.direction === 'down' ? 'trendDown' : 'comparison');
       var compSub = comp.hasComparison
         ? '<div class="muted" style="font-size:12px; margin-top:4px;">' + formatMonthYear(ym) + ' (' + formatRupiah(comp.curTotal) + ') vs ' + formatMonthYear(comp.prevYM) + ' (' + formatRupiah(comp.prevTotal) + ')</div>'
         : '';
       html += '<div class="card" style="margin-bottom:12px;">' +
         '<div style="display:flex; align-items:flex-start; gap:10px;">' +
-          '<span style="font-size:22px;">' + compIcon + '</span>' +
+          '<span style="display:flex; align-items:center; justify-content:center; flex-shrink:0;">' + renderUiIconHtml(compIconKey, 24) + '</span>' +
           '<div class="flex-1">' +
             '<div style="font-weight:700; font-size:14px; margin-bottom:2px;">Perbandingan Bulan Lalu</div>' +
             '<div style="font-size:14px; font-weight:600; color:var(--text);">' + escapeHtml(comp.message) + '</div>' +
@@ -4208,7 +4360,7 @@
           : ('Berdasarkan ' + new Date(Number(ym.split('-')[0]), Number(ym.split('-')[1]), 0).getDate() + ' hari penuh');
 
         var topCat = catBreakdown.topCategory;
-        var topCatText = topCat ? (topCat.emoji + ' ' + escapeHtml(topCat.label)) : '-';
+        var topCatText = topCat ? ('<span style="display:inline-flex; align-items:center; vertical-align:middle; margin-right:4px;">' + renderCategoryIconHtml(topCat.id, 16) + '</span>' + escapeHtml(topCat.label)) : '-';
         var topCatSub = topCat ? (formatRupiah(topCat.amount) + ' (' + topCat.pct + '%)') : '-';
 
         var topDayText = topDay ? topDay.dateFormatted : 'Belum ada data';
@@ -4239,7 +4391,7 @@
         catBreakdown.categories.forEach(function(cat) {
           html += '<div class="analytics-bar-container">' +
             '<div class="analytics-bar-header">' +
-              '<div><span style="font-size:16px; margin-right:6px;">' + cat.emoji + '</span><strong>' + escapeHtml(cat.label) + '</strong></div>' +
+              '<div><span style="display:inline-flex; align-items:center; vertical-align:middle; margin-right:6px;">' + renderCategoryIconHtml(cat.id, 18) + '</span><strong>' + escapeHtml(cat.label) + '</strong></div>' +
               '<div><span style="font-weight:700;">' + formatRupiah(cat.amount) + '</span> <span class="muted">(' + cat.pct + '%)</span></div>' +
             '</div>' +
             '<div class="analytics-bar-track">' +
@@ -4324,9 +4476,10 @@
         html += '<div class="card"><div class="empty">Belum ada insight untuk bulan ini. Catat pengeluaran agar sistem dapat menganalisis kebiasaan finansialmu.</div></div>';
       } else {
         insights.forEach(function(item) {
+          const iconHtml = renderIconHtml(item.iconType, item.iconKey, 24) || '';
           html += '<div class="insight-card insight-' + item.type + '">' +
             '<div style="display:flex; align-items:flex-start; gap:10px;">' +
-              '<span style="font-size:22px; flex-shrink:0;">' + item.icon + '</span>' +
+              '<span style="display:flex; align-items:center; justify-content:center; flex-shrink:0; width:24px; height:24px;">' + iconHtml + '</span>' +
               '<div class="flex-1">' +
                 '<div style="font-weight:700; font-size:14px;">' + escapeHtml(item.title) + '</div>' +
                 '<div style="font-size:13px; color:var(--text); margin-top:2px; line-height:1.4;">' + escapeHtml(item.text) + '</div>' +
