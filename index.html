@@ -7,6 +7,9 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>Menabung</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <link rel="manifest" href="manifest.json" />
   <script>
     (function() {
@@ -703,7 +706,7 @@
 
       <div class="section-title">Tentang</div>
       <div class="card">
-        <div class="muted">Menabung v1.5.0</div>
+        <div class="muted">Menabung v1.6.0</div>
         <div class="muted">Data disimpan lokal di perangkat.</div>
       </div>
     </div>
@@ -952,6 +955,10 @@
       <input type="number" id="goalTarget" placeholder="Target nominal (Rp)" inputmode="numeric" />
       <input type="number" id="goalInitial" placeholder="Nominal terkumpul awal (opsional)" inputmode="numeric" />
       <input type="number" id="goalWeekly" placeholder="Target per minggu (opsional)" inputmode="numeric" />
+      <div class="muted" style="margin-top:6px; margin-bottom:2px; font-size:13px; display:flex; align-items:center; gap:4px;">
+        <span class="ui-icon-mask" style="width:14px;height:14px;-webkit-mask-image:url('assets/icons/ui/target-date.svg');mask-image:url('assets/icons/ui/target-date.svg');" aria-hidden="true"></span>
+        Target Tanggal Tercapai (opsional)
+      </div>
       <input type="date" id="goalDate" />
       <textarea id="goalNote" placeholder="Catatan (opsional)" rows="2"></textarea>
       <div class="action-row">
@@ -1222,6 +1229,7 @@
         if (raw) {
           const parsed = JSON.parse(raw);
           if (parsed && typeof parsed === 'object') {
+            parsed.goals = Array.isArray(parsed.goals) ? parsed.goals : [];
             parsed.budgets = (parsed.budgets && typeof parsed.budgets === 'object' && !Array.isArray(parsed.budgets)) ? parsed.budgets : {};
             parsed.expenses = Array.isArray(parsed.expenses) ? parsed.expenses : [];
             parsed.wishlist = Array.isArray(parsed.wishlist) ? parsed.wishlist : [];
@@ -1348,7 +1356,9 @@
       moon: 'assets/icons/ui/moon.svg',
       income: 'assets/icons/ui/income.svg',
       recurring: 'assets/icons/ui/recurring.svg',
-      cashflow: 'assets/icons/ui/cashflow.svg'
+      cashflow: 'assets/icons/ui/cashflow.svg',
+      forecast: 'assets/icons/ui/forecast.svg',
+      targetDate: 'assets/icons/ui/target-date.svg'
     };
 
     const CATEGORY_ICONS = {
@@ -1530,11 +1540,18 @@
       if (g.status === 'completed') {
         meta = `<div class="badge">${renderUiIconHtml('checkCircle', 12, 'margin-right:4px;')}Target Tercapai</div><div class="muted">${g.completedAt ? 'Tercapai: ' + g.completedAt : ''}</div>`;
       } else {
-        if (g.targetDate) meta += `<div class="muted">Target: ${g.targetDate}</div>`;
-        if (g.weeklyTarget) meta += `<div class="muted">Target mingguan: ${formatRupiah(g.weeklyTarget)}</div>`;
-        if (g.targetAmount && g.weeklyTarget) {
-          const weeks = Math.max(0, Math.ceil(remaining / g.weeklyTarget));
-          meta += `<div class="muted">Estimasi: ${weeks} minggu lagi</div>`;
+        const fc = getGoalForecast(g);
+        if (fc && fc.status === 'ready') {
+          meta += `<div class="muted" style="display:flex; align-items:center; gap:4px; margin-top:2px;">${renderUiIconHtml('forecast', 12)} Estimasi: ${fc.weeksNeeded} minggu lagi (${formatMonthYear(fc.estimatedTargetMonth)})</div>`;
+        } else if (g.targetDate) {
+          const tYM = g.targetDate.slice(0, 7);
+          meta += `<div class="muted" style="display:flex; align-items:center; gap:4px; margin-top:2px;">${renderUiIconHtml('targetDate', 12)} Target: ${formatMonthYear(tYM)}</div>`;
+        } else if (g.weeklyTarget) {
+          meta += `<div class="muted">Target mingguan: ${formatRupiah(g.weeklyTarget)}</div>`;
+          if (g.targetAmount && g.weeklyTarget) {
+            const weeks = Math.max(0, Math.ceil(remaining / g.weeklyTarget));
+            meta += `<div class="muted">Estimasi: ${weeks} minggu lagi</div>`;
+          }
         }
       }
       return `
@@ -1720,9 +1737,10 @@
           <div class="muted">Progress ${pct}%</div>
           <div class="muted">Sisa ${formatRupiah(remaining)}</div>
         </div>
-        ${g.targetDate ? `<div class="muted" style="margin-top:6px;">Target tanggal: ${g.targetDate}</div>` : ''}
-        ${g.weeklyTarget ? `<div class="muted" style="margin-top:6px;">Target per minggu: ${formatRupiah(g.weeklyTarget)}</div>` : ''}
-        ${g.note ? `<div class="muted">Catatan: ${escapeHtml(g.note)}</div>` : ''}
+        ${renderSmartForecastDetailHtml(g)}
+        ${renderTargetPlanDetailHtml(g)}
+        ${g.weeklyTarget ? `<div class="muted" style="margin-top:6px;">Target mingguan (rencana Anda): ${formatRupiah(g.weeklyTarget)}</div>` : ''}
+        ${g.note ? `<div class="muted" style="margin-top:4px;">Catatan: ${escapeHtml(g.note)}</div>` : ''}
         <div class="divider"></div>
         <div class="section-title">Riwayat</div>
         <div id="detailHistory"></div>
@@ -2056,12 +2074,16 @@
       const saveBtn = document.getElementById('btnTxSave');
       if (saveBtn) saveBtn.disabled = true;
 
-      if (currentTx.source === 'emergency') {
+      const txSource = currentTx.source;
+      const txType = currentTx.type;
+      const txGoalId = currentTx.goalId;
+
+      if (txSource === 'emergency') {
         if (!data.emergency) data.emergency = { balance: 0, transactions: [] };
         const curBalance = data.emergency.balance || 0;
 
         // Validasi 3: Tarik darurat melebihi saldo
-        if (currentTx.type === 'out' && value > curBalance) {
+        if (txType === 'out' && value > curBalance) {
           if (errorEl) {
             errorEl.textContent = 'Saldo Tabungan Darurat tidak mencukupi.';
             errorEl.style.display = 'block';
@@ -2072,7 +2094,7 @@
           return;
         }
 
-        if (currentTx.type === 'in') {
+        if (txType === 'in') {
           data.emergency.balance = curBalance + value;
         } else {
           data.emergency.balance = Math.max(0, curBalance - value);
@@ -2082,7 +2104,7 @@
         data.emergency.transactions.unshift({
           id: Date.now() + Math.random(),
           amount: value,
-          type: currentTx.type,
+          type: txType,
           date: todayISO(),
           note
         });
@@ -2091,10 +2113,10 @@
         closeTransactionModal();
         renderEmergency();
         renderEmergencyFull();
-        showToast(currentTx.type === 'in' ? 'Tabungan Darurat berhasil ditambahkan' : 'Penarikan berhasil');
+        showToast(txType === 'in' ? 'Tabungan Darurat berhasil ditambahkan' : 'Penarikan berhasil');
 
-      } else if (currentTx.source === 'goal') {
-        const g = data.goals.find(x => x.id === currentTx.goalId);
+      } else if (txSource === 'goal') {
+        const g = data.goals.find(x => x.id === txGoalId);
         if (!g) {
           isProcessingTx = false;
           if (saveBtn) saveBtn.disabled = false;
@@ -2106,7 +2128,7 @@
         const curAmount = g.currentAmount || 0;
 
         // Validasi 4: Tarik celengan melebihi saldo
-        if (currentTx.type === 'out' && value > curAmount) {
+        if (txType === 'out' && value > curAmount) {
           if (errorEl) {
             errorEl.textContent = 'Saldo celengan tidak mencukupi.';
             errorEl.style.display = 'block';
@@ -2117,7 +2139,7 @@
           return;
         }
 
-        if (currentTx.type === 'in') {
+        if (txType === 'in') {
           g.currentAmount = curAmount + value;
         } else {
           g.currentAmount = Math.max(0, curAmount - value);
@@ -2126,13 +2148,16 @@
         g.transactions = g.transactions || [];
         g.transactions.unshift({
           id: Date.now() + Math.random(),
+          goalId: g.id,
           amount: value,
-          type: currentTx.type,
+          type: txType,
           date: todayISO(),
+          dateISO: getLocalDateISO(),
+          createdAt: Date.now(),
           note
         });
 
-        if (currentTx.type === 'in' && g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
+        if (txType === 'in' && g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
           g.status = 'completed';
           g.completedAt = todayISO();
         }
@@ -2145,7 +2170,7 @@
         }
         renderGoals();
         renderGoalsFull();
-        showToast(currentTx.type === 'in' ? 'Tabungan berhasil diisi' : 'Penarikan berhasil');
+        showToast(txType === 'in' ? 'Tabungan berhasil diisi' : 'Penarikan berhasil');
       }
     }
 
@@ -2385,6 +2410,463 @@
       var ny = d.getFullYear();
       var nm = String(d.getMonth() + 1).padStart(2, '0');
       return ny + '-' + nm;
+    }
+
+    function getMonthDiff(ym1, ym2) {
+      if (!ym1 || !ym2) return 0;
+      var p1 = ym1.split('-').map(Number);
+      var p2 = ym2.split('-').map(Number);
+      return (p2[0] - p1[0]) * 12 + (p2[1] - p1[1]);
+    }
+
+    // Deterministic Indonesian month mapping for legacy display dates
+    var ID_MONTH_MAP = {
+      'jan': '01', 'januari': '01',
+      'feb': '02', 'februari': '02',
+      'mar': '03', 'maret': '03',
+      'apr': '04', 'april': '04',
+      'mei': '05', 'may': '05',
+      'jun': '06', 'juni': '06', 'june': '06',
+      'jul': '07', 'juli': '07', 'july': '07',
+      'agu': '08', 'agust': '08', 'agustus': '08', 'aug': '08', 'august': '08',
+      'sep': '09', 'sept': '09', 'september': '09',
+      'okt': '10', 'oktober': '10', 'oct': '10', 'october': '10',
+      'nov': '11', 'nop': '11', 'nopember': '11', 'november': '11',
+      'des': '12', 'desember': '12', 'dec': '12', 'december': '12'
+    };
+
+    // Normalize calendar date to local noon to avoid timezone/DST/midnight drift
+    function parseDateAtNoon(d) {
+      if (!d) {
+        var now = new Date();
+        return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 12, 0, 0);
+      }
+      if (typeof d === 'string') {
+        var p = d.slice(0, 10).split('-').map(Number);
+        if (p.length === 3 && !isNaN(p[0]) && !isNaN(p[1]) && !isNaN(p[2])) {
+          return new Date(p[0], p[1] - 1, p[2], 12, 0, 0);
+        }
+      }
+      if (typeof d === 'number' && isFinite(d)) {
+        var dt = new Date(d);
+        return new Date(dt.getFullYear(), dt.getMonth(), dt.getDate(), 12, 0, 0);
+      }
+      if (d instanceof Date) {
+        return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12, 0, 0);
+      }
+      var fallback = new Date();
+      return new Date(fallback.getFullYear(), fallback.getMonth(), fallback.getDate(), 12, 0, 0);
+    }
+
+    // Local calendar week helpers: Monday through Sunday
+    function getLocalMonday(d) {
+      var dt = parseDateAtNoon(d);
+      var day = (dt.getDay() + 6) % 7; // Monday = 0, Tuesday = 1, ..., Sunday = 6
+      dt.setDate(dt.getDate() - day);
+      return dt;
+    }
+
+    function getLocalWeekKey(d) {
+      var mon = getLocalMonday(d);
+      return getLocalDateISO(mon);
+    }
+
+    function shiftWeek(weekKey, deltaWeeks) {
+      var mon = parseDateAtNoon(weekKey);
+      mon.setDate(mon.getDate() + (deltaWeeks * 7));
+      return getLocalDateISO(mon);
+    }
+
+    function getWeekDiff(weekKey1, weekKey2) {
+      var mon1 = parseDateAtNoon(weekKey1);
+      var mon2 = parseDateAtNoon(weekKey2);
+      var msDiff = mon2.getTime() - mon1.getTime();
+      var daysDiff = Math.round(msDiff / (1000 * 60 * 60 * 24));
+      return Math.round(daysDiff / 7);
+    }
+
+    function parseTransactionDateISO(tx) {
+      if (!tx || typeof tx !== 'object') return '';
+      if (typeof tx.dateISO === 'string' && /^\d{4}-\d{2}-\d{2}/.test(tx.dateISO)) {
+        return tx.dateISO.slice(0, 10);
+      }
+      if (typeof tx.createdAt === 'number' && isFinite(tx.createdAt) && tx.createdAt > 1000000000000) {
+        var d = new Date(tx.createdAt);
+        return getLocalDateISO(d);
+      }
+      if (typeof tx.date === 'string') {
+        var str = tx.date.trim();
+        if (/^\d{4}-\d{2}-\d{2}/.test(str)) return str.slice(0, 10);
+        var mWords = str.match(/(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+        if (mWords) {
+          var mon = ID_MONTH_MAP[mWords[2].toLowerCase()];
+          if (mon) {
+            var dayStr = String(mWords[1]).padStart(2, '0');
+            return mWords[3] + '-' + mon + '-' + dayStr;
+          }
+        }
+        var mSlash = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (mSlash) {
+          return mSlash[3] + '-' + String(mSlash[2]).padStart(2, '0') + '-' + String(mSlash[1]).padStart(2, '0');
+        }
+      }
+      if (typeof tx.id === 'number' && isFinite(tx.id) && tx.id > 1000000000000) {
+        var d2 = new Date(Math.floor(tx.id));
+        return getLocalDateISO(d2);
+      }
+      return '';
+    }
+
+    function parseTransactionYearMonth(tx) {
+      var d = parseTransactionDateISO(tx);
+      return d ? d.slice(0, 7) : '';
+    }
+
+    function getGoalTransactions(goal) {
+      if (!goal) return [];
+      if (typeof goal === 'number' || typeof goal === 'string') {
+        var data = getData();
+        var found = (data.goals || []).find(function(x) { return x.id === Number(goal); });
+        return (found && Array.isArray(found.transactions)) ? found.transactions : [];
+      }
+      return Array.isArray(goal.transactions) ? goal.transactions : [];
+    }
+
+    function getGoalWeeklyNetSaving(goal, weekKey) {
+      var txs = getGoalTransactions(goal);
+      var targetWeek = weekKey || getLocalWeekKey();
+      var net = 0;
+      for (var i = 0; i < txs.length; i++) {
+        var t = txs[i];
+        var dISO = parseTransactionDateISO(t);
+        if (dISO && getLocalWeekKey(dISO) === targetWeek) {
+          var amt = Number(t.amount || 0);
+          if (t.type === 'out' || t.type === 'withdraw') {
+            net -= amt;
+          } else {
+            net += amt;
+          }
+        }
+      }
+      return net;
+    }
+
+    function getGoalAverageWeeklySaving(goal, refDate) {
+      var curDateStr = refDate ? (typeof refDate === 'string' ? refDate.slice(0, 10) : getLocalDateISO(refDate)) : getLocalDateISO();
+      var curWeek = getLocalWeekKey(curDateStr);
+      var lastCompletedWeek = shiftWeek(curWeek, -1);
+
+      var txs = getGoalTransactions(goal);
+      var weekKeys = [];
+      for (var i = 0; i < txs.length; i++) {
+        var dISO = parseTransactionDateISO(txs[i]);
+        if (dISO) {
+          weekKeys.push(getLocalWeekKey(dISO));
+        }
+      }
+
+      if (!weekKeys.length) {
+        return { status: 'insufficient_data', message: 'Belum cukup data', average: 0, windowWeeks: 0 };
+      }
+
+      weekKeys.sort();
+      var firstWeek = weekKeys[0];
+
+      // If earliest tx is in current incomplete week, there are 0 completed weeks
+      if (firstWeek > lastCompletedWeek) {
+        return { status: 'insufficient_data', message: 'Belum cukup data', average: 0, windowWeeks: 0 };
+      }
+
+      var completedWeeksSpan = getWeekDiff(firstWeek, lastCompletedWeek) + 1;
+      if (completedWeeksSpan < 2) {
+        return { status: 'insufficient_data', message: 'Belum cukup data', average: 0, windowWeeks: completedWeeksSpan };
+      }
+
+      var W = Math.min(4, completedWeeksSpan);
+      var totalNet = 0;
+      for (var w = W - 1; w >= 0; w--) {
+        var wk = shiftWeek(lastCompletedWeek, -w);
+        totalNet += getGoalWeeklyNetSaving(goal, wk);
+      }
+
+      var avg = Math.round(totalNet / W);
+      if (avg <= 0) {
+        return { status: 'unpredictable', message: 'Target belum dapat diperkirakan', average: avg, windowWeeks: W };
+      }
+
+      return { status: 'ready', average: avg, windowWeeks: W };
+    }
+
+    function getGoalForecast(goal, refDate) {
+      if (!goal) return { status: 'invalid', message: 'Goal tidak valid', remaining: 0, average: 0 };
+      var target = Number(goal.targetAmount || 0);
+      var current = Number(goal.currentAmount || 0);
+      var remaining = Math.max(0, target - current);
+
+      if (target > 0 && current >= target) {
+        return { status: 'completed', message: 'Target tercapai', remaining: 0, average: 0, weeksNeeded: 0 };
+      }
+      if (target <= 0) {
+        return { status: 'no_target', message: 'Target nominal belum ditentukan', remaining: 0, average: 0, weeksNeeded: 0 };
+      }
+
+      var curDateStr = refDate ? (typeof refDate === 'string' ? refDate.slice(0, 10) : getLocalDateISO(refDate)) : getLocalDateISO();
+      var avgRes = getGoalAverageWeeklySaving(goal, curDateStr);
+      if (avgRes.status !== 'ready') {
+        return {
+          status: avgRes.status,
+          message: avgRes.message,
+          remaining: remaining,
+          average: avgRes.average,
+          windowWeeks: avgRes.windowWeeks
+        };
+      }
+
+      var weeksNeeded = Math.ceil(remaining / avgRes.average);
+      var curD = parseDateAtNoon(curDateStr);
+      var estD = new Date(curD.getFullYear(), curD.getMonth(), curD.getDate() + (weeksNeeded * 7), 12, 0, 0);
+      var estimatedTargetDate = getLocalDateISO(estD);
+      var estimatedTargetMonth = estimatedTargetDate.slice(0, 7);
+
+      return {
+        status: 'ready',
+        message: 'Perkiraan selesai ' + weeksNeeded + ' minggu lagi (' + formatMonthYear(estimatedTargetMonth) + ')',
+        remaining: remaining,
+        average: avgRes.average,
+        weeksNeeded: weeksNeeded,
+        estimatedTargetDate: estimatedTargetDate,
+        estimatedTargetMonth: estimatedTargetMonth,
+        windowWeeks: avgRes.windowWeeks
+      };
+    }
+
+    function getRequiredWeeklySaving(goal, refDate) {
+      if (!goal || !goal.targetDate) return 0;
+      var target = Number(goal.targetAmount || 0);
+      var current = Number(goal.currentAmount || 0);
+      var remaining = Math.max(0, target - current);
+      if (remaining <= 0) return 0;
+
+      var curDateStr = refDate ? (typeof refDate === 'string' ? refDate.slice(0, 10) : getLocalDateISO(refDate)) : getLocalDateISO();
+      var curWeek = getLocalWeekKey(curDateStr);
+      var targetWeek = getLocalWeekKey(goal.targetDate);
+
+      if (goal.targetDate < curDateStr || targetWeek < curWeek) return 0;
+      var diff = getWeekDiff(curWeek, targetWeek);
+      var remainingWeeks = Math.max(1, diff);
+      return Math.ceil(remaining / remainingWeeks);
+    }
+
+    function getGoalTargetPlan(goal, refDate) {
+      if (!goal || !goal.targetDate) return null;
+      var target = Number(goal.targetAmount || 0);
+      var current = Number(goal.currentAmount || 0);
+      var remaining = Math.max(0, target - current);
+
+      if (target > 0 && current >= target) {
+        return {
+          status: 'completed',
+          label: 'TARGET TERCAPAI',
+          badgeClass: 'badge',
+          remaining: 0,
+          remainingWeeks: 0,
+          requiredWeeklySaving: 0,
+          targetDate: goal.targetDate
+        };
+      }
+
+      var todayStr = refDate ? (typeof refDate === 'string' ? refDate.slice(0, 10) : getLocalDateISO(refDate)) : getLocalDateISO();
+      var curWeek = getLocalWeekKey(todayStr);
+      var targetWeek = getLocalWeekKey(goal.targetDate);
+
+      // Expired / past targetDate guard
+      if (goal.targetDate < todayStr || targetWeek < curWeek) {
+        return {
+          status: 'expired',
+          label: 'TARGET TERLEWAT',
+          badgeClass: 'badge-red',
+          message: 'Tanggal target telah terlewat (' + goal.targetDate + '). Perbarui target tanggal celengan ini.',
+          remaining: remaining,
+          remainingWeeks: 0,
+          requiredWeeklySaving: 0,
+          targetDate: goal.targetDate
+        };
+      }
+
+      var diff = getWeekDiff(curWeek, targetWeek);
+      var remainingWeeks = Math.max(1, diff);
+      var required = Math.ceil(remaining / remainingWeeks);
+
+      var avgRes = getGoalAverageWeeklySaving(goal, todayStr);
+      if (avgRes.status === 'insufficient_data') {
+        return {
+          status: 'insufficient_data',
+          label: 'BELUM CUKUP DATA',
+          badgeClass: 'badge-gray',
+          remaining: remaining,
+          remainingWeeks: remainingWeeks,
+          requiredWeeklySaving: required,
+          targetDate: goal.targetDate
+        };
+      }
+
+      if (avgRes.status === 'unpredictable') {
+        return {
+          status: 'needs_increase',
+          label: 'PERLU DITINGKATKAN',
+          badgeClass: 'badge-amber',
+          remaining: remaining,
+          remainingWeeks: remainingWeeks,
+          requiredWeeklySaving: required,
+          averageWeeklySaving: avgRes.average,
+          savingGap: required - Math.max(0, avgRes.average),
+          targetDate: goal.targetDate
+        };
+      }
+
+      if (avgRes.average >= required) {
+        return {
+          status: 'on_track',
+          label: 'ON TRACK',
+          badgeClass: 'badge',
+          remaining: remaining,
+          remainingWeeks: remainingWeeks,
+          requiredWeeklySaving: required,
+          averageWeeklySaving: avgRes.average,
+          savingGap: 0,
+          targetDate: goal.targetDate
+        };
+      }
+
+      var gap = required - avgRes.average;
+      return {
+        status: 'needs_increase',
+        label: 'PERLU DITINGKATKAN',
+        badgeClass: 'badge-amber',
+        remaining: remaining,
+        remainingWeeks: remainingWeeks,
+        requiredWeeklySaving: required,
+        averageWeeklySaving: avgRes.average,
+        savingGap: gap,
+        targetDate: goal.targetDate
+      };
+    }
+
+    function renderSmartForecastDetailHtml(g) {
+      if (!g) return '';
+      var fc = getGoalForecast(g);
+      var contentHtml = '';
+
+      if (g.status === 'completed' || (g.targetAmount && g.currentAmount >= g.targetAmount)) {
+        contentHtml = '<div style="display:flex; align-items:center; gap:6px; color:var(--accent-2); font-weight:600; font-size:13px;">' +
+          renderUiIconHtml('checkCircle', 14) + ' Target telah tercapai!' +
+          '</div>';
+      } else if (fc.status === 'ready') {
+        contentHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">' +
+          '<div style="background:var(--surface); padding:8px 10px; border-radius:10px; border:1px solid var(--border);">' +
+            '<div class="muted" style="font-size:11px;">Kecepatan Nabung</div>' +
+            '<div style="font-weight:700; font-size:13px; margin-top:2px; color:var(--accent);">' + formatRupiah(fc.average) + ' / minggu</div>' +
+            '<div class="muted" style="font-size:10px; margin-top:1px;">~' + formatRupiah(Math.round(fc.average * (52 / 12))) + ' / bulan</div>' +
+          '</div>' +
+          '<div style="background:var(--surface); padding:8px 10px; border-radius:10px; border:1px solid var(--border);">' +
+            '<div class="muted" style="font-size:11px;">Sisa Target</div>' +
+            '<div style="font-weight:700; font-size:13px; margin-top:2px;">' + formatRupiah(fc.remaining) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="display:flex; align-items:center; justify-content:space-between; background:var(--surface); padding:8px 10px; border-radius:10px; border:1px solid var(--border); margin-top:8px;">' +
+          '<div>' +
+            '<div class="muted" style="font-size:11px;">Perkiraan Tercapai</div>' +
+            '<div style="font-weight:700; font-size:14px; margin-top:1px;">' + formatMonthYear(fc.estimatedTargetMonth) + '</div>' +
+          '</div>' +
+          '<span class="badge" style="font-size:11px; padding:3px 8px;">' + fc.weeksNeeded + ' minggu lagi</span>' +
+        '</div>';
+      } else if (fc.status === 'insufficient_data') {
+        contentHtml = '<div class="muted" style="font-size:12px; margin-top:4px; line-height:1.4;">' +
+          '<strong>Belum cukup data.</strong> Butuh riwayat setoran minimal dalam 2 minggu kalender selesai untuk menghitung perkiraan kecepatan menabung riil.' +
+        '</div>';
+      } else if (fc.status === 'unpredictable') {
+        contentHtml = '<div class="muted" style="font-size:12px; margin-top:4px; line-height:1.4;">' +
+          '<strong>Target belum dapat diperkirakan.</strong> Rata-rata setoran bersih mingguan Rp 0 atau penarikan lebih besar dari setoran.' +
+        '</div>';
+      } else {
+        contentHtml = '<div class="muted" style="font-size:12px; margin-top:4px;">' + escapeHtml(fc.message || 'Belum ada data') + '</div>';
+      }
+
+      return '<div style="background:var(--surface-secondary); border:1px solid var(--border); border-left:4px solid var(--accent); border-radius:12px; padding:10px 12px; margin-top:10px;">' +
+        '<div style="display:flex; align-items:center; justify-content:space-between;">' +
+          '<div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px;">' +
+            renderUiIconHtml('forecast', 16) + ' SMART FORECAST' +
+          '</div>' +
+          (fc.status === 'ready' ? '<span class="badge-blue" style="font-size:10px; padding:2px 6px;">Aktif</span>' : '') +
+        '</div>' +
+        contentHtml +
+      '</div>';
+    }
+
+    function renderTargetPlanDetailHtml(g) {
+      if (!g || !g.targetDate) return '';
+      var plan = getGoalTargetPlan(g);
+      if (!plan) return '';
+
+      var badgeHtml = '';
+      if (plan.status === 'on_track') {
+        badgeHtml = '<span class="badge" style="font-size:10px; padding:2px 6px;">' + renderUiIconHtml('checkCircle', 10, 'margin-right:2px;') + 'ON TRACK</span>';
+      } else if (plan.status === 'needs_increase') {
+        badgeHtml = '<span class="badge-amber" style="font-size:10px; padding:2px 6px;">' + renderUiIconHtml('alert', 10, 'margin-right:2px;') + 'PERLU DITINGKATKAN</span>';
+      } else if (plan.status === 'expired') {
+        badgeHtml = '<span class="badge-red" style="font-size:10px; padding:2px 6px;">' + renderUiIconHtml('xCircle', 10, 'margin-right:2px;') + 'TARGET TERLEWAT</span>';
+      } else if (plan.status === 'completed') {
+        badgeHtml = '<span class="badge" style="font-size:10px; padding:2px 6px;">' + renderUiIconHtml('checkCircle', 10, 'margin-right:2px;') + 'TERCAPAI</span>';
+      } else {
+        badgeHtml = '<span class="badge-gray" style="font-size:10px; padding:2px 6px;">BELUM CUKUP DATA</span>';
+      }
+
+      var borderColor = plan.status === 'on_track' ? 'var(--accent-2)' : (plan.status === 'needs_increase' ? 'var(--accent-3)' : (plan.status === 'expired' ? 'var(--danger)' : 'var(--border)'));
+
+      var bodyHtml = '';
+      if (plan.status === 'expired') {
+        bodyHtml = '<div style="margin-top:6px; font-size:12px; color:var(--danger);">' +
+          'Tanggal target telah terlewat (' + g.targetDate + '). Silakan edit celengan untuk memperbarui target tanggal.' +
+        '</div>';
+      } else if (plan.status === 'completed') {
+        bodyHtml = '<div style="margin-top:6px; font-size:12px; color:var(--accent-2);">' +
+          'Target telah tercapai sesuai atau mendahului jadwal target (' + g.targetDate + ').' +
+        '</div>';
+      } else {
+        var tYM = g.targetDate.slice(0, 7);
+        bodyHtml = '<div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px;">' +
+          '<div style="background:var(--surface); padding:8px 10px; border-radius:10px; border:1px solid var(--border);">' +
+            '<div class="muted" style="font-size:11px;">Target Selesai</div>' +
+            '<div style="font-weight:700; font-size:13px; margin-top:2px;">' + formatMonthYear(tYM) + '</div>' +
+            '<div class="muted" style="font-size:10px; margin-top:1px;">' + plan.remainingWeeks + ' minggu lagi</div>' +
+          '</div>' +
+          '<div style="background:var(--surface); padding:8px 10px; border-radius:10px; border:1px solid var(--border);">' +
+            '<div class="muted" style="font-size:11px;">Butuh per Minggu</div>' +
+            '<div style="font-weight:700; font-size:13px; margin-top:2px; color:var(--accent);">' + formatRupiah(plan.requiredWeeklySaving) + '</div>' +
+            '<div class="muted" style="font-size:10px; margin-top:1px;">~' + formatRupiah(Math.round(plan.requiredWeeklySaving * (52 / 12))) + ' / bulan</div>' +
+          '</div>' +
+        '</div>' +
+        (plan.status === 'needs_increase' && plan.savingGap > 0 ?
+          '<div style="margin-top:8px; padding:6px 10px; border-radius:8px; background:var(--badge-amber-bg); color:var(--badge-amber-text); font-size:12px; display:flex; align-items:center; gap:6px;">' +
+            renderUiIconHtml('alert', 14) +
+            '<span>Tambah sekitar <strong>' + formatRupiah(plan.savingGap) + '/minggu</strong> agar target tercapai sesuai jadwal.</span>' +
+          '</div>' : '') +
+        (plan.status === 'on_track' ?
+          '<div style="margin-top:8px; padding:6px 10px; border-radius:8px; background:var(--badge-green-bg); color:var(--badge-green-text); font-size:12px; display:flex; align-items:center; gap:6px;">' +
+            renderUiIconHtml('checkCircle', 14) +
+            '<span>Kecepatan menabung kamu sudah melebihi kebutuhan mingguan. Pertahankan!</span>' +
+          '</div>' : '');
+      }
+
+      return '<div style="background:var(--surface-secondary); border:1px solid var(--border); border-left:4px solid ' + borderColor + '; border-radius:12px; padding:10px 12px; margin-top:10px;">' +
+        '<div style="display:flex; align-items:center; justify-content:space-between;">' +
+          '<div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px;">' +
+            renderUiIconHtml('targetDate', 16) + ' TARGET PLAN' +
+          '</div>' +
+          badgeHtml +
+        '</div>' +
+        bodyHtml +
+      '</div>';
     }
 
     function getBudgetForMonth(ym) {
@@ -4039,7 +4521,7 @@
 
           await window.Capacitor.Plugins.Share.share({
             title: 'Backup Data Berithung',
-            text: 'Backup data tabungan dan budget Berithung v1.5.0',
+            text: 'Backup data tabungan dan budget Berithung v1.6.0',
             url: fileUri,
             dialogTitle: 'Simpan / Bagikan Backup Berithung'
           });
@@ -4079,6 +4561,13 @@
           const parsed = JSON.parse(evt.target.result);
           if (!parsed || typeof parsed !== 'object') throw new Error('Format tidak valid');
           if (!parsed.goals && !parsed.emergency) throw new Error('Data backup tidak sesuai');
+          parsed.goals = Array.isArray(parsed.goals) ? parsed.goals.map(function(g) {
+            if (g && typeof g === 'object') {
+              g.transactions = Array.isArray(g.transactions) ? g.transactions : [];
+              g.targetDate = g.targetDate || null;
+            }
+            return g;
+          }) : [];
           parsed.budgets = (parsed.budgets && typeof parsed.budgets === 'object' && !Array.isArray(parsed.budgets)) ? parsed.budgets : {};
           parsed.expenses = Array.isArray(parsed.expenses) ? parsed.expenses : [];
           parsed.wishlist = Array.isArray(parsed.wishlist) ? parsed.wishlist : [];
@@ -5006,7 +5495,9 @@
           '</svg>' +
         '</div>';
 
-      return html;
+
+
+        return html;
     }
 
     function selectTrendMonth(idx) {
