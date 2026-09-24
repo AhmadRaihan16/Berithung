@@ -383,6 +383,158 @@
       z-index: 2;
       color: var(--text);
     }
+    .category-select-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 15px;
+      background: var(--surface-secondary);
+      margin-bottom: 10px;
+      color: var(--text);
+      cursor: pointer;
+      text-align: left;
+      min-height: 46px;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.1s ease;
+    }
+    .category-select-btn:hover, .category-select-btn:focus {
+      border-color: var(--accent);
+      outline: none;
+    }
+    .category-select-btn:active {
+      transform: scale(0.99);
+    }
+    .category-select-btn .cat-btn-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+    }
+    .category-select-btn .cat-btn-chevron {
+      opacity: 0.5;
+      display: flex;
+      align-items: center;
+    }
+    #categoryPickerModal {
+      z-index: 300;
+    }
+    .category-picker-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .category-picker-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--surface-secondary);
+      border: 1.5px solid var(--border);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      min-height: 48px;
+      margin-bottom: 0;
+      text-align: left;
+      box-sizing: border-box;
+      transition: all 0.15s ease;
+    }
+    .category-picker-item:hover {
+      border-color: var(--accent);
+    }
+    .category-picker-item:active {
+      transform: scale(0.98);
+    }
+    .category-picker-item.selected {
+      border-color: var(--accent);
+      background: var(--pill-bg);
+      color: var(--accent);
+    }
+    .category-picker-item .cat-icon-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .category-picker-item.selected .cat-icon-badge {
+      border-color: var(--accent);
+    }
+    .category-picker-item .cat-item-label {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .category-picker-item .cat-item-check {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+      color: var(--accent);
+      display: none;
+    }
+    .category-picker-item.selected .cat-item-check {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #incomeSourcePickerModal, #sibGoalPickerModal, #emergencyTargetModal {
+      z-index: 300;
+    }
+    .picker-item-sub {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .theme-segmented-control {
+      display: flex;
+      background: var(--surface-secondary);
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      gap: 4px;
+      margin-top: 8px;
+    }
+    .theme-seg-btn {
+      flex: 1;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0;
+      min-height: 38px;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .theme-seg-btn:hover {
+      color: var(--text);
+    }
+    .theme-seg-btn.active {
+      background: var(--surface);
+      color: var(--accent);
+      border-color: var(--border);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
     .goal-icon-mask {
       display: inline-block;
       width: 24px;
@@ -509,6 +661,44 @@
     .home-trend-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
     .home-trend-action { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; color: var(--accent); white-space: nowrap; }
     .home-trend-summary-row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+    /* === Toggle Switch for Settings === */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    .toggle-switch .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--border);
+      transition: .2s ease;
+      border-radius: 24px;
+    }
+    .toggle-switch .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s ease;
+      border-radius: 50%;
+    }
+    .toggle-switch input:checked + .slider {
+      background-color: var(--accent);
+    }
+    .toggle-switch input:checked + .slider:before {
+      transform: translateX(20px);
+    }
   </style>
 </head>
 <body>
@@ -683,17 +873,52 @@
     <div id="pageSettings" style="display:none;">
       <div class="section-title">Pengaturan</div>
       <div class="card">
+        <div>
+          <div style="font-weight:600;">Mode Tampilan</div>
+          <div class="muted">Atur tampilan tema aplikasi</div>
+        </div>
+        <div class="theme-segmented-control" id="themeSegmentedControl" role="group" aria-label="Pilihan Tema">
+          <button type="button" class="theme-seg-btn active" data-theme="system"><span class="ui-icon-mask" style="width:14px;height:14px;-webkit-mask-image:url('assets/icons/ui/category.svg');mask-image:url('assets/icons/ui/category.svg');" aria-hidden="true"></span>Otomatis</button>
+          <button type="button" class="theme-seg-btn" data-theme="light"><span class="ui-icon-mask" style="width:14px;height:14px;-webkit-mask-image:url('assets/icons/ui/sun.svg');mask-image:url('assets/icons/ui/sun.svg');" aria-hidden="true"></span>Terang</button>
+          <button type="button" class="theme-seg-btn" data-theme="dark"><span class="ui-icon-mask" style="width:14px;height:14px;-webkit-mask-image:url('assets/icons/ui/moon.svg');mask-image:url('assets/icons/ui/moon.svg');" aria-hidden="true"></span>Gelap</button>
+        </div>
+        <input type="hidden" id="darkModeSelect" value="system" />
+      </div>
+
+      <div class="section-title">Pengingat Celengan</div>
+      <div class="card">
         <div class="row-between">
           <div>
-            <div style="font-weight:600;">Dark Mode</div>
-            <div class="muted">Atur tampilan gelap/terang</div>
+            <div style="font-weight:600; display:flex; align-items:center; gap:6px;">
+              <span class="ui-icon-mask" style="width:16px;height:16px;-webkit-mask-image:url('assets/icons/ui/reminder.svg');mask-image:url('assets/icons/ui/reminder.svg');background:currentColor;" aria-hidden="true"></span>
+              Pengingat Celengan
+            </div>
+            <div class="muted">Pengingat progres target mingguan</div>
           </div>
-          <select id="darkModeSelect" style="width:auto; margin:0;">
-            <option value="system">System</option>
-            <option value="light">Light</option>
-            <option value="dark">Dark</option>
-          </select>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggleGoalReminder" />
+            <span class="slider"></span>
+          </label>
         </div>
+        <div id="reminderSettingsFields" style="display:none; margin-top:12px; border-top:1px dashed var(--border); padding-top:12px;">
+          <div class="row-between" style="margin-bottom:10px;">
+            <div class="muted">Hari Reminder</div>
+            <select id="reminderDaySelect" style="padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px;">
+              <option value="senin">Senin</option>
+              <option value="selasa">Selasa</option>
+              <option value="rabu">Rabu</option>
+              <option value="kamis">Kamis</option>
+              <option value="jumat">Jumat</option>
+              <option value="sabtu" selected>Sabtu</option>
+              <option value="minggu">Minggu</option>
+            </select>
+          </div>
+          <div class="row-between">
+            <div class="muted">Jam Reminder</div>
+            <input type="time" id="reminderTimeInput" value="19:00" style="padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--text); font-size:13px;" />
+          </div>
+        </div>
+        <div id="reminderPermissionNote" class="muted" style="margin-top:8px; font-size:11px; display:none;"></div>
       </div>
 
       <div class="section-title">Data</div>
@@ -706,7 +931,7 @@
 
       <div class="section-title">Tentang</div>
       <div class="card">
-        <div class="muted">Menabung v1.6.0</div>
+        <div class="muted">Berithung v1.7.0</div>
         <div class="muted">Data disimpan lokal di perangkat.</div>
       </div>
     </div>
@@ -737,8 +962,15 @@
         </div>
 
         <div id="sibGoalWrap">
-          <div class="muted" style="margin-bottom:8px;">Gunakan Celengan</div>
-          <select id="sibGoal"></select>
+          <div class="muted" style="margin-bottom:6px;">Gunakan Celengan</div>
+          <button type="button" class="category-select-btn" id="btnSibGoalPicker" aria-haspopup="dialog" aria-label="Pilih Celengan" style="margin-bottom:12px;">
+            <div class="cat-btn-left">
+              <span id="sibGoalIconPreview" style="display:inline-flex; align-items:center;"></span>
+              <span id="sibGoalText">Pilih Celengan</span>
+            </div>
+            <span class="cat-btn-chevron"><span class="ui-icon-mask" style="width:14px;height:14px;-webkit-mask-image:url('assets/icons/ui/trend-down.svg');mask-image:url('assets/icons/ui/trend-down.svg');" aria-hidden="true"></span></span>
+          </button>
+          <input type="hidden" id="sibGoal" value="" />
         </div>
 
         <div id="sibBudgetWrap" style="display:none; background:var(--surface-secondary); padding:10px 12px; border-radius:12px; border:1px solid var(--border); margin-bottom:12px;">
@@ -1109,10 +1341,14 @@
       <input type="number" id="inputExpenseAmount" placeholder="Contoh: 45000" inputmode="numeric" />
 
       <div class="muted" style="margin-bottom:4px;">Kategori</div>
-      <div class="category-select-wrap">
-        <span id="expenseCategoryIconPreview" class="category-icon-mask category-select-preview" aria-hidden="true"></span>
-        <select id="selectExpenseCategory"></select>
-      </div>
+      <button type="button" class="category-select-btn" id="btnExpenseCategoryPicker" aria-haspopup="dialog" aria-label="Pilih Kategori Pengeluaran">
+        <div class="cat-btn-left">
+          <span id="expenseCategoryIconPreview" class="category-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url('assets/icons/categories/food.svg');mask-image:url('assets/icons/categories/food.svg');" aria-hidden="true"></span>
+          <span id="expenseCategoryText">Makanan</span>
+        </div>
+        <span class="cat-btn-chevron"><span class="ui-icon-mask" style="width:14px;height:14px;-webkit-mask-image:url('assets/icons/ui/trend-down.svg');mask-image:url('assets/icons/ui/trend-down.svg');" aria-hidden="true"></span></span>
+      </button>
+      <input type="hidden" id="selectExpenseCategory" value="Makanan" />
 
       <div class="muted" style="margin-bottom:4px;">Tanggal</div>
       <input type="date" id="inputExpenseDate" style="margin-bottom:10px;" />
@@ -1132,6 +1368,20 @@
     </div>
   </div>
 
+  <!-- Modal: Custom Category Picker Bottom Sheet -->
+  <div class="modal" id="categoryPickerModal" role="dialog" aria-modal="true" aria-labelledby="catPickerTitle">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:12px;">
+        <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px;">
+          <span class="ui-icon-mask" style="width:18px;height:18px;-webkit-mask-image:url('assets/icons/ui/category.svg');mask-image:url('assets/icons/ui/category.svg');" aria-hidden="true"></span>
+          <span id="catPickerTitle">Pilih Kategori</span>
+        </div>
+        <button type="button" class="btn-tertiary small-btn" id="btnCategoryPickerClose">Tutup</button>
+      </div>
+      <div class="category-picker-list" id="categoryPickerList"></div>
+    </div>
+  </div>
+
   <!-- Modal: Catat / Edit Pemasukan -->
   <div class="modal" id="incomeModal">
     <div class="modal-sheet">
@@ -1144,14 +1394,14 @@
       <input type="number" id="inputIncomeAmount" placeholder="Contoh: 4000000" inputmode="numeric" style="margin-bottom:10px;" />
 
       <div class="muted" style="margin-bottom:4px;">Sumber</div>
-      <select id="selectIncomeSource" style="margin-bottom:10px; width:100%;">
-        <option value="Gaji">Gaji</option>
-        <option value="Uang Bulanan">Uang Bulanan</option>
-        <option value="Freelance">Freelance</option>
-        <option value="Bonus">Bonus</option>
-        <option value="Penjualan">Penjualan</option>
-        <option value="Lainnya">Lainnya</option>
-      </select>
+      <button type="button" class="category-select-btn" id="btnIncomeSourcePicker" aria-haspopup="dialog" aria-label="Pilih Sumber Pemasukan">
+        <div class="cat-btn-left">
+          <span id="incomeSourceIconPreview" class="ui-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url('assets/icons/ui/income.svg');mask-image:url('assets/icons/ui/income.svg');color:var(--accent-2);" aria-hidden="true"></span>
+          <span id="incomeSourceText">Gaji</span>
+        </div>
+        <span class="cat-btn-chevron"><span class="ui-icon-mask" style="width:14px;height:14px;-webkit-mask-image:url('assets/icons/ui/trend-down.svg');mask-image:url('assets/icons/ui/trend-down.svg');" aria-hidden="true"></span></span>
+      </button>
+      <input type="hidden" id="selectIncomeSource" value="Gaji" />
 
       <div class="muted" style="margin-bottom:4px;">Tanggal</div>
       <input type="date" id="inputIncomeDate" style="margin-bottom:10px;" />
@@ -1171,6 +1421,54 @@
     </div>
   </div>
 
+  <!-- Modal: Custom Income Source Picker Bottom Sheet -->
+  <div class="modal" id="incomeSourcePickerModal" role="dialog" aria-modal="true" aria-labelledby="incomeSourcePickerTitle">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:12px;">
+        <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px;">
+          <span class="ui-icon-mask" style="width:18px;height:18px;-webkit-mask-image:url('assets/icons/ui/income.svg');mask-image:url('assets/icons/ui/income.svg');color:var(--accent-2);" aria-hidden="true"></span>
+          <span id="incomeSourcePickerTitle">Pilih Sumber Pemasukan</span>
+        </div>
+        <button type="button" class="btn-tertiary small-btn" id="btnIncomeSourcePickerClose">Tutup</button>
+      </div>
+      <div class="category-picker-list" id="incomeSourcePickerList"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Custom Celengan Picker Bottom Sheet for Should I Buy -->
+  <div class="modal" id="sibGoalPickerModal" role="dialog" aria-modal="true" aria-labelledby="sibGoalPickerTitle">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:12px;">
+        <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px;">
+          <span class="ui-icon-mask" style="width:18px;height:18px;-webkit-mask-image:url('assets/icons/goals/money.svg');mask-image:url('assets/icons/goals/money.svg');color:var(--accent-3);" aria-hidden="true"></span>
+          <span id="sibGoalPickerTitle">Pilih Celengan</span>
+        </div>
+        <button type="button" class="btn-tertiary small-btn" id="btnSibGoalPickerClose">Tutup</button>
+      </div>
+      <div id="sibGoalPickerList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px; max-height:55vh; overflow-y:auto;"></div>
+    </div>
+  </div>
+
+  <!-- Modal: Set Emergency Fund Target -->
+  <div class="modal" id="emergencyTargetModal" role="dialog" aria-modal="true" aria-labelledby="emergencyTargetTitle">
+    <div class="modal-sheet">
+      <div class="row-between" style="margin-bottom:8px;">
+        <div style="font-weight:700; font-size:16px; display:flex; align-items:center; gap:8px;">
+          <span class="ui-icon-mask" style="width:18px;height:18px;-webkit-mask-image:url('assets/icons/ui/cooling.svg');mask-image:url('assets/icons/ui/cooling.svg');color:var(--accent-2);" aria-hidden="true"></span>
+          <span id="emergencyTargetTitle">Target Tabungan Darurat</span>
+        </div>
+        <button type="button" class="btn-tertiary small-btn" id="btnEmergencyTargetClose">Tutup</button>
+      </div>
+      <div class="muted" style="margin-bottom:12px; font-size:13px;">Target ideal biasanya 3-6 kali pengeluaran bulanan. Kosongkan jika ingin menghapus target.</div>
+      <div class="muted" style="margin-bottom:4px;">Nominal Target (Rp)</div>
+      <input type="number" id="inputEmergencyTargetAmount" placeholder="Contoh: 15000000" inputmode="numeric" />
+      <div class="action-row">
+        <button type="button" class="btn-tertiary" id="btnEmergencyTargetCancel">Batal</button>
+        <button type="button" class="btn-secondary" id="btnEmergencyTargetSave">Simpan Target</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal: Tambah / Edit Pengeluaran Rutin -->
   <div class="modal" id="recurringModal">
     <div class="modal-sheet">
@@ -1186,8 +1484,14 @@
       <input type="number" id="inputRecurringAmount" placeholder="Contoh: 300000" inputmode="numeric" style="margin-bottom:10px;" />
 
       <div class="muted" style="margin-bottom:4px;">Kategori</div>
-      <select id="selectRecurringCategory" style="margin-bottom:10px; width:100%;">
-      </select>
+      <button type="button" class="category-select-btn" id="btnRecurringCategoryPicker" aria-haspopup="dialog" aria-label="Pilih Kategori Tagihan">
+        <div class="cat-btn-left">
+          <span id="recurringCategoryIconPreview" class="category-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url('assets/icons/categories/bills.svg');mask-image:url('assets/icons/categories/bills.svg');" aria-hidden="true"></span>
+          <span id="recurringCategoryText">Tagihan</span>
+        </div>
+        <span class="cat-btn-chevron"><span class="ui-icon-mask" style="width:14px;height:14px;-webkit-mask-image:url('assets/icons/ui/trend-down.svg');mask-image:url('assets/icons/ui/trend-down.svg');" aria-hidden="true"></span></span>
+      </button>
+      <input type="hidden" id="selectRecurringCategory" value="Tagihan" />
 
       <div class="muted" style="margin-bottom:4px;">Jatuh Tempo (Setiap Tanggal)</div>
       <input type="number" id="inputRecurringDueDay" placeholder="1 - 28" min="1" max="28" step="1" inputmode="numeric" style="margin-bottom:10px;" />
@@ -1214,7 +1518,10 @@
         emergency: { balance: 0, transactions: [] },
         goals: [],
         nextGoalId: 1,
-        settings: { darkMode: 'system' },
+        settings: {
+          darkMode: 'system',
+          goalNotifications: { enabled: false, reminderDay: 'sabtu', reminderTime: '19:00' }
+        },
         wishlist: [],
         budgets: {},
         expenses: [],
@@ -1235,6 +1542,8 @@
             parsed.wishlist = Array.isArray(parsed.wishlist) ? parsed.wishlist : [];
             parsed.incomes = Array.isArray(parsed.incomes) ? parsed.incomes : [];
             parsed.recurringExpenses = Array.isArray(parsed.recurringExpenses) ? parsed.recurringExpenses : [];
+            parsed.settings = (parsed.settings && typeof parsed.settings === 'object') ? parsed.settings : { darkMode: 'system' };
+            parsed.settings.goalNotifications = (parsed.settings.goalNotifications && typeof parsed.settings.goalNotifications === 'object') ? parsed.settings.goalNotifications : { enabled: false, reminderDay: 'sabtu', reminderTime: '19:00' };
             return parsed;
           }
         }
@@ -1358,7 +1667,9 @@
       recurring: 'assets/icons/ui/recurring.svg',
       cashflow: 'assets/icons/ui/cashflow.svg',
       forecast: 'assets/icons/ui/forecast.svg',
-      targetDate: 'assets/icons/ui/target-date.svg'
+      targetDate: 'assets/icons/ui/target-date.svg',
+      streak: 'assets/icons/ui/streak.svg',
+      reminder: 'assets/icons/ui/reminder.svg'
     };
 
     const CATEGORY_ICONS = {
@@ -1460,7 +1771,14 @@
     let selectedRecurringMonth = '';
     let editingIncomeId = null;
     let editingRecurringId = null;
-    const INCOME_SOURCES = ['Gaji', 'Uang Bulanan', 'Freelance', 'Bonus', 'Penjualan', 'Lainnya'];
+    const INCOME_SOURCES = [
+      { id: 'Gaji', label: 'Gaji', icon: 'assets/icons/ui/income.svg', color: 'var(--accent-2)' },
+      { id: 'Uang Bulanan', label: 'Uang Bulanan', icon: 'assets/icons/ui/recurring.svg', color: 'var(--accent)' },
+      { id: 'Freelance', label: 'Freelance', icon: 'assets/icons/goals/laptop.svg', color: 'var(--accent-3)' },
+      { id: 'Bonus', label: 'Bonus', icon: 'assets/icons/goals/money.svg', color: '#10b981' },
+      { id: 'Penjualan', label: 'Penjualan', icon: 'assets/icons/categories/shopping.svg', color: '#8b5cf6' },
+      { id: 'Lainnya', label: 'Lainnya', icon: 'assets/icons/categories/other.svg', color: 'var(--muted)' }
+    ];
 
     // Unified transaction state
     let currentTx = null; // { source: 'emergency' | 'goal', type: 'in' | 'out', goalId?: number }
@@ -1494,6 +1812,11 @@
       const selectEl = document.getElementById('darkModeSelect');
       if (selectEl && selectEl.value !== mode) selectEl.value = mode;
 
+      const segButtons = document.querySelectorAll('#themeSegmentedControl .theme-seg-btn');
+      segButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-theme') === mode);
+      });
+
       // Native Capacitor Status Bar sync
       if (window.Capacitor?.Plugins?.StatusBar) {
         try {
@@ -1519,6 +1842,32 @@
       const selectEl = document.getElementById('darkModeSelect');
       if (selectEl) selectEl.value = mode;
       applyTheme(mode);
+
+      const notif = (data.settings && data.settings.goalNotifications) || { enabled: false, reminderDay: 'sabtu', reminderTime: '19:00' };
+      const toggleEl = document.getElementById('toggleGoalReminder');
+      const fieldsEl = document.getElementById('reminderSettingsFields');
+      const daySelect = document.getElementById('reminderDaySelect');
+      const timeInput = document.getElementById('reminderTimeInput');
+      const permNote = document.getElementById('reminderPermissionNote');
+
+      if (toggleEl) toggleEl.checked = Boolean(notif.enabled);
+      if (fieldsEl) fieldsEl.style.display = notif.enabled ? 'block' : 'none';
+      if (daySelect) daySelect.value = notif.reminderDay || 'sabtu';
+      if (timeInput) timeInput.value = notif.reminderTime || '19:00';
+
+      if (NotificationService.isSupported()) {
+        NotificationService.checkPermission().then(function(perm) {
+          if (permNote) {
+            if (perm === 'denied') {
+              permNote.style.display = 'block';
+              permNote.textContent = 'Izin notifikasi belum diberikan di pengaturan perangkat.';
+              permNote.style.color = 'var(--danger)';
+            } else {
+              permNote.style.display = 'none';
+            }
+          }
+        });
+      }
     }
 
     function renderEmergency() {
@@ -1551,6 +1900,12 @@
           if (g.targetAmount && g.weeklyTarget) {
             const weeks = Math.max(0, Math.ceil(remaining / g.weeklyTarget));
             meta += `<div class="muted">Estimasi: ${weeks} minggu lagi</div>`;
+          }
+        }
+        if (g.weeklyTarget) {
+          const streak = getGoalCurrentStreak(g);
+          if (streak > 0) {
+            meta += `<div class="muted" style="display:flex; align-items:center; gap:4px; margin-top:2px;"><span style="color:var(--accent-3); display:inline-flex; align-items:center;">${renderUiIconHtml('streak', 12)}</span> Streak ${streak} minggu</div>`;
           }
         }
       }
@@ -1627,14 +1982,18 @@
     }
 
     function updateEmergencyTarget() {
-      const input = prompt('Masukkan target opsional untuk Tabungan Darurat (kosongkan untuk hapus):');
-      if (input === null) return;
       const data = getData();
-      data.emergencyTarget = input ? Number(String(input).replace(/[^0-9]/g, '')) : 0;
-      saveData(data);
-      renderEmergency();
-      renderEmergencyFull();
-      showToast('Target darurat disimpan');
+      const currentTarget = data.emergencyTarget || '';
+      const input = document.getElementById('inputEmergencyTargetAmount');
+      if (input) input.value = currentTarget > 0 ? currentTarget : '';
+      const modal = document.getElementById('emergencyTargetModal');
+      if (modal) modal.classList.add('open');
+      setTimeout(function() { if (input) input.focus(); }, 100);
+    }
+
+    function closeEmergencyTargetModal() {
+      const modal = document.getElementById('emergencyTargetModal');
+      if (modal) modal.classList.remove('open');
     }
 
     function openGoalModal(goal) {
@@ -1677,25 +2036,49 @@
       if (!name) { showToast('Nama celengan harus diisi'); return; }
 
       const data = getData();
+      const curWeek = getLocalWeekKey();
+      let targetGoal = null;
       if (editingGoalId) {
         const g = data.goals.find(x => x.id === editingGoalId);
         if (!g) { showToast('Celengan tidak ditemukan'); return; }
-        g.name = name; g.targetAmount = targetAmount; g.weeklyTarget = weeklyTarget; g.targetDate = targetDate; g.note = note; g.emoji = selectedEmoji;
+        g.name = name; g.targetAmount = targetAmount; g.targetDate = targetDate; g.note = note; g.emoji = selectedEmoji;
         if (document.getElementById('goalInitial').value !== undefined && document.getElementById('goalInitial').value !== '') {
           g.currentAmount = initial;
         }
         if (g.status !== 'completed' && g.targetAmount && g.currentAmount >= g.targetAmount) {
           g.status = 'completed'; g.completedAt = todayISO();
         }
+        if (!Array.isArray(g.weeklyTargetHistory)) {
+          g.weeklyTargetHistory = [];
+        }
+        if (weeklyTarget && weeklyTarget > 0) {
+          const lastEntry = g.weeklyTargetHistory[g.weeklyTargetHistory.length - 1];
+          if (!lastEntry) {
+            g.weeklyTargetHistory.push({ target: weeklyTarget, effectiveFromWeek: curWeek });
+          } else if (lastEntry.effectiveFromWeek === curWeek) {
+            lastEntry.target = weeklyTarget;
+          } else if (lastEntry.target !== weeklyTarget) {
+            g.weeklyTargetHistory.push({ target: weeklyTarget, effectiveFromWeek: curWeek });
+          }
+        }
+        g.weeklyTarget = weeklyTarget;
+        targetGoal = g;
       } else {
+        const weeklyTargetHistory = (weeklyTarget && weeklyTarget > 0) ? [{ target: weeklyTarget, effectiveFromWeek: curWeek }] : [];
         const newGoal = {
-          id: data.nextGoalId++, name, targetAmount, currentAmount: initial, weeklyTarget, targetDate, note, emoji: selectedEmoji,
+          id: data.nextGoalId++, name, targetAmount, currentAmount: initial, weeklyTarget, weeklyTargetHistory, targetDate, note, emoji: selectedEmoji,
           status: targetAmount && initial >= targetAmount ? 'completed' : 'active',
           completedAt: targetAmount && initial >= targetAmount ? todayISO() : '', createdAt: todayISO(), transactions: []
         };
         data.goals.unshift(newGoal);
+        targetGoal = newGoal;
       }
       saveData(data);
+      if (targetGoal && targetGoal.status !== 'completed' && targetGoal.weeklyTarget > 0) {
+        NotificationService.scheduleWeeklyReminder(targetGoal, data.settings);
+      } else if (targetGoal) {
+        NotificationService.cancelReminder(targetGoal.id);
+      }
       closeGoalModal();
       renderGoals();
       renderGoalsFull();
@@ -1739,6 +2122,7 @@
         </div>
         ${renderSmartForecastDetailHtml(g)}
         ${renderTargetPlanDetailHtml(g)}
+        ${renderSavingsStreakDetailHtml(g)}
         ${g.weeklyTarget ? `<div class="muted" style="margin-top:6px;">Target mingguan (rencana Anda): ${formatRupiah(g.weeklyTarget)}</div>` : ''}
         ${g.note ? `<div class="muted" style="margin-top:4px;">Catatan: ${escapeHtml(g.note)}</div>` : ''}
         <div class="divider"></div>
@@ -1909,6 +2293,7 @@
           const d = getData();
           d.goals = (d.goals || []).filter(x => x.id !== targetId);
           saveData(d);
+          NotificationService.cancelGoalNotifications(targetId);
           closeConfirmModal(true);
           closeDetailModal();
           renderGoals();
@@ -2139,6 +2524,9 @@
           return;
         }
 
+        const curWeek = getLocalWeekKey();
+        const prevNetSaving = getGoalWeeklyNetSaving(g, curWeek);
+
         if (txType === 'in') {
           g.currentAmount = curAmount + value;
         } else {
@@ -2163,6 +2551,13 @@
         }
 
         saveData(data);
+
+        const newNetSaving = getGoalWeeklyNetSaving(g, curWeek);
+        NotificationService.checkAndNotifyCompletion(g, prevNetSaving, newNetSaving);
+        if (g.status !== 'completed' && g.weeklyTarget > 0) {
+          NotificationService.scheduleWeeklyReminder(g, data.settings);
+        }
+
         closeTransactionModal();
 
         if (document.getElementById('detailModal').classList.contains('open')) {
@@ -2326,11 +2721,71 @@
       });
     }
 
-    function renderShouldIBuyForm() {
-      const select = document.getElementById('sibGoal');
+    function setSibGoal(goalId) {
       const goals = goalsList().filter(g => g.status === 'active');
-      select.innerHTML = goals.map(g => `<option value="${g.id}">${escapeHtml(g.name)}</option>`).join('');
-      if (!goals.length) select.innerHTML = '<option value="">Tidak ada celengan aktif</option>';
+      const hidden = document.getElementById('sibGoal');
+      const textEl = document.getElementById('sibGoalText');
+      const preview = document.getElementById('sibGoalIconPreview');
+      
+      let selectedGoal = goals.find(g => String(g.id) === String(goalId));
+      if (!selectedGoal && goals.length > 0) {
+        selectedGoal = goals[0];
+      }
+      
+      if (selectedGoal) {
+        if (hidden) hidden.value = selectedGoal.id;
+        if (textEl) textEl.textContent = selectedGoal.name;
+        if (preview) preview.innerHTML = renderGoalIconHtml(selectedGoal.emoji, 20);
+      } else {
+        if (hidden) hidden.value = '';
+        if (textEl) textEl.textContent = 'Tidak ada celengan aktif';
+        if (preview) preview.innerHTML = renderGoalIconHtml('money', 20);
+      }
+    }
+
+    function renderSibGoalPickerItems() {
+      const container = document.getElementById('sibGoalPickerList');
+      if (!container) return;
+      const goals = goalsList().filter(g => g.status === 'active');
+      const currentVal = document.getElementById('sibGoal') ? document.getElementById('sibGoal').value : '';
+      
+      if (!goals.length) {
+        container.innerHTML = '<div class="empty">Tidak ada celengan aktif. Buat celengan terlebih dahulu di Beranda.</div>';
+        return;
+      }
+      
+      let html = '';
+      goals.forEach(function(g) {
+        const isSelected = (String(g.id) === String(currentVal));
+        html += '<button type="button" class="category-picker-item ' + (isSelected ? 'selected' : '') + '" data-goal-id="' + g.id + '" style="padding:12px 14px;">';
+        html += '  <span class="cat-icon-badge" style="width:36px;height:36px;">';
+        html += '    ' + renderGoalIconHtml(g.emoji, 22);
+        html += '  </span>';
+        html += '  <div class="cat-item-label">';
+        html += '    <div style="font-weight:700; font-size:14px;">' + escapeHtml(g.name) + '</div>';
+        html += '    <div class="picker-item-sub">Terkumpul: ' + formatRupiah(g.currentAmount || 0) + ' dari ' + formatRupiah(g.targetAmount || 0) + '</div>';
+        html += '  </div>';
+        html += '  <span class="cat-item-check"><span class="ui-icon-mask" style="width:18px;height:18px;-webkit-mask-image:url(\'assets/icons/ui/check-circle.svg\');mask-image:url(\'assets/icons/ui/check-circle.svg\');" aria-hidden="true"></span></span>';
+        html += '</button>';
+      });
+      container.innerHTML = html;
+    }
+
+    function openSibGoalPicker() {
+      renderSibGoalPickerItems();
+      const modal = document.getElementById('sibGoalPickerModal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeSibGoalPicker() {
+      const modal = document.getElementById('sibGoalPickerModal');
+      if (modal) modal.classList.remove('open');
+    }
+
+    function renderShouldIBuyForm() {
+      const goals = goalsList().filter(g => g.status === 'active');
+      const currentVal = document.getElementById('sibGoal') ? document.getElementById('sibGoal').value : '';
+      setSibGoal(currentVal || (goals.length ? goals[0].id : ''));
       document.getElementById('sibResult').style.display = 'none';
       document.querySelector('#pageShouldIBuy .card').style.display = 'block';
       lastSibAnalysis = null;
@@ -2869,6 +3324,480 @@
       '</div>';
     }
 
+    // =========================================================================
+    // SAVINGS STREAK & LOCAL NOTIFICATION HELPERS (v1.7.0)
+    // =========================================================================
+
+    function getGoalWeeklyTargetForWeek(goal, weekKey) {
+      if (!goal) return null;
+      var targetWeek = weekKey || getLocalWeekKey();
+      var curWeek = getLocalWeekKey();
+
+      if (Array.isArray(goal.weeklyTargetHistory) && goal.weeklyTargetHistory.length > 0) {
+        var history = goal.weeklyTargetHistory.slice().sort(function(a, b) {
+          return (a.effectiveFromWeek || '').localeCompare(b.effectiveFromWeek || '');
+        });
+
+        var earliestTrackedWeek = history[0].effectiveFromWeek;
+        // Unknown before earliest tracked effective week
+        if (targetWeek < earliestTrackedWeek) {
+          return null;
+        }
+
+        var matched = null;
+        for (var i = 0; i < history.length; i++) {
+          if (history[i].effectiveFromWeek <= targetWeek) {
+            matched = history[i];
+          } else {
+            break;
+          }
+        }
+        if (matched && typeof matched.target === 'number' && matched.target > 0) {
+          return matched.target;
+        }
+        return null;
+      }
+
+      // Legacy goal without weeklyTargetHistory:
+      // Current or future week uses current goal.weeklyTarget
+      if (targetWeek >= curWeek) {
+        var curTarget = Number(goal.weeklyTarget || 0);
+        return curTarget > 0 ? curTarget : null;
+      }
+
+      // Historical completed weeks for legacy goal are unknown
+      return null;
+    }
+
+    function isWeeklyGoalComplete(goal, refDate) {
+      var curDateStr = refDate ? (typeof refDate === 'string' ? refDate.slice(0, 10) : getLocalDateISO(refDate)) : getLocalDateISO();
+      var targetWeek = getLocalWeekKey(curDateStr);
+      var target = getGoalWeeklyTargetForWeek(goal, targetWeek);
+      if (!target || target <= 0) return false;
+      var net = getGoalWeeklyNetSaving(goal, targetWeek);
+      return net >= target;
+    }
+
+    function getGoalWeeklyProgress(goal, refDate) {
+      var curDateStr = refDate ? (typeof refDate === 'string' ? refDate.slice(0, 10) : getLocalDateISO(refDate)) : getLocalDateISO();
+      var currentWeek = getLocalWeekKey(curDateStr);
+      var target = getGoalWeeklyTargetForWeek(goal, currentWeek);
+      var saving = getGoalWeeklyNetSaving(goal, currentWeek);
+      var isValid = Boolean(target && target > 0);
+
+      if (!isValid) {
+        return {
+          currentWeek: currentWeek,
+          weeklyTarget: 0,
+          currentWeekSaving: saving,
+          progressPct: 0,
+          remaining: 0,
+          isTargetMet: false,
+          isValid: false
+        };
+      }
+
+      var remaining = Math.max(0, target - saving);
+      var progressPct = saving > 0 ? Math.min(100, Math.round((saving / target) * 100)) : 0;
+      var isTargetMet = saving >= target;
+
+      return {
+        currentWeek: currentWeek,
+        weeklyTarget: target,
+        currentWeekSaving: saving,
+        progressPct: progressPct,
+        remaining: remaining,
+        isTargetMet: isTargetMet,
+        isValid: true
+      };
+    }
+
+    function getGoalCurrentStreak(goal, refDate) {
+      if (!goal) return 0;
+      var curDateStr = refDate ? (typeof refDate === 'string' ? refDate.slice(0, 10) : getLocalDateISO(refDate)) : getLocalDateISO();
+      var curWeek = getLocalWeekKey(curDateStr);
+      var lastCompletedWeek = shiftWeek(curWeek, -1);
+
+      var txs = getGoalTransactions(goal);
+      if (!txs || txs.length === 0) return 0;
+
+      var earliestTxWeek = null;
+      for (var i = 0; i < txs.length; i++) {
+        var dISO = parseTransactionDateISO(txs[i]);
+        if (dISO) {
+          var wk = getLocalWeekKey(dISO);
+          if (!earliestTxWeek || wk < earliestTxWeek) earliestTxWeek = wk;
+        }
+      }
+      if (!earliestTxWeek || earliestTxWeek > lastCompletedWeek) return 0;
+
+      var streak = 0;
+      var evalWeek = lastCompletedWeek;
+
+      while (evalWeek >= earliestTxWeek) {
+        var target = getGoalWeeklyTargetForWeek(goal, evalWeek);
+        // Unknown target or invalid target cannot be counted; stop boundary
+        if (!target || target <= 0) break;
+
+        var net = getGoalWeeklyNetSaving(goal, evalWeek);
+        if (net >= target) {
+          streak++;
+          evalWeek = shiftWeek(evalWeek, -1);
+        } else {
+          // FAILED week terminates current streak
+          break;
+        }
+      }
+
+      return streak;
+    }
+
+    function getGoalBestStreak(goal, refDate) {
+      if (!goal) return 0;
+      var curDateStr = refDate ? (typeof refDate === 'string' ? refDate.slice(0, 10) : getLocalDateISO(refDate)) : getLocalDateISO();
+      var curWeek = getLocalWeekKey(curDateStr);
+      var lastCompletedWeek = shiftWeek(curWeek, -1);
+
+      var txs = getGoalTransactions(goal);
+      if (!txs || txs.length === 0) return 0;
+
+      var earliestTxWeek = null;
+      for (var i = 0; i < txs.length; i++) {
+        var dISO = parseTransactionDateISO(txs[i]);
+        if (dISO) {
+          var wk = getLocalWeekKey(dISO);
+          if (!earliestTxWeek || wk < earliestTxWeek) earliestTxWeek = wk;
+        }
+      }
+      if (!earliestTxWeek || earliestTxWeek > lastCompletedWeek) return 0;
+
+      var totalWeeks = getWeekDiff(earliestTxWeek, lastCompletedWeek) + 1;
+      var bestStreak = 0;
+      var currentRun = 0;
+
+      for (var i = 0; i < totalWeeks; i++) {
+        var w = shiftWeek(earliestTxWeek, i);
+        var target = getGoalWeeklyTargetForWeek(goal, w);
+        if (target && target > 0) {
+          var net = getGoalWeeklyNetSaving(goal, w);
+          if (net >= target) {
+            currentRun++;
+            if (currentRun > bestStreak) bestStreak = currentRun;
+          } else {
+            currentRun = 0;
+          }
+        } else {
+          currentRun = 0;
+        }
+      }
+
+      return bestStreak;
+    }
+
+    function getGoalStreakSummary(goal, refDate) {
+      var progress = getGoalWeeklyProgress(goal, refDate);
+      if (!progress.isValid) {
+        return {
+          isValid: false,
+          currentStreak: 0,
+          bestStreak: 0,
+          progress: progress,
+          message: 'Atur target mingguan untuk mengaktifkan Savings Streak.'
+        };
+      }
+
+      var currentStreak = getGoalCurrentStreak(goal, refDate);
+      var bestStreak = getGoalBestStreak(goal, refDate);
+
+      var msg = '';
+      if (progress.isTargetMet) {
+        msg = 'Target minggu ini tercapai.';
+      } else if (progress.remaining > 0) {
+        msg = 'Kurang ' + formatRupiah(progress.remaining) + ' lagi untuk mempertahankan streak.';
+      }
+
+      return {
+        isValid: true,
+        currentStreak: currentStreak,
+        bestStreak: bestStreak,
+        progress: progress,
+        message: msg
+      };
+    }
+
+    function renderSavingsStreakDetailHtml(goal) {
+      if (!goal) return '';
+      var summary = getGoalStreakSummary(goal);
+      if (!summary.isValid) {
+        return '<div class="card" style="margin-top:10px; border:1px dashed var(--border); background:var(--surface-secondary);">' +
+          '<div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; color:var(--text-secondary);">' +
+            renderUiIconHtml('streak', 16) + ' STREAK NABUNG' +
+          '</div>' +
+          '<div class="muted" style="margin-top:6px; font-size:12px;">' +
+            'Atur target mingguan untuk mengaktifkan Savings Streak.' +
+          '</div>' +
+        '</div>';
+      }
+
+      var cur = summary.currentStreak;
+      var best = summary.bestStreak;
+      var p = summary.progress;
+
+      return '<div class="card" style="margin-top:10px; border:1px solid var(--border); background:var(--surface-secondary);">' +
+        '<div style="font-weight:700; font-size:13px; display:flex; align-items:center; gap:6px; margin-bottom:10px;">' +
+          '<span style="color:var(--accent-3); display:inline-flex; align-items:center;">' + renderUiIconHtml('streak', 16) + '</span> STREAK NABUNG' +
+        '</div>' +
+        '<div class="row-between" style="margin-bottom:12px;">' +
+          '<div style="flex:1; padding-right:8px; border-right:1px solid var(--border);">' +
+            '<div class="muted" style="font-size:11px;">Streak Saat Ini</div>' +
+            '<div style="font-size:18px; font-weight:700; color:var(--accent);">' + cur + ' minggu</div>' +
+          '</div>' +
+          '<div style="flex:1; padding-left:12px;">' +
+            '<div class="muted" style="font-size:11px;">Streak Terbaik</div>' +
+            '<div style="font-size:18px; font-weight:700; color:var(--text);">' + best + ' minggu</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="border-top:1px dashed var(--border); padding-top:10px;">' +
+          '<div class="row-between" style="font-size:12px;">' +
+            '<div class="muted">Minggu Ini</div>' +
+            '<div style="font-weight:600;">' + formatRupiah(p.currentWeekSaving) + ' / ' + formatRupiah(p.weeklyTarget) + '</div>' +
+          '</div>' +
+          '<div class="progress-bar" style="margin:6px 0;">' +
+            '<div class="progress-fill" style="width:' + p.progressPct + '%; background:var(--accent-2);"></div>' +
+          '</div>' +
+          '<div class="row-between" style="font-size:12px; margin-top:2px;">' +
+            '<div class="muted">' + p.progressPct + '%</div>' +
+            '<div style="font-weight:600; color:' + (p.isTargetMet ? 'var(--accent-2)' : 'var(--accent-3)') + ';">' +
+              summary.message +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // Deterministic 32-bit positive integer hash for notification IDs
+    function getGoalNotificationBaseId(goalId) {
+      var str = String(goalId != null ? goalId : '0');
+      var hash = 0;
+      for (var i = 0; i < str.length; i++) {
+        hash = ((hash << 5) - hash) + str.charCodeAt(i);
+        hash |= 0;
+      }
+      var positiveHash = Math.abs(hash) % 200000000;
+      if (positiveHash === 0) positiveHash = 1;
+      return positiveHash;
+    }
+
+    function getGoalReminderNotificationId(goalId) {
+      return (getGoalNotificationBaseId(goalId) * 10) + 1;
+    }
+
+    function getGoalCompletionNotificationId(goalId) {
+      return (getGoalNotificationBaseId(goalId) * 10) + 2;
+    }
+
+    // Notification Service with safe Web/PWA fallback
+    var NotificationService = (function() {
+      function isNative() {
+        try {
+          return Boolean(window.Capacitor && typeof window.Capacitor.isNativePlatform === 'function' && window.Capacitor.isNativePlatform());
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function getPlugin() {
+        if (!isNative()) return null;
+        return window.Capacitor?.Plugins?.LocalNotifications || null;
+      }
+
+      function isSupported() {
+        return Boolean(getPlugin());
+      }
+
+      async function checkPermission() {
+        var plugin = getPlugin();
+        if (!plugin) return 'unsupported';
+        try {
+          var status = await plugin.checkPermissions();
+          return status?.display || 'prompt';
+        } catch (e) {
+          return 'unsupported';
+        }
+      }
+
+      async function requestPermission() {
+        var plugin = getPlugin();
+        if (!plugin) return 'unsupported';
+        try {
+          var res = await plugin.requestPermissions();
+          return res?.display || 'denied';
+        } catch (e) {
+          return 'denied';
+        }
+      }
+
+      var DAY_MAP = {
+        minggu: 1,
+        senin: 2,
+        selasa: 3,
+        rabu: 4,
+        kamis: 5,
+        jumat: 6,
+        sabtu: 7
+      };
+
+      async function scheduleWeeklyReminder(goal, settings) {
+        var plugin = getPlugin();
+        if (!plugin) return;
+        if (!goal || goal.status === 'completed') return;
+
+        var notifSettings = settings?.goalNotifications;
+        if (!notifSettings || !notifSettings.enabled) return;
+
+        var curWeek = getLocalWeekKey();
+        var target = getGoalWeeklyTargetForWeek(goal, curWeek);
+        if (!target || target <= 0) return;
+
+        // If target already complete for this week, cancel reminder
+        if (isWeeklyGoalComplete(goal)) {
+          await cancelReminder(goal.id);
+          return;
+        }
+
+        var reminderId = getGoalReminderNotificationId(goal.id);
+        var remaining = Math.max(0, target - getGoalWeeklyNetSaving(goal, curWeek));
+
+        var dayKey = String(notifSettings.reminderDay || 'sabtu').toLowerCase();
+        var weekday = DAY_MAP[dayKey] || 7;
+
+        var timeStr = String(notifSettings.reminderTime || '19:00');
+        var parts = timeStr.split(':');
+        var hour = parseInt(parts[0], 10) || 19;
+        var minute = parseInt(parts[1], 10) || 0;
+
+        try {
+          await plugin.cancel({ notifications: [{ id: reminderId }] });
+          await plugin.schedule({
+            notifications: [
+              {
+                id: reminderId,
+                title: 'Berithung',
+                body: 'Celengan ' + (goal.name || 'Tabungan') + ' masih kurang ' + formatRupiah(remaining) + ' untuk target minggu ini.',
+                schedule: {
+                  on: { weekday: weekday, hour: hour, minute: minute },
+                  allowWhileIdle: true
+                }
+              }
+            ]
+          });
+        } catch (err) {}
+      }
+
+      async function cancelReminder(goalId) {
+        var plugin = getPlugin();
+        if (!plugin) return;
+        try {
+          await plugin.cancel({ notifications: [{ id: getGoalReminderNotificationId(goalId) }] });
+        } catch (e) {}
+      }
+
+      async function cancelGoalNotifications(goalId) {
+        var plugin = getPlugin();
+        if (!plugin) return;
+        try {
+          await plugin.cancel({
+            notifications: [
+              { id: getGoalReminderNotificationId(goalId) },
+              { id: getGoalCompletionNotificationId(goalId) }
+            ]
+          });
+        } catch (e) {}
+      }
+
+      async function checkAndNotifyCompletion(goal, prevNet, newNet) {
+        if (!goal || goal.status === 'completed') return;
+
+        var curWeek = getLocalWeekKey();
+        var target = getGoalWeeklyTargetForWeek(goal, curWeek);
+        if (!target || target <= 0) return;
+
+        // Transition check
+        if (prevNet >= target || newNet < target) return;
+
+        // Guard 4: Prevent duplicate in same week
+        if (goal.lastCompletedNoticeWeek === curWeek) return;
+
+        var plugin = getPlugin();
+        var data = getData();
+        var notifSettings = data.settings?.goalNotifications;
+        var isEnabled = Boolean(notifSettings && notifSettings.enabled);
+
+        if (plugin) {
+          await cancelReminder(goal.id);
+        }
+
+        if (plugin && isEnabled) {
+          var perm = await checkPermission();
+          if (perm === 'granted') {
+            goal.lastCompletedNoticeWeek = curWeek;
+            saveData(data);
+
+            try {
+              var completionId = getGoalCompletionNotificationId(goal.id);
+              await plugin.schedule({
+                notifications: [
+                  {
+                    id: completionId,
+                    title: 'Berithung',
+                    body: 'Target mingguan ' + (goal.name || 'Celengan') + ' tercapai. Streak kamu tetap aman.',
+                    schedule: { at: new Date(Date.now() + 500), allowWhileIdle: true }
+                  }
+                ]
+              });
+            } catch (e) {}
+          }
+        }
+      }
+
+      async function syncAllNotifications(data) {
+        var plugin = getPlugin();
+        if (!plugin) return;
+        var notifSettings = data?.settings?.goalNotifications;
+        var goals = (data && Array.isArray(data.goals)) ? data.goals : [];
+
+        if (!notifSettings || !notifSettings.enabled) {
+          for (var i = 0; i < goals.length; i++) {
+            await cancelReminder(goals[i].id);
+          }
+          return;
+        }
+
+        var perm = await checkPermission();
+        if (perm !== 'granted') return;
+
+        for (var j = 0; j < goals.length; j++) {
+          var g = goals[j];
+          if (g.status !== 'completed' && g.weeklyTarget > 0) {
+            await scheduleWeeklyReminder(g, data.settings);
+          } else {
+            await cancelReminder(g.id);
+          }
+        }
+      }
+
+      return {
+        isSupported: isSupported,
+        checkPermission: checkPermission,
+        requestPermission: requestPermission,
+        scheduleWeeklyReminder: scheduleWeeklyReminder,
+        cancelReminder: cancelReminder,
+        cancelGoalNotifications: cancelGoalNotifications,
+        checkAndNotifyCompletion: checkAndNotifyCompletion,
+        syncAllNotifications: syncAllNotifications
+      };
+    })();
+
     function getBudgetForMonth(ym) {
       var data = getData();
       return (data.budgets && Number(data.budgets[ym])) || 0;
@@ -3325,6 +4254,50 @@
       });
     }
 
+    function setIncomeSource(srcId) {
+      srcId = srcId || 'Gaji';
+      var hidden = document.getElementById('selectIncomeSource');
+      if (hidden) hidden.value = srcId;
+      var textEl = document.getElementById('incomeSourceText');
+      if (textEl) textEl.textContent = srcId;
+      var preview = document.getElementById('incomeSourceIconPreview');
+      if (preview) {
+        var found = INCOME_SOURCES.find(function(s) { return s.id === srcId; }) || INCOME_SOURCES[0];
+        preview.style.webkitMaskImage = "url('" + found.icon + "')";
+        preview.style.maskImage = "url('" + found.icon + "')";
+        preview.style.color = found.color;
+      }
+    }
+
+    function renderIncomeSourcePickerItems(selectedSource) {
+      var container = document.getElementById('incomeSourcePickerList');
+      if (!container) return;
+      var html = '';
+      INCOME_SOURCES.forEach(function(s) {
+        var isSelected = (s.id === selectedSource);
+        html += '<button type="button" class="category-picker-item ' + (isSelected ? 'selected' : '') + '" data-source="' + escapeHtml(s.id) + '">';
+        html += '  <span class="cat-icon-badge">';
+        html += '    <span class="ui-icon-mask" style="width:20px;height:20px;color:' + s.color + ';-webkit-mask-image:url(\'' + s.icon + '\');mask-image:url(\'' + s.icon + '\');" aria-hidden="true"></span>';
+        html += '  </span>';
+        html += '  <span class="cat-item-label">' + escapeHtml(s.label) + '</span>';
+        html += '  <span class="cat-item-check"><span class="ui-icon-mask" style="width:16px;height:16px;-webkit-mask-image:url(\'assets/icons/ui/check-circle.svg\');mask-image:url(\'assets/icons/ui/check-circle.svg\');" aria-hidden="true"></span></span>';
+        html += '</button>';
+      });
+      container.innerHTML = html;
+    }
+
+    function openIncomeSourcePicker() {
+      var currentVal = document.getElementById('selectIncomeSource') ? document.getElementById('selectIncomeSource').value : 'Gaji';
+      renderIncomeSourcePickerItems(currentVal);
+      var modal = document.getElementById('incomeSourcePickerModal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeIncomeSourcePicker() {
+      var modal = document.getElementById('incomeSourcePickerModal');
+      if (modal) modal.classList.remove('open');
+    }
+
     function openIncomeModal(incomeId) {
       editingIncomeId = incomeId || null;
       var err = document.getElementById('incomeValidationError');
@@ -3332,7 +4305,6 @@
 
       var titleEl = document.getElementById('incomeModalTitle');
       var delWrap = document.getElementById('incomeDeleteWrap');
-      var sourceSelect = document.getElementById('selectIncomeSource');
       var amtInput = document.getElementById('inputIncomeAmount');
       var dateInput = document.getElementById('inputIncomeDate');
       var noteInput = document.getElementById('inputIncomeNote');
@@ -3344,7 +4316,7 @@
         var item = (data.incomes || []).find(function(i) { return i.id === editingIncomeId; });
         if (item) {
           amtInput.value = item.amount || '';
-          sourceSelect.value = item.source || 'Gaji';
+          setIncomeSource(item.source || 'Gaji');
           dateInput.value = item.date || getLocalDateISO();
           noteInput.value = item.note || '';
         }
@@ -3352,7 +4324,7 @@
         titleEl.textContent = 'Catat Pemasukan';
         if (delWrap) delWrap.style.display = 'none';
         amtInput.value = '';
-        sourceSelect.value = 'Gaji';
+        setIncomeSource('Gaji');
         dateInput.value = getLocalDateISO();
         noteInput.value = '';
       }
@@ -3366,17 +4338,25 @@
       editingIncomeId = null;
     }
 
+    function setRecurringCategory(catId) {
+      catId = catId || 'Tagihan';
+      var hidden = document.getElementById('selectRecurringCategory');
+      if (hidden) hidden.value = catId;
+      var textEl = document.getElementById('recurringCategoryText');
+      if (textEl) textEl.textContent = catId;
+      var preview = document.getElementById('recurringCategoryIconPreview');
+      if (preview) {
+        var k = getCategoryKey(catId);
+        var src = CATEGORY_ICONS[k] || CATEGORY_ICONS.other;
+        preview.style.webkitMaskImage = "url('" + src + "')";
+        preview.style.maskImage = "url('" + src + "')";
+      }
+    }
+
     function openRecurringModal(recurringId) {
       editingRecurringId = recurringId || null;
       var err = document.getElementById('recurringValidationError');
       if (err) { err.style.display = 'none'; err.textContent = ''; }
-
-      var catSelect = document.getElementById('selectRecurringCategory');
-      if (catSelect) {
-        catSelect.innerHTML = EXPENSE_CATEGORIES.map(function(c) {
-          return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.label) + '</option>';
-        }).join('');
-      }
 
       var titleEl = document.getElementById('recurringModalTitle');
       var delWrap = document.getElementById('recurringDeleteWrap');
@@ -3392,7 +4372,7 @@
         if (item) {
           nameInput.value = item.name || '';
           amtInput.value = item.amount || '';
-          if (catSelect) catSelect.value = item.category || 'Tagihan';
+          setRecurringCategory(item.category || 'Tagihan');
           dueInput.value = item.dueDay || 1;
         }
       } else {
@@ -3400,7 +4380,7 @@
         if (delWrap) delWrap.style.display = 'none';
         nameInput.value = '';
         amtInput.value = '';
-        if (catSelect) catSelect.value = 'Tagihan';
+        setRecurringCategory('Tagihan');
         dueInput.value = 1;
       }
 
@@ -3652,27 +4632,25 @@
       document.getElementById('budgetModal').classList.remove('open');
     }
 
+    function setExpenseCategory(catId) {
+      catId = catId || 'Makanan';
+      var hidden = document.getElementById('selectExpenseCategory');
+      if (hidden) hidden.value = catId;
+      var textEl = document.getElementById('expenseCategoryText');
+      if (textEl) textEl.textContent = catId;
+      var preview = document.getElementById('expenseCategoryIconPreview');
+      if (preview) {
+        var k = getCategoryKey(catId);
+        var src = CATEGORY_ICONS[k] || CATEGORY_ICONS.other;
+        preview.style.webkitMaskImage = "url('" + src + "')";
+        preview.style.maskImage = "url('" + src + "')";
+      }
+    }
+
     function openExpenseModal(expenseId) {
       editingExpenseId = expenseId || null;
       var err = document.getElementById('expenseValidationError');
       if (err) { err.style.display = 'none'; err.textContent = ''; }
-
-      var catSelect = document.getElementById('selectExpenseCategory');
-      catSelect.innerHTML = EXPENSE_CATEGORIES.map(function(c) {
-        return '<option value="' + escapeHtml(c.id) + '">' + escapeHtml(c.label) + '</option>';
-      }).join('');
-
-      function updateCatPreview() {
-        var preview = document.getElementById('expenseCategoryIconPreview');
-        if (preview && catSelect) {
-          var k = getCategoryKey(catSelect.value);
-          var src = CATEGORY_ICONS[k] || CATEGORY_ICONS.other;
-          preview.style.webkitMaskImage = "url('" + src + "')";
-          preview.style.maskImage = "url('" + src + "')";
-        }
-      }
-      catSelect.onchange = updateCatPreview;
-      updateCatPreview();
 
       var delWrap = document.getElementById('expenseDeleteWrap');
       var titleEl = document.getElementById('expenseModalTitle');
@@ -3684,8 +4662,7 @@
         var exp = (data.expenses || []).find(function(e) { return e.id === editingExpenseId; });
         if (exp) {
           document.getElementById('inputExpenseAmount').value = exp.amount || '';
-          catSelect.value = exp.category || 'Makanan';
-          updateCatPreview();
+          setExpenseCategory(exp.category || 'Makanan');
           document.getElementById('inputExpenseDate').value = exp.date || getLocalDateISO();
           document.getElementById('inputExpenseNote').value = exp.note || '';
         }
@@ -3693,7 +4670,7 @@
         titleEl.textContent = 'Catat Pengeluaran';
         delWrap.style.display = 'none';
         document.getElementById('inputExpenseAmount').value = '';
-        catSelect.value = 'Makanan';
+        setExpenseCategory('Makanan');
         document.getElementById('inputExpenseDate').value = getLocalDateISO();
         document.getElementById('inputExpenseNote').value = '';
       }
@@ -4061,12 +5038,25 @@
     }
 
     function confirmDeleteWishlist(id) {
-      if (!confirm('Hapus barang ini dari Wishlist?')) return;
-      deleteWishlistItem(id);
-      document.getElementById('wishlistDetailModal').classList.remove('open');
-      renderWishlist();
-      renderWishlistHomeCard();
-      showToast('Dihapus dari Wishlist');
+      var data = getData();
+      var item = (data.wishlist || []).find(function(i) { return i.id === id; });
+      var itemName = item ? item.name : 'Barang Wishlist';
+      openConfirmModal({
+        title: 'Hapus dari Wishlist?',
+        icon: 'alert',
+        targetLabel: 'Barang',
+        targetName: itemName,
+        message: 'Barang ini akan dihapus permanen dari daftar Wishlist kamu.',
+        confirmLabel: 'Hapus Barang',
+        onConfirm: function() {
+          deleteWishlistItem(id);
+          closeConfirmModal(true);
+          document.getElementById('wishlistDetailModal').classList.remove('open');
+          renderWishlist();
+          renderWishlistHomeCard();
+          showToast('Dihapus dari Wishlist');
+        }
+      });
     }
 
     function checkAndOpenCoolingModal() {
@@ -4496,6 +5486,75 @@
       showToast('Theme: ' + next);
     });
 
+    // Goal Notification Settings Controls
+    const toggleGoalReminderEl = document.getElementById('toggleGoalReminder');
+    const reminderSettingsFieldsEl = document.getElementById('reminderSettingsFields');
+    const reminderDaySelectEl = document.getElementById('reminderDaySelect');
+    const reminderTimeInputEl = document.getElementById('reminderTimeInput');
+    const reminderPermissionNoteEl = document.getElementById('reminderPermissionNote');
+
+    if (toggleGoalReminderEl) {
+      toggleGoalReminderEl.addEventListener('change', async function(e) {
+        const enabled = e.target.checked;
+        if (reminderSettingsFieldsEl) {
+          reminderSettingsFieldsEl.style.display = enabled ? 'block' : 'none';
+        }
+
+        if (enabled && NotificationService.isSupported()) {
+          const perm = await NotificationService.requestPermission();
+          if (perm === 'denied') {
+            showToast('Izin notifikasi belum diizinkan');
+            if (reminderPermissionNoteEl) {
+              reminderPermissionNoteEl.style.display = 'block';
+              reminderPermissionNoteEl.textContent = 'Izin notifikasi belum diberikan di pengaturan perangkat.';
+              reminderPermissionNoteEl.style.color = 'var(--danger)';
+            }
+          } else {
+            if (reminderPermissionNoteEl) reminderPermissionNoteEl.style.display = 'none';
+            showToast('Pengingat celengan diaktifkan');
+          }
+        } else if (enabled) {
+          showToast('Pengingat celengan diaktifkan');
+        } else {
+          showToast('Pengingat celengan dinonaktifkan');
+        }
+
+        const data = getData();
+        data.settings = data.settings || {};
+        data.settings.goalNotifications = {
+          enabled: enabled,
+          reminderDay: reminderDaySelectEl ? reminderDaySelectEl.value : 'sabtu',
+          reminderTime: reminderTimeInputEl ? reminderTimeInputEl.value : '19:00'
+        };
+        saveData(data);
+        NotificationService.syncAllNotifications(data);
+      });
+    }
+
+    if (reminderDaySelectEl) {
+      reminderDaySelectEl.addEventListener('change', function(e) {
+        const data = getData();
+        data.settings = data.settings || {};
+        data.settings.goalNotifications = data.settings.goalNotifications || { enabled: false };
+        data.settings.goalNotifications.reminderDay = e.target.value;
+        saveData(data);
+        NotificationService.syncAllNotifications(data);
+        showToast('Hari pengingat diperbarui');
+      });
+    }
+
+    if (reminderTimeInputEl) {
+      reminderTimeInputEl.addEventListener('change', function(e) {
+        const data = getData();
+        data.settings = data.settings || {};
+        data.settings.goalNotifications = data.settings.goalNotifications || { enabled: false };
+        data.settings.goalNotifications.reminderTime = e.target.value || '19:00';
+        saveData(data);
+        NotificationService.syncAllNotifications(data);
+        showToast('Jam pengingat diperbarui');
+      });
+    }
+
     // Data Backup and Restore
     document.getElementById('btnExport').addEventListener('click', async function() {
       const data = getData();
@@ -4521,7 +5580,7 @@
 
           await window.Capacitor.Plugins.Share.share({
             title: 'Backup Data Berithung',
-            text: 'Backup data tabungan dan budget Berithung v1.6.0',
+            text: 'Backup data tabungan dan budget Berithung v1.7.0',
             url: fileUri,
             dialogTitle: 'Simpan / Bagikan Backup Berithung'
           });
@@ -4565,6 +5624,7 @@
             if (g && typeof g === 'object') {
               g.transactions = Array.isArray(g.transactions) ? g.transactions : [];
               g.targetDate = g.targetDate || null;
+              g.weeklyTargetHistory = Array.isArray(g.weeklyTargetHistory) ? g.weeklyTargetHistory : [];
             }
             return g;
           }) : [];
@@ -4573,7 +5633,10 @@
           parsed.wishlist = Array.isArray(parsed.wishlist) ? parsed.wishlist : [];
           parsed.incomes = Array.isArray(parsed.incomes) ? parsed.incomes : [];
           parsed.recurringExpenses = Array.isArray(parsed.recurringExpenses) ? parsed.recurringExpenses : [];
+          parsed.settings = (parsed.settings && typeof parsed.settings === 'object') ? parsed.settings : { darkMode: 'system' };
+          parsed.settings.goalNotifications = (parsed.settings.goalNotifications && typeof parsed.settings.goalNotifications === 'object') ? parsed.settings.goalNotifications : { enabled: false, reminderDay: 'sabtu', reminderTime: '19:00' };
           saveData(parsed);
+          NotificationService.syncAllNotifications(parsed);
           render();
           showToast('Data berhasil direstore');
         } catch (err) {
@@ -4675,6 +5738,183 @@
           renderHomeTrendCard();
           showToast('Pengeluaran dihapus');
         }
+      });
+    });
+
+    // Category Picker Bottom Sheet Handlers
+    var currentCatPickerContext = null;
+
+    function renderCategoryPickerItems(selectedCat) {
+      var container = document.getElementById('categoryPickerList');
+      if (!container) return;
+      var html = '';
+      EXPENSE_CATEGORIES.forEach(function(c) {
+        var isSelected = (c.id === selectedCat);
+        var iconSrc = CATEGORY_ICONS[c.key] || CATEGORY_ICONS.other;
+        html += '<button type="button" class="category-picker-item ' + (isSelected ? 'selected' : '') + '" data-cat="' + escapeHtml(c.id) + '">';
+        html += '  <span class="cat-icon-badge">';
+        html += '    <span class="category-icon-mask" style="width:20px;height:20px;-webkit-mask-image:url(\'' + iconSrc + '\');mask-image:url(\'' + iconSrc + '\');" aria-hidden="true"></span>';
+        html += '  </span>';
+        html += '  <span class="cat-item-label">' + escapeHtml(c.label) + '</span>';
+        html += '  <span class="cat-item-check"><span class="ui-icon-mask" style="width:16px;height:16px;-webkit-mask-image:url(\'assets/icons/ui/check-circle.svg\');mask-image:url(\'assets/icons/ui/check-circle.svg\');" aria-hidden="true"></span></span>';
+        html += '</button>';
+      });
+      container.innerHTML = html;
+    }
+
+    function openCategoryPicker(targetInputId, onSelect) {
+      currentCatPickerContext = { targetInputId: targetInputId, onSelect: onSelect };
+      var currentVal = document.getElementById(targetInputId) ? document.getElementById(targetInputId).value : 'Makanan';
+      renderCategoryPickerItems(currentVal);
+      var modal = document.getElementById('categoryPickerModal');
+      if (modal) modal.classList.add('open');
+    }
+
+    function closeCategoryPicker() {
+      var modal = document.getElementById('categoryPickerModal');
+      if (modal) modal.classList.remove('open');
+      currentCatPickerContext = null;
+    }
+
+    var btnExpCat = document.getElementById('btnExpenseCategoryPicker');
+    if (btnExpCat) {
+      btnExpCat.addEventListener('click', function() {
+        openCategoryPicker('selectExpenseCategory', function(catId) {
+          setExpenseCategory(catId);
+        });
+      });
+    }
+
+    var btnRecCat = document.getElementById('btnRecurringCategoryPicker');
+    if (btnRecCat) {
+      btnRecCat.addEventListener('click', function() {
+        openCategoryPicker('selectRecurringCategory', function(catId) {
+          setRecurringCategory(catId);
+        });
+      });
+    }
+
+    var catPickerList = document.getElementById('categoryPickerList');
+    if (catPickerList) {
+      catPickerList.addEventListener('click', function(e) {
+        var btn = e.target.closest('.category-picker-item');
+        if (!btn) return;
+        var catId = btn.getAttribute('data-cat');
+        if (!catId) return;
+
+        if (currentCatPickerContext) {
+          if (typeof currentCatPickerContext.onSelect === 'function') {
+            currentCatPickerContext.onSelect(catId);
+          } else if (currentCatPickerContext.targetInputId) {
+            var hidden = document.getElementById(currentCatPickerContext.targetInputId);
+            if (hidden) hidden.value = catId;
+          }
+        }
+        closeCategoryPicker();
+      });
+    }
+
+    var btnCloseCat = document.getElementById('btnCategoryPickerClose');
+    if (btnCloseCat) {
+      btnCloseCat.addEventListener('click', closeCategoryPicker);
+    }
+
+    var catModal = document.getElementById('categoryPickerModal');
+    if (catModal) {
+      catModal.addEventListener('click', function(e) {
+        if (e.target === catModal) closeCategoryPicker();
+      });
+    }
+
+    // Income Source Picker Handlers
+    var btnIncomeSource = document.getElementById('btnIncomeSourcePicker');
+    if (btnIncomeSource) {
+      btnIncomeSource.addEventListener('click', openIncomeSourcePicker);
+    }
+    var btnCloseIncomeSource = document.getElementById('btnIncomeSourcePickerClose');
+    if (btnCloseIncomeSource) {
+      btnCloseIncomeSource.addEventListener('click', closeIncomeSourcePicker);
+    }
+    var incomeSourceModal = document.getElementById('incomeSourcePickerModal');
+    if (incomeSourceModal) {
+      incomeSourceModal.addEventListener('click', function(e) {
+        if (e.target === this) closeIncomeSourcePicker();
+      });
+    }
+    var incomeSourceList = document.getElementById('incomeSourcePickerList');
+    if (incomeSourceList) {
+      incomeSourceList.addEventListener('click', function(e) {
+        var btn = e.target.closest('.category-picker-item');
+        if (!btn) return;
+        var src = btn.getAttribute('data-source');
+        if (src) setIncomeSource(src);
+        closeIncomeSourcePicker();
+      });
+    }
+
+    // Should I Buy Celengan Picker Handlers
+    var btnSibGoal = document.getElementById('btnSibGoalPicker');
+    if (btnSibGoal) {
+      btnSibGoal.addEventListener('click', openSibGoalPicker);
+    }
+    var btnCloseSibGoal = document.getElementById('btnSibGoalPickerClose');
+    if (btnCloseSibGoal) {
+      btnCloseSibGoal.addEventListener('click', closeSibGoalPicker);
+    }
+    var sibGoalModal = document.getElementById('sibGoalPickerModal');
+    if (sibGoalModal) {
+      sibGoalModal.addEventListener('click', function(e) {
+        if (e.target === this) closeSibGoalPicker();
+      });
+    }
+    var sibGoalList = document.getElementById('sibGoalPickerList');
+    if (sibGoalList) {
+      sibGoalList.addEventListener('click', function(e) {
+        var btn = e.target.closest('.category-picker-item');
+        if (!btn) return;
+        var gid = btn.getAttribute('data-goal-id');
+        if (gid) setSibGoal(gid);
+        closeSibGoalPicker();
+      });
+    }
+
+    // Emergency Target Modal Handlers
+    var btnCloseEmTarget = document.getElementById('btnEmergencyTargetClose');
+    if (btnCloseEmTarget) btnCloseEmTarget.addEventListener('click', closeEmergencyTargetModal);
+    var btnCancelEmTarget = document.getElementById('btnEmergencyTargetCancel');
+    if (btnCancelEmTarget) btnCancelEmTarget.addEventListener('click', closeEmergencyTargetModal);
+    var emTargetModal = document.getElementById('emergencyTargetModal');
+    if (emTargetModal) {
+      emTargetModal.addEventListener('click', function(e) {
+        if (e.target === this) closeEmergencyTargetModal();
+      });
+    }
+    var btnSaveEmTarget = document.getElementById('btnEmergencyTargetSave');
+    if (btnSaveEmTarget) {
+      btnSaveEmTarget.addEventListener('click', function() {
+        var input = document.getElementById('inputEmergencyTargetAmount');
+        var raw = input ? String(input.value).replace(/[^0-9]/g, '') : '';
+        var val = raw ? Number(raw) : 0;
+        var data = getData();
+        data.emergencyTarget = val;
+        saveData(data);
+        renderEmergency();
+        renderEmergencyFull();
+        closeEmergencyTargetModal();
+        showToast(val > 0 ? 'Target darurat disimpan' : 'Target darurat dihapus');
+      });
+    }
+
+    // Theme Segmented Control Handlers
+    document.querySelectorAll('#themeSegmentedControl .theme-seg-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var mode = this.getAttribute('data-theme') || 'system';
+        var data = getData();
+        data.settings = data.settings || {};
+        data.settings.darkMode = mode;
+        saveData(data);
+        applyTheme(mode);
+        showToast('Theme: ' + (mode === 'system' ? 'Otomatis' : mode === 'light' ? 'Terang' : 'Gelap'));
       });
     });
 
@@ -5979,6 +7219,28 @@
       if (window.Capacitor?.Plugins?.App) {
         let lastBackTime = 0;
         window.Capacitor.Plugins.App.addListener('backButton', function() {
+          // 0. Submodals (highest priority submodals)
+          const catPickerModal = document.getElementById('categoryPickerModal');
+          if (catPickerModal && catPickerModal.classList.contains('open')) {
+            closeCategoryPicker();
+            return;
+          }
+          const incomePickerModal = document.getElementById('incomeSourcePickerModal');
+          if (incomePickerModal && incomePickerModal.classList.contains('open')) {
+            closeIncomeSourcePicker();
+            return;
+          }
+          const sibPickerModal = document.getElementById('sibGoalPickerModal');
+          if (sibPickerModal && sibPickerModal.classList.contains('open')) {
+            closeSibGoalPicker();
+            return;
+          }
+          const emTargetModal = document.getElementById('emergencyTargetModal');
+          if (emTargetModal && emTargetModal.classList.contains('open')) {
+            closeEmergencyTargetModal();
+            return;
+          }
+
           // 1. Confirm modal (highest priority: acts as Cancel)
           const confirmModal = document.getElementById('confirmModal');
           if (confirmModal && confirmModal.classList.contains('open')) {
