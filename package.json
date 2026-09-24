@@ -3,6 +3,7 @@
   "version": "1.8.0",
   "description": "Berithung - Aplikasi menabung harian, tabungan darurat, barang impian, dan budget bulanan",
   "private": true,
+  "packageManager": "npm@10.8.2",
   "scripts": {
     "dev": "node scripts/dev-server.js",
     "build": "node scripts/build-web.js",

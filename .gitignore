@@ -9,3 +9,4 @@ android/.idea/
 .env.*
 !.env.example
 *.env
+.env*
