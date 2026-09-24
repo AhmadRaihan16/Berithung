@@ -24,6 +24,13 @@ if (fs.existsSync(manifestSrc)) {
   fs.copyFileSync(manifestSrc, manifestDest);
 }
 
+// Copy sw.js if exists
+const swSrc = path.join(rootDir, 'sw.js');
+const swDest = path.join(distDir, 'sw.js');
+if (fs.existsSync(swSrc)) {
+  fs.copyFileSync(swSrc, swDest);
+}
+
 // Copy assets recursively
 function copyDirRecursive(src, dest) {
   if (!fs.existsSync(src)) return;

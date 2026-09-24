@@ -201,7 +201,7 @@ module.exports = async function handler(req, res) {
 
   // 6. Check Provider API Configuration
   const apiKey = process.env.AI_API_KEY;
-  const model = process.env.AI_MODEL || 'gpt-4o-mini';
+    const model = process.env.AI_MODEL || 'gemini-3-flash-preview';
   const baseUrl = (process.env.AI_API_BASE_URL || 'https://api.openai.com/v1').replace(/\/+$/, '');
 
   if (!apiKey) {
@@ -244,8 +244,9 @@ ATURAN KEAMANAN & BATASAN KETAT:
       },
       body: JSON.stringify({
         model: model,
+        reasoning_effort: 'none',
         messages: messagesPayload,
-        max_tokens: 600,
+        max_tokens: 1000,
         temperature: 0.5
       }),
       signal: controller.signal
@@ -254,7 +255,8 @@ ATURAN KEAMANAN & BATASAN KETAT:
     clearTimeout(timeoutId);
 
     if (!upstreamRes.ok) {
-      console.error(`Upstream AI Error: Status ${upstreamRes.status}`);
+      const errText = await upstreamRes.text().catch(() => '');
+      console.error(`Upstream AI Error: Status ${upstreamRes.status} - ${errText}`);
       res.status(502).json({ error: 'Berithung AI sedang tidak bisa dihubungi. Coba lagi sebentar.' });
       return;
     }
