@@ -4,3 +4,8 @@ www/
 *.log
 
 android/.idea/
+.env
+.env.local
+.env.*
+!.env.example
+*.env

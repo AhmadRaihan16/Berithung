@@ -699,6 +699,138 @@
     .toggle-switch input:checked + .slider:before {
       transform: translateX(20px);
     }
+    /* === Tanya Berithung AI Chat v1.8 === */
+    .page-chat-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - var(--tab-bar-height) - 100px);
+      min-height: calc(100dvh - var(--tab-bar-height) - 100px);
+    }
+    .chat-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 14px;
+      min-height: 80px;
+    }
+    .chat-bubble {
+      padding: 12px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+    .chat-bubble-user {
+      align-self: flex-end;
+      background: var(--accent);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+      max-width: 85%;
+    }
+    .chat-bubble-assistant {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-bottom-left-radius: 4px;
+      max-width: 90%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    .chat-bubble-assistant p {
+      margin: 0 0 8px 0;
+    }
+    .chat-bubble-assistant p:last-child {
+      margin-bottom: 0;
+    }
+    .chat-bubble-assistant ul {
+      margin: 4px 0 8px 18px;
+      padding: 0;
+    }
+    .chat-bubble-assistant li {
+      margin-bottom: 4px;
+    }
+    .chat-time {
+      font-size: 10px;
+      opacity: 0.7;
+      margin-top: 4px;
+      text-align: right;
+    }
+    .chat-quick-wrap {
+      margin-bottom: 12px;
+    }
+    .chat-quick-prompts {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .chat-quick-prompts::-webkit-scrollbar { display: none; }
+    .quick-chip {
+      background: var(--surface-secondary);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background .15s ease, border-color .15s ease;
+      width: auto;
+    }
+    .quick-chip:active {
+      background: var(--pill-bg);
+      border-color: var(--accent);
+    }
+    .chat-typing {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 10px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .typing-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--muted);
+      border-radius: 50%;
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+      40% { transform: translateY(-5px); opacity: 1; }
+    }
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      position: sticky;
+      bottom: calc(var(--tab-bar-height) + env(safe-area-inset-bottom, 0px) + 8px);
+      background: var(--bg);
+      padding-top: 6px;
+      z-index: 20;
+    }
+    .chat-input-row input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 14px;
+      background: var(--surface);
+      color: var(--text);
+    }
+    .chat-input-row button {
+      flex-shrink: 0;
+    }
   </style>
 </head>
 <body>
@@ -809,6 +941,17 @@
           </div>
         </div>
         <button class="btn-primary" id="btnOpenShouldIBuy" style="margin-top:8px;">Coba Sekarang</button>
+      </div>
+
+      <div class="card" id="chatHomeCard" style="border-left: 4px solid var(--accent); margin-top:8px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span class="ui-icon-mask" style="width:24px;height:24px;color:var(--accent);-webkit-mask-image:url('assets/icons/ui/chat.svg');mask-image:url('assets/icons/ui/chat.svg');" aria-hidden="true"></span>
+          <div class="flex-1">
+            <div style="font-weight:700; font-size:16px;">TANYA BERITHUNG</div>
+            <div class="muted">Tanyakan sesuatu tentang kondisi keuanganmu.</div>
+          </div>
+        </div>
+        <button type="button" class="btn-primary" id="btnOpenChat" style="margin-top:8px;">Tanya Berithung</button>
       </div>
 
       <div class="card" id="wishlistHomeCard" style="border-left:4px solid var(--accent); margin-top:8px; display:none;">
@@ -931,7 +1074,7 @@
 
       <div class="section-title">Tentang</div>
       <div class="card">
-        <div class="muted">Berithung v1.7.0</div>
+        <div class="muted">Berithung v1.8.0</div>
         <div class="muted">Data disimpan lokal di perangkat.</div>
       </div>
     </div>
@@ -1149,6 +1292,72 @@
       <!-- Recurring Items List -->
       <div class="section-title">Daftar Tagihan Bulanan</div>
       <div id="recurringListContainer"></div>
+    </div>
+
+    <!-- Sub-page: Tanya Berithung AI v1.8 -->
+    <div id="pageChat" style="display:none;">
+      <div class="page-chat-wrapper">
+        <div class="row-between" style="margin-bottom:8px; align-items:center;">
+          <button type="button" class="btn-tertiary small-btn" id="btnChatBack" style="display:inline-flex; align-items:center; gap:6px;">
+            &larr; Beranda
+          </button>
+          <button type="button" class="btn-tertiary small-btn" id="btnClearChat" style="color:var(--danger);" title="Hapus Percakapan">
+            Hapus Chat
+          </button>
+        </div>
+
+        <div class="card" style="margin-bottom:8px; padding:10px 12px; background:var(--surface-secondary); border:1px solid var(--border);">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span class="ui-icon-mask" style="width:20px;height:20px;color:var(--accent);-webkit-mask-image:url('assets/icons/ui/chat.svg');mask-image:url('assets/icons/ui/chat.svg');" aria-hidden="true"></span>
+            <div>
+              <div style="font-weight:700; font-size:14px;">Berithung AI</div>
+              <div class="muted" style="font-size:11px;">Membantu memahami data keuanganmu secara objektif & aman.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Consent Card (Displayed only if consent not yet accepted) -->
+        <div id="chatConsentCard" class="card" style="display:none; border-left:4px solid var(--accent); margin-bottom:12px;">
+          <div style="font-weight:700; font-size:14px; margin-bottom:4px;">Pemberitahuan Privasi & Internet</div>
+          <div class="muted" style="font-size:13px; line-height:1.5; margin-bottom:10px;">
+            Tanya Berithung membutuhkan internet. Saat digunakan, ringkasan data keuangan yang relevan akan dikirim untuk menghasilkan jawaban AI.
+          </div>
+          <button type="button" class="btn-secondary small-btn" id="btnChatAcceptConsent" style="width:auto; padding:8px 14px;">Lanjutkan</button>
+        </div>
+
+        <!-- Offline Warning Banner -->
+        <div id="chatOfflineBanner" class="card" style="display:none; border-left:4px solid var(--accent-3); background:var(--badge-amber-bg); color:var(--badge-amber-text); padding:8px 12px; margin-bottom:8px; font-size:12px; font-weight:600;">
+          Tanya Berithung membutuhkan koneksi internet.
+        </div>
+
+        <!-- Quick Prompts Wrap -->
+        <div class="chat-quick-wrap" id="chatQuickWrap">
+          <div class="muted" style="font-size:11px; margin-bottom:4px; font-weight:600;">Pertanyaan Cepat:</div>
+          <div class="chat-quick-prompts">
+            <button type="button" class="quick-chip" data-prompt="Bagaimana kondisi keuangan saya bulan ini?">Kondisi bulan ini</button>
+            <button type="button" class="quick-chip" data-prompt="Apa kategori pengeluaran terbesar saya bulan ini?">Pengeluaran terbesar</button>
+            <button type="button" class="quick-chip" data-prompt="Berapa sisa tagihan rutin yang belum dibayar?">Tagihan tersisa</button>
+            <button type="button" class="quick-chip" data-prompt="Bagaimana progres target celengan dan tabungan saya?">Target tabungan</button>
+            <button type="button" class="quick-chip" data-prompt="Bagaimana kondisi cashflow dan sisa budget saya?">Cashflow & Budget</button>
+          </div>
+        </div>
+
+        <!-- Chat Message List -->
+        <div class="chat-messages" id="chatMessages"></div>
+
+        <!-- Typing Indicator -->
+        <div id="chatTyping" class="chat-typing" style="display:none;">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <div class="chat-input-row" id="chatInputRow">
+          <input type="text" id="chatInput" placeholder="Tanyakan kondisi keuanganmu..." autocomplete="off" />
+          <button type="button" class="btn-primary" id="btnChatSend" style="width:auto; padding:10px 16px; border-radius:12px;">Kirim</button>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -1669,7 +1878,8 @@
       forecast: 'assets/icons/ui/forecast.svg',
       targetDate: 'assets/icons/ui/target-date.svg',
       streak: 'assets/icons/ui/streak.svg',
-      reminder: 'assets/icons/ui/reminder.svg'
+      reminder: 'assets/icons/ui/reminder.svg',
+      chat: 'assets/icons/ui/chat.svg'
     };
 
     const CATEGORY_ICONS = {
@@ -2666,6 +2876,8 @@
       document.getElementById('pageAnalytics').style.display = 'none';
       document.getElementById('pageIncome').style.display = 'none';
       document.getElementById('pageRecurring').style.display = 'none';
+      const pageChatEl = document.getElementById('pageChat');
+      if (pageChatEl) pageChatEl.style.display = 'none';
 
       if (name === 'home') document.getElementById('pageHome').style.display = 'block';
       if (name === 'emergency') document.getElementById('pageEmergency').style.display = 'block';
@@ -2677,6 +2889,10 @@
       if (name === 'analytics') document.getElementById('pageAnalytics').style.display = 'block';
       if (name === 'income') document.getElementById('pageIncome').style.display = 'block';
       if (name === 'recurring') document.getElementById('pageRecurring').style.display = 'block';
+      if (name === 'chat' && pageChatEl) {
+        pageChatEl.style.display = 'block';
+        renderChatPage();
+      }
 
       updateTabBarActive(name);
 
@@ -2699,6 +2915,7 @@
       if (name === 'analytics') renderAnalyticsPage();
       if (name === 'income') renderIncomePage();
       if (name === 'recurring') renderRecurringPage();
+      if (name === 'chat') renderChatPage();
     }
 
     function setupGoalContainerEvents(containerId) {
@@ -3647,7 +3864,7 @@
         sabtu: 7
       };
 
-      async function scheduleWeeklyReminder(goal, settings) {
+      async function scheduleWeeklyReminder(goal, settings, customDate) {
         var plugin = getPlugin();
         if (!plugin) return;
         if (!goal || goal.status === 'completed') return;
@@ -3655,12 +3872,12 @@
         var notifSettings = settings?.goalNotifications;
         if (!notifSettings || !notifSettings.enabled) return;
 
-        var curWeek = getLocalWeekKey();
+        var curWeek = customDate ? getLocalWeekKey(customDate) : getLocalWeekKey();
         var target = getGoalWeeklyTargetForWeek(goal, curWeek);
         if (!target || target <= 0) return;
 
         // If target already complete for this week, cancel reminder
-        if (isWeeklyGoalComplete(goal)) {
+        if (isWeeklyGoalComplete(goal, customDate)) {
           await cancelReminder(goal.id);
           return;
         }
@@ -5580,7 +5797,7 @@
 
           await window.Capacitor.Plugins.Share.share({
             title: 'Backup Data Berithung',
-            text: 'Backup data tabungan dan budget Berithung v1.7.0',
+            text: 'Backup data tabungan dan budget Berithung v1.8.0',
             url: fileUri,
             dialogTitle: 'Simpan / Bagikan Backup Berithung'
           });
@@ -7207,6 +7424,510 @@
       selectedAnalyticsMonth = shiftMonth(selectedAnalyticsMonth, 1);
       renderAnalyticsPage();
     });
+
+    // ==========================================
+    // TANYA BERITHUNG AI v1.8 ENGINE & LOGIC
+    // ==========================================
+    const BERITHUNG_BACKEND_ENDPOINT = 'https://savings-app-five-kappa.vercel.app/api/chat';
+    const CHAT_STORE_KEY = 'berithung_ai_chat_v1';
+    const CHAT_MAX_MESSAGES = 40;
+    const CHAT_SERVER_WINDOW = 8;
+    const AI_CONSENT_KEY = 'berithung_ai_consent';
+
+    function getApiChatUrl() {
+      const isCapacitorNative = Boolean(
+        window.Capacitor &&
+        typeof window.Capacitor.isNativePlatform === 'function' &&
+        window.Capacitor.isNativePlatform()
+      );
+      if (isCapacitorNative) {
+        return BERITHUNG_BACKEND_ENDPOINT;
+      }
+      return '/api/chat';
+    }
+
+    function getChatHistory() {
+      try {
+        const raw = localStorage.getItem(CHAT_STORE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch (e) { console.error('Error loading chat history:', e); }
+      return [];
+    }
+
+    function saveChatHistory(history) {
+      try {
+        const trimmed = Array.isArray(history) ? history.slice(-CHAT_MAX_MESSAGES) : [];
+        localStorage.setItem(CHAT_STORE_KEY, JSON.stringify(trimmed));
+      } catch (e) { console.error('Error saving chat history:', e); }
+    }
+
+    function addChatMessage(role, content) {
+      const history = getChatHistory();
+      const msg = {
+        id: Date.now() + Math.random().toString(36).substring(2, 7),
+        role: role === 'user' ? 'user' : 'assistant',
+        content: String(content || ''),
+        createdAt: new Date().toISOString()
+      };
+      history.push(msg);
+      saveChatHistory(history);
+      return msg;
+    }
+
+    function clearChatHistory() {
+      localStorage.removeItem(CHAT_STORE_KEY);
+    }
+
+    function hasAiConsent() {
+      return localStorage.getItem(AI_CONSENT_KEY) === 'true';
+    }
+
+    function setAiConsent(val) {
+      if (val) {
+        localStorage.setItem(AI_CONSENT_KEY, 'true');
+      } else {
+        localStorage.removeItem(AI_CONSENT_KEY);
+      }
+    }
+
+    function buildFinancialContext() {
+      const curYM = getLocalYearMonth();
+      const refDate = getLocalDateISO();
+
+      // Incomes
+      const monthlyIncome = getMonthlyIncomeTotal(curYM);
+      const incomesList = getIncomesForMonth(curYM);
+
+      // Expenses & Categories
+      const monthlyExpense = getMonthlyExpenseTotal(curYM);
+      const breakdown = getCategoryBreakdown(curYM);
+      const topCat = breakdown.topCategory ? breakdown.topCategory.label : '';
+      const topCategories = (breakdown.categories || []).slice(0, 5).map(b => ({
+        name: String(b.label || b.id || '').slice(0, 30),
+        total: b.amount || 0,
+        pct: b.pct || 0
+      }));
+
+      // Budget & Recurring
+      const bSummary = getBudgetSummary(curYM);
+      const unpaidRecurringTotal = getUnpaidRecurringTotal(curYM);
+      const projected = getProjectedBudget(curYM);
+
+      // Emergency
+      const appData = getData();
+      const emergencyBalance = appData.emergency?.balance || 0;
+      const emergencyTarget = appData.emergencyTarget || 0;
+
+      // Active Goals
+      const allGoals = goalsList();
+      const activeGoals = allGoals.filter(g => g.status === 'active').slice(0, 10).map(g => {
+        const weeklyProg = getGoalWeeklyProgress(g, refDate);
+        const forecast = getGoalForecast(g, refDate);
+        const streak = getGoalCurrentStreak(g, refDate);
+        return {
+          name: String(g.name || '').slice(0, 50),
+          target: g.targetAmount || 0,
+          current: g.currentAmount || 0,
+          remaining: Math.max(0, (g.targetAmount || 0) - (g.currentAmount || 0)),
+          weeklyTarget: g.weeklyTarget || null,
+          currentWeekSaving: weeklyProg.currentWeekSaving || 0,
+          currentStreak: streak || 0,
+          forecast: forecast.estimatedDateISO ? formatMonthYear(forecast.estimatedDateISO.slice(0, 7)) : 'Belum terprediksi'
+        };
+      });
+
+      const wishlistActive = getWishlistList().filter(w => w.status === 'cooling' || w.status === 'ready').length;
+
+      return {
+        period: curYM,
+        income: {
+          monthlyTotal: monthlyIncome,
+          count: incomesList.length
+        },
+        expenses: {
+          monthlyTotal: monthlyExpense,
+          topCategory: topCat ? String(topCat).slice(0, 30) : '',
+          categories: topCategories
+        },
+        budget: {
+          hasBudget: bSummary.hasBudget,
+          limit: bSummary.monthlyBudget || 0,
+          used: bSummary.usedBudget || bSummary.totalExpense || 0,
+          remaining: bSummary.remainingBudget || 0,
+          usedPercentage: bSummary.usedPercentage || 0,
+          unpaidRecurringTotal: unpaidRecurringTotal,
+          projectedRemaining: projected.projectedRemaining || 0
+        },
+        emergency: {
+          balance: emergencyBalance,
+          target: emergencyTarget
+        },
+        goals: activeGoals,
+        wishlistActiveCount: wishlistActive
+      };
+    }
+
+    function runShouldIBuyAnalysis(price, name, isBudgetSource, goalId) {
+      if (isBudgetSource) {
+        const curYM = getLocalYearMonth();
+        const summary = getBudgetSummary(curYM);
+        const remainingBudget = summary.remainingBudget;
+        const monthlyBudget = summary.monthlyBudget;
+        let budgetUsedPct = 0;
+        let budgetStatus = 'TIDAK CUKUP';
+        let budgetBadgeClass = 'badge-gray';
+        let budgetAdvice = '';
+
+        if (!summary.hasBudget) {
+          budgetStatus = 'TIDAK CUKUP';
+          budgetBadgeClass = 'badge-gray';
+          budgetAdvice = 'Budget untuk bulan ini belum diatur. Silakan atur budget terlebih dahulu.';
+          budgetUsedPct = 100;
+        } else if (remainingBudget <= 0 || price > remainingBudget) {
+          budgetStatus = 'TIDAK CUKUP';
+          budgetBadgeClass = 'badge-gray';
+          budgetAdvice = remainingBudget <= 0 ? 'Sisa budget bulan ini sudah habis atau terlampaui.' : 'Sisa budget bulan ini tidak cukup untuk pembelian ini.';
+          budgetUsedPct = remainingBudget > 0 ? Math.min(100, Math.round((price / remainingBudget) * 100)) : 100;
+        } else {
+          budgetUsedPct = Math.round((price / remainingBudget) * 100);
+          if (budgetUsedPct > 50) {
+            budgetStatus = 'SEBAIKNYA TUNDA';
+            budgetBadgeClass = 'badge-red';
+            budgetAdvice = 'Pembelian menggunakan ' + budgetUsedPct + '% sisa budget bulan ini dan berisiko over budget.';
+          } else if (budgetUsedPct > 20) {
+            budgetStatus = 'PERLU DIPERTIMBANGKAN';
+            budgetBadgeClass = 'badge-amber';
+            budgetAdvice = 'Pembelian menggunakan ' + budgetUsedPct + '% sisa budget bulan ini.';
+          } else {
+            budgetStatus = 'AMAN';
+            budgetBadgeClass = 'badge';
+            budgetAdvice = 'Pembelian aman, hanya menggunakan ' + budgetUsedPct + '% sisa budget bulan ini.';
+          }
+        }
+
+        const unpaidRecurring = getUnpaidRecurringTotal(curYM);
+        const projectedRemaining = remainingBudget - unpaidRecurring;
+        if (unpaidRecurring > 0 && remainingBudget >= price && price > projectedRemaining) {
+          budgetAdvice += ' Perhatian: Meskipun sisa budget saat ini mencukupi, tagihan rutin belum dibayar (' + formatRupiah(unpaidRecurring) + ') membuat sisa dana tidak cukup.';
+          if (budgetStatus === 'AMAN') {
+            budgetStatus = 'PERLU DIPERTIMBANGKAN';
+            budgetBadgeClass = 'badge-amber';
+          }
+        }
+
+        return {
+          type: 'budget',
+          status: budgetStatus,
+          badgeClass: budgetBadgeClass,
+          advice: budgetAdvice,
+          remainingBudget,
+          monthlyBudget,
+          unpaidRecurring,
+          projectedRemaining,
+          usedPct: budgetUsedPct,
+          afterRemaining: Math.max(0, remainingBudget - price)
+        };
+      } else {
+        const data = getData();
+        const g = (data.goals || []).find(x => x.id === goalId);
+        if (!g) {
+          return { type: 'goal', status: 'ERROR', advice: 'Celengan tidak ditemukan.' };
+        }
+        const balance = g.currentAmount || 0;
+        const target = g.targetAmount || 0;
+        const weekly = g.weeklyTarget || 0;
+        const afterBalance = Math.max(0, balance - price);
+        const usedPct = balance ? Math.min(100, Math.round((price / balance) * 100)) : 0;
+        const additionalWeeks = weekly ? Math.ceil(price / weekly) : null;
+
+        let status = 'TIDAK CUKUP';
+        let badgeClass = 'badge-gray';
+        let advice = 'Pembelian melebihi saldo celengan saat ini.';
+
+        if (price > balance) {
+          status = 'TIDAK CUKUP';
+          badgeClass = 'badge-gray';
+          advice = 'Saldo celengan tidak cukup untuk pembelian ini.';
+        } else if (usedPct > 50) {
+          status = 'SEBAIKNYA TUNDA';
+          badgeClass = 'badge-red';
+          advice = 'Pembelian menggunakan ' + usedPct + '% saldo dan dapat memperlambat target.';
+        } else if (usedPct > 20) {
+          status = 'PERLU DIPERTIMBANGKAN';
+          badgeClass = 'badge-amber';
+          advice = 'Pembelian menggunakan ' + usedPct + '% saldo celengan.';
+        } else {
+          status = 'AMAN';
+          badgeClass = 'badge';
+          advice = 'Pembelian aman, hanya menggunakan ' + usedPct + '% saldo celengan.';
+        }
+
+        return {
+          type: 'goal',
+          status,
+          badgeClass,
+          advice,
+          goalName: g.name,
+          balance,
+          target,
+          usedPct,
+          afterBalance,
+          additionalWeeks
+        };
+      }
+    }
+
+    function renderSafeChatMarkdown(rawText) {
+      if (!rawText) return '';
+      const escaped = escapeHtml(String(rawText));
+      const lines = escaped.split('\n');
+      const output = [];
+      let inList = false;
+
+      for (let i = 0; i < lines.length; i++) {
+        let line = lines[i].trim();
+        if (!line) {
+          if (inList) {
+            output.push('</ul>');
+            inList = false;
+          }
+          continue;
+        }
+
+        const bulletMatch = line.match(/^[-*]\s+(.*)$/);
+        if (bulletMatch) {
+          if (!inList) {
+            output.push('<ul class="chat-list">');
+            inList = true;
+          }
+          let content = bulletMatch[1];
+          content = content.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+          content = content.replace(/\*(.*?)\*/g, '<em>$1</em>');
+          output.push(`<li>${content}</li>`);
+          continue;
+        }
+
+        if (inList) {
+          output.push('</ul>');
+          inList = false;
+        }
+
+        line = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        line = line.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        output.push(`<p>${line}</p>`);
+      }
+
+      if (inList) {
+        output.push('</ul>');
+      }
+
+      return output.join('');
+    }
+
+    let isSendingChat = false;
+
+    function updateChatConsentView() {
+      const consentCard = document.getElementById('chatConsentCard');
+      const quickWrap = document.getElementById('chatQuickWrap');
+      const inputRow = document.getElementById('chatInputRow');
+      const accepted = hasAiConsent();
+
+      if (consentCard) consentCard.style.display = accepted ? 'none' : 'block';
+      if (quickWrap) quickWrap.style.display = accepted ? 'block' : 'none';
+      if (inputRow) inputRow.style.display = accepted ? 'flex' : 'none';
+    }
+
+    function updateChatOfflineState(isOffline) {
+      const offlineBanner = document.getElementById('chatOfflineBanner');
+      const sendBtn = document.getElementById('btnChatSend');
+      const offline = (isOffline !== undefined) ? isOffline : (navigator.onLine === false);
+
+      if (offlineBanner) offlineBanner.style.display = offline ? 'block' : 'none';
+      if (sendBtn && offline) sendBtn.disabled = true;
+      else if (sendBtn && !isSendingChat) sendBtn.disabled = false;
+    }
+
+    function renderChatMessages() {
+      const container = document.getElementById('chatMessages');
+      if (!container) return;
+
+      const history = getChatHistory();
+      if (!history.length) {
+        container.innerHTML = `
+          <div class="empty" style="padding:24px 12px;">
+            <span class="ui-icon-mask" style="width:36px;height:36px;color:var(--accent);margin:0 auto 8px;display:block;-webkit-mask-image:url('assets/icons/ui/chat.svg');mask-image:url('assets/icons/ui/chat.svg');" aria-hidden="true"></span>
+            <div style="font-weight:600; color:var(--text); margin-bottom:4px;">Mulai Tanya Berithung AI</div>
+            <div class="muted" style="font-size:12px;">Tanyakan tentang sisa budget, cashflow, celengan, atau evaluasi pengeluaranmu.</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = history.map(msg => {
+        const isUser = msg.role === 'user';
+        const bubbleClass = isUser ? 'chat-bubble chat-bubble-user' : 'chat-bubble chat-bubble-assistant';
+        const contentHtml = isUser ? escapeHtml(msg.content) : renderSafeChatMarkdown(msg.content);
+        return `
+          <div class="${bubbleClass}">
+            <div class="chat-body">${contentHtml}</div>
+          </div>
+        `;
+      }).join('');
+
+      setTimeout(() => {
+        container.scrollTop = container.scrollHeight;
+      }, 50);
+    }
+
+    function setChatLoading(loading) {
+      const typingEl = document.getElementById('chatTyping');
+      const sendBtn = document.getElementById('btnChatSend');
+      const inputEl = document.getElementById('chatInput');
+
+      if (typingEl) typingEl.style.display = loading ? 'inline-flex' : 'none';
+      if (sendBtn) sendBtn.disabled = loading;
+      if (inputEl) inputEl.disabled = loading;
+    }
+
+    async function sendChatMessage(userText) {
+      if (isSendingChat) return;
+      const text = (userText || '').trim();
+      if (!text) return;
+
+      if (!hasAiConsent()) {
+        updateChatConsentView();
+        showToast('Harap setujui privasi sebelum melanjutkan');
+        return;
+      }
+
+      if (navigator.onLine === false) {
+        updateChatOfflineState(true);
+        showToast('Tanya Berithung membutuhkan koneksi internet.');
+        return;
+      }
+
+      addChatMessage('user', text);
+      renderChatMessages();
+
+      const inputEl = document.getElementById('chatInput');
+      if (inputEl) inputEl.value = '';
+
+      isSendingChat = true;
+      setChatLoading(true);
+
+      const history = getChatHistory();
+      const conversation = history.slice(-CHAT_SERVER_WINDOW - 1, -1).map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+
+      const payload = {
+        message: text,
+        conversation: conversation,
+        financialContext: buildFinancialContext()
+      };
+
+      const endpointUrl = getApiChatUrl();
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+        const res = await fetch(endpointUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!res.ok) {
+          let errMsg = 'Berithung AI sedang tidak bisa dihubungi. Coba lagi sebentar.';
+          try {
+            const errJson = await res.json();
+            if (errJson && errJson.error) errMsg = errJson.error;
+          } catch (_) {}
+          addChatMessage('assistant', errMsg);
+        } else {
+          const data = await res.json();
+          if (data && data.reply) {
+            addChatMessage('assistant', data.reply);
+          } else {
+            addChatMessage('assistant', 'Tidak ada jawaban yang diterima dari Berithung AI.');
+          }
+        }
+      } catch (err) {
+        let errMsg = 'Berithung AI sedang tidak bisa dihubungi. Coba lagi sebentar.';
+        if (err.name === 'AbortError') {
+          errMsg = 'Koneksi ke Berithung AI timeout. Periksa internetmu dan coba lagi.';
+        }
+        addChatMessage('assistant', errMsg);
+      } finally {
+        isSendingChat = false;
+        setChatLoading(false);
+        renderChatMessages();
+      }
+    }
+
+    function renderChatPage() {
+      updateChatConsentView();
+      updateChatOfflineState();
+      renderChatMessages();
+    }
+
+    // Tanya Berithung AI Event Listeners v1.8
+    document.getElementById('btnOpenChat')?.addEventListener('click', () => showPage('chat'));
+    document.getElementById('btnChatBack')?.addEventListener('click', () => showPage('home'));
+    document.getElementById('btnChatAcceptConsent')?.addEventListener('click', () => {
+      setAiConsent(true);
+      updateChatConsentView();
+      showToast('Terima kasih. Tanya Berithung AI siap digunakan.');
+    });
+
+    document.getElementById('btnChatSend')?.addEventListener('click', () => {
+      const input = document.getElementById('chatInput');
+      if (input) sendChatMessage(input.value);
+    });
+
+    document.getElementById('chatInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const input = document.getElementById('chatInput');
+        if (input) sendChatMessage(input.value);
+      }
+    });
+
+    document.getElementById('chatQuickWrap')?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.quick-chip');
+      if (btn) {
+        const prompt = btn.getAttribute('data-prompt');
+        if (prompt) sendChatMessage(prompt);
+      }
+    });
+
+    document.getElementById('btnClearChat')?.addEventListener('click', () => {
+      openConfirmModal({
+        title: 'Hapus Percakapan?',
+        message: 'Riwayat percakapan dengan Berithung AI akan dihapus dari perangkat ini.',
+        warning: 'Data keuangan, tabungan, dan budget kamu tidak akan terhapus.',
+        confirmText: 'Ya, Hapus Chat',
+        danger: true,
+        onConfirm: () => {
+          clearChatHistory();
+          renderChatMessages();
+          showToast('Percakapan dihapus');
+        }
+      });
+    });
+
+    window.addEventListener('online', () => updateChatOfflineState(false));
+    window.addEventListener('offline', () => updateChatOfflineState(true));
 
     // Init default page & theme
     selectedBudgetMonth = getLocalYearMonth();

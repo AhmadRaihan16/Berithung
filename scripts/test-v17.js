@@ -324,7 +324,7 @@ async function runAllTests() {
 
   console.log('\n--- TEST 11: Notification enabled & target not met -> Reminder scheduled ---');
   resetData([g4]);
-  await sandbox.NotificationService.scheduleWeeklyReminder(g4, sandbox.getData().settings);
+  await sandbox.NotificationService.scheduleWeeklyReminder(g4, sandbox.getData().settings, refDate);
   assert(scheduledNotifications.length === 1, 'Reminder notification scheduled');
   assert(scheduledNotifications[0] && scheduledNotifications[0].id === sandbox.getGoalReminderNotificationId(4), 'Deterministic reminder ID matches');
   assert(scheduledNotifications[0] && scheduledNotifications[0].body.includes('Rp 50.000'), 'Notification mentions remaining Rp 50.000');
